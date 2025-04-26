@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.androidx.annotation)
     implementation(libs.support.annotations)
     implementation (libs.glide)
+    implementation (libs.shimmer)
     implementation(libs.play.services.location)
     kapt (libs.compiler)
 

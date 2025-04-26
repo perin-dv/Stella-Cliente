@@ -8,6 +8,6 @@ data class Promocao(
     val titulo: String = "",
     val observacao: String = "",
     val valor: Double = 0.0,
-    val imagemBase64: String? = null,  // ← ESSE CAMPO AQUI
+    val imagemBase64: String = "",
     val produtos: List<String> = emptyList()
 ) : Serializable

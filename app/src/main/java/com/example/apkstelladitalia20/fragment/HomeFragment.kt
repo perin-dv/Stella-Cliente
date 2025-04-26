@@ -77,6 +77,7 @@ class HomeFragment : Fragment() {
         destaqueAdapter = DestaquesAdapter(requireContext(), destaques) { }
         binding.recyclerDestaques.adapter = destaqueAdapter
 
+
         promocaoAdapter = PromocaoAdapter(promocoes) { promocao ->
             val intent = Intent(requireContext(), PromocaoDetalhesActivity::class.java)
             intent.putExtra("promocaoSelecionada", promocao)
@@ -92,6 +93,7 @@ class HomeFragment : Fragment() {
             offscreenPageLimit = 3
             (getChildAt(0) as RecyclerView).clipToPadding = false
         }
+
     }
 
     private fun carregarSaudacao() {

@@ -2,6 +2,7 @@ package com.example.apkstelladitalia20.adapter
 
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -31,20 +32,20 @@ class PromocaoAdapter(
         fun bind(promocao: Promocao) {
             if (!promocao.imagemBase64.isNullOrEmpty()) {
                 try {
-                    val bytes = Base64.decode(promocao.imagemBase64, Base64.DEFAULT)
+                    val base64Clean = promocao.imagemBase64.replace("\\s".toRegex(), "")
+                    val bytes = Base64.decode(base64Clean, Base64.DEFAULT)
                     val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    binding.imgBanner.setImageBitmap(bmp)
-
+                    if (bmp != null) {
+                        binding.imgBanner.setImageBitmap(bmp)
+                    } else {
+                        Log.e("PromocaoAdapter", "Falha ao criar Bitmap: Base64 inválido.")
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                    // Pode setar uma imagem fallback aqui se quiser
+                    Log.e("PromocaoAdapter", "Erro ao decodificar imagem Base64")
                 }
             }
 
-            binding.root.setOnClickListener {
-                onClick(promocao)
-            }
         }
-
     }
 }
