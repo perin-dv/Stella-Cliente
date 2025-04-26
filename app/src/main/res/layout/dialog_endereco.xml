@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dialogEndereco"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/bg_card_gourmet"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:id="@+id/tituloDialog"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Escolha seu Endereço"
+        android:textColor="@color/vermelho"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/btnUsarGps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Usar Localização Atual"
+        android:backgroundTint="@color/black"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="12dp" />
+
+    <EditText
+        android:id="@+id/edtEnderecoManual"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Digite seu endereço"
+        android:background="@drawable/bg_input"
+        android:padding="12dp"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray" />
+
+    <Button
+        android:id="@+id/btnConfirmarEndereco"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Confirmar"
+        android:backgroundTint="@color/vermelho"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="16dp" />
+</LinearLayout>

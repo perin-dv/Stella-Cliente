@@ -1,0 +1,21 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.APKSTELLADITALIA20" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.APKSTELLADITALIA20" parent="Base.Theme.APKSTELLADITALIA20" />
+
+    <style name="botaoPadrao" parent="Theme.AppCompat.DayNight" >
+
+        <item name="colorControlHighlight" >#DD0000</item>
+        <item name="colorButtonNormal" >#990000</item>
+        <item name="android:textColor" >@color/vermelho</item>
+
+
+
+    </style>
+
+
+</resources>

@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "970192435010",
+    "firebase_url": "https://stella-d-italia-default-rtdb.firebaseio.com",
+    "project_id": "stella-d-italia",
+    "storage_bucket": "stella-d-italia.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:970192435010:android:c7d5fc442142c06bbdbadb",
+        "android_client_info": {
+          "package_name": "com.example.apkstelladitalia20"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIRKv23RN96_R4e1dXzzcYMLmyDACzyq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:970192435010:android:6c3150f51181a2acbdbadb",
+        "android_client_info": {
+          "package_name": "com.example.stelladitaliaempresa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIRKv23RN96_R4e1dXzzcYMLmyDACzyq0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

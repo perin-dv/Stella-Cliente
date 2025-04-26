@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layoutDetalhes"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.apkstelladitalia20.activity.PromocaoDetalhesActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Imagem grande -->
+            <ImageView
+                android:id="@+id/imagemProduto"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/exemplo_pizza" />
+
+            <!-- Nome -->
+            <TextView
+                android:id="@+id/nomeProduto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Promoção Especial"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:padding="16dp"
+                android:textColor="#000000" />
+
+            <!-- Descrição -->
+            <TextView
+                android:id="@+id/descricaoProduto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Detalhes irresistíveis da promoção selecionada."
+                android:textSize="15sp"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="8dp"
+                android:textColor="#444444" />
+
+            <!-- Preço -->
+            <TextView
+                android:id="@+id/precoProduto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="R$ 39,90"
+                android:textSize="20sp"
+                android:textColor="#D32F2F"
+                android:textStyle="bold"
+                android:padding="16dp" />
+
+            <!-- Título dos itens inclusos -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Inclui"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp" />
+
+            <!-- Lista de produtos da promoção -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerAdicionais"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="16dp"
+                tools:listitem="@layout/item_adicional" />
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Botão de Adicionar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:background="#D32F2F"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp">
+
+        <TextView
+            android:id="@+id/txtAdicionar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Adicionar"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtPrecoFinal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="R$ 39,90"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/vermelho"
+    android:padding="24dp"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <!-- Título -->
+        <TextView
+            android:id="@+id/textTituloCadastro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Endereço para Entrega"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="22sp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Rua -->
+        <EditText
+            android:id="@+id/editRua"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Rua"
+            android:textColor="@color/black"
+            android:textColorHint="#CCCCCC"
+            android:background="@drawable/bg_edit_text"
+            android:padding="16dp" />
+
+        <!-- Número -->
+        <EditText
+            android:id="@+id/editNumero"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Número"
+            android:inputType="number"
+            android:textColor="@color/black"
+            android:textColorHint="#CCCCCC"
+            android:background="@drawable/bg_edit_text"
+            android:padding="16dp"
+            android:layout_marginTop="8dp" />
+
+        <!-- Bairro -->
+        <EditText
+            android:id="@+id/editBairro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Bairro"
+            android:textColor="@color/black"
+            android:textColorHint="#CCCCCC"
+            android:background="@drawable/bg_edit_text"
+            android:padding="16dp"
+            android:layout_marginTop="8dp" />
+
+        <!-- Cidade -->
+        <EditText
+            android:id="@+id/editCidade"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Cidade"
+            android:textColor="@color/black"
+            android:textColorHint="#CCCCCC"
+            android:background="@drawable/bg_edit_text"
+            android:padding="16dp"
+            android:layout_marginTop="8dp" />
+
+        <!-- Estado (UF) -->
+        <EditText
+            android:id="@+id/editUf"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Estado (UF)"
+            android:maxLength="2"
+            android:textAllCaps="true"
+            android:textColor="@color/black"
+            android:textColorHint="#CCCCCC"
+            android:background="@drawable/bg_edit_text"
+            android:padding="16dp"
+            android:layout_marginTop="8dp" />
+
+        <!-- Telefone para contato -->
+        <EditText
+            android:id="@+id/editTelefone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Telefone para Contato"
+            android:inputType="phone"
+            android:textColor="@color/black"
+            android:textColorHint="#CCCCCC"
+            android:background="@drawable/bg_edit_text"
+            android:padding="16dp"
+            android:layout_marginTop="8dp" />
+
+        <!-- Ponto de referência -->
+        <EditText
+            android:id="@+id/editReferencia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ponto de Referência"
+            android:textColor="@color/black"
+            android:textColorHint="#CCCCCC"
+            android:background="@drawable/bg_edit_text"
+            android:padding="16dp"
+            android:layout_marginTop="8dp" />
+
+        <!-- Botão Concluir -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnConcluirCadastro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Finalizar Cadastro"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            app:cornerRadius="20dp"
+            app:backgroundTint="#B0002A"
+            android:layout_marginTop="24dp" />
+    </LinearLayout>
+</ScrollView>

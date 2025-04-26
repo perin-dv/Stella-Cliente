@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="pele">#FFBB88</color>
+    <color name="vermelho">#900026</color>
+    <color name="purple_700">#7B1E3A</color>
+    <color name="maroon">#7B1113</color>
+    <color name="maroon_light">#A33C3D</color>
+    <color name="gray">#888888</color>
+    <color name="bg_gourmet">#FFFCF8</color>
+    <color name="colorPrimary">#C62828</color> <!-- Vermelho escuro gourmet -->
+    <color name="colorPrimaryDark">#8E0000</color>
+    <color name="colorAccent">#FFC107</color>
+</resources>

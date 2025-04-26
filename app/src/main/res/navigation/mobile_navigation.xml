@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.example.apkstelladitalia20.fragment.HomeFragment"
+        android:label="@string/title_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_carrinho"
+        android:name="com.example.apkstelladitalia20.ui.pedidos.PedidosFragment"
+        android:label="@string/title_carrinho"
+        tools:layout="@layout/fragment_carrinho" />
+    <fragment
+        android:id="@+id/navigation_pedidos"
+        android:name="com.example.apkstelladitalia20.ui.pedidos.PedidosFragment"
+        android:label="@string/title_pedidos"
+        tools:layout="@layout/fragment_pedidos" />
+
+
+
+    <fragment
+        android:id="@+id/navigation_perfil"
+        android:name="com.example.apkstelladitalia20.ui.notifications.PerfilFragment"
+        android:label="@string/title_perfil"
+        tools:layout="@layout/fragment_perfil" />
+</navigation>
