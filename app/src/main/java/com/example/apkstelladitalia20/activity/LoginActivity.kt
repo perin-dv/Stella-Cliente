@@ -28,7 +28,7 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            FirebaseHelper.clienteDatabase
+            FirebaseHelper.database
                 .child("clientes")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {

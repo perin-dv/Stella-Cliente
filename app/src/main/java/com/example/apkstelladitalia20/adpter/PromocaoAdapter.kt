@@ -1,17 +1,20 @@
 package com.example.apkstelladitalia20.adapter
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity
 import com.example.apkstelladitalia20.databinding.ItemBannerPromocaoBinding
-import com.example.apkstelladitalia20.model.Promocao
+import com.example.apkstelladitalia20.model.PromocaoEntity
 
 class PromocaoAdapter(
-    private val lista: List<Promocao>,
-    private val onClick: (Promocao) -> Unit
+    private val lista: List<PromocaoEntity>,
+    private val onClick: (PromocaoEntity) -> Unit,
+    private val listaPromocoes: MutableList<PromocaoEntity> = mutableListOf<PromocaoEntity>()
 ) : RecyclerView.Adapter<PromocaoAdapter.PromocaoViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PromocaoViewHolder {
@@ -29,7 +32,7 @@ class PromocaoAdapter(
 
     inner class PromocaoViewHolder(private val binding: ItemBannerPromocaoBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(promocao: Promocao) {
+        fun bind(promocao: PromocaoEntity) {
             if (!promocao.imagemBase64.isNullOrEmpty()) {
                 try {
                     val base64Clean = promocao.imagemBase64.replace("\\s".toRegex(), "")
@@ -45,7 +48,18 @@ class PromocaoAdapter(
                     Log.e("PromocaoAdapter", "Erro ao decodificar imagem Base64")
                 }
             }
-
+            itemView.setOnClickListener {
+                val intent = Intent(itemView.context, DetalhesPromocaoActivity::class.java)
+                intent.putExtra("promocaoSelecionada", promocao)
+                itemView.context.startActivity(intent)
+            }
         }
+
     }
+    fun atualizarLista(novasPromocoes: List<PromocaoEntity>) {
+        this.listaPromocoes.clear()
+        this.listaPromocoes.addAll(novasPromocoes)
+        notifyDataSetChanged()
+    }
+
 }

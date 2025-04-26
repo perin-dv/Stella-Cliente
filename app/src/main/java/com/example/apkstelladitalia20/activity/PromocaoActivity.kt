@@ -5,7 +5,8 @@ import android.util.Base64
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import com.example.apkstelladitalia20.databinding.ActivityDetalhesPromocaoBinding
-import com.example.apkstelladitalia20.model.Promocao
+import com.example.apkstelladitalia20.model.PromocaoEntity
+
 
 class PromocaoDetalhesActivity : AppCompatActivity() {
 
@@ -16,11 +17,11 @@ class PromocaoDetalhesActivity : AppCompatActivity() {
         binding = ActivityDetalhesPromocaoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val promocao = intent.getSerializableExtra("promocaoSelecionada") as? Promocao
+        val promocao = intent.getSerializableExtra("promocaoSelecionada") as? PromocaoEntity
         promocao?.let { exibirDetalhes(it) }
     }
 
-    private fun exibirDetalhes(promocao: Promocao) {
+    private fun exibirDetalhes(promocao: PromocaoEntity) {
         // Mostra imagem
         val bytes = Base64.decode(promocao.imagemBase64, Base64.DEFAULT)
         val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)

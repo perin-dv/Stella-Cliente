@@ -51,7 +51,7 @@ class DadosEntregaActivity : AppCompatActivity() {
                 telefone = telefone,
                            )
 
-            FirebaseHelper.clienteDatabase
+            FirebaseHelper.database
                 .child("clientes")
                 .child(id)
                 .setValue(cliente)

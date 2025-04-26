@@ -29,7 +29,7 @@ import com.example.apkstelladitalia20.adapter.DestaquesAdapter
 import com.example.apkstelladitalia20.adapter.PromocaoAdapter
 import com.example.apkstelladitalia20.databinding.FragmentHomeBinding
 import com.example.apkstelladitalia20.helper.FirebaseHelper
-import com.example.apkstelladitalia20.model.Promocao
+import com.example.apkstelladitalia20.model.PromocaoEntity
 import com.google.firebase.database.*
 
 import java.util.*
@@ -39,7 +39,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private val promocoes = mutableListOf<Promocao>()
+    private val promocoes = mutableListOf<PromocaoEntity>()
     private val destaques = mutableListOf<ProdutoEntity>()
     private val categorias = mutableListOf<Pair<String, List<ProdutoEntity>>>()
 
@@ -64,7 +64,7 @@ class HomeFragment : Fragment() {
         setupAdapters()
         carregarSaudacao()
         carregarEnderecoCliente()
-        carregarPromocoes()
+        carregarPromocao()
         carregarDestaques()
         carregarCategorias()
         carregarConfiguracoes()
@@ -78,11 +78,15 @@ class HomeFragment : Fragment() {
         binding.recyclerDestaques.adapter = destaqueAdapter
 
 
-        promocaoAdapter = PromocaoAdapter(promocoes) { promocao ->
-            val intent = Intent(requireContext(), PromocaoDetalhesActivity::class.java)
-            intent.putExtra("promocaoSelecionada", promocao)
-            startActivity(intent)
-        }
+        promocaoAdapter = PromocaoAdapter(
+            emptyList(), // 🔥 passa uma lista vazia primeiro
+            onClick = { promocao ->
+                val intent = Intent(requireContext(), PromocaoDetalhesActivity::class.java)
+                intent.putExtra("promocaoSelecionada", promocao)
+                startActivity(intent)
+            }
+        )
+
         binding.viewPagerPromocoes.adapter = promocaoAdapter
 
         binding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
@@ -105,7 +109,7 @@ class HomeFragment : Fragment() {
 
     private fun carregarEnderecoCliente() {
         val uidCliente = prefs.getString("uid", "") ?: ""
-        val refCliente = FirebaseHelper.clienteDatabase.child("clientes").child(uidCliente)
+        val refCliente = FirebaseHelper.database.child("clientes").child(uidCliente)
 
         refCliente.child("endereco").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -128,26 +132,36 @@ class HomeFragment : Fragment() {
         })
     }
 
-    private fun carregarPromocoes() {
-        val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
-        val empresaKey = prefs.getString("uidEmpresa", "") ?: ""
+    private fun carregarPromocao() {
+        val database = FirebaseDatabase.getInstance()
+        val referencia = database
+            .getReference("empresa")
+            .child("7a3118oNdgcpmwSqrgyRTqBnFFx2")
+            .child("promocoes")
 
-        empresaDb.child("empresa").child(empresaKey).child("promocoes")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                @SuppressLint("NotifyDataSetChanged")
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    promocoes.clear()
-                    snapshot.children.mapNotNullTo(promocoes) {
-                        it.getValue(Promocao::class.java)
-                    }
-                    promocaoAdapter.notifyDataSetChanged()
+        referencia.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val listaPromocoes = mutableListOf<PromocaoEntity>()
+
+                for (dados in snapshot.children) {
+                    val promocao = dados.getValue(PromocaoEntity::class.java)
+                    promocao?.let { listaPromocoes.add(it) }
                 }
 
-                override fun onCancelled(error: DatabaseError) {
-                    Log.e("HomeFragment", "Erro ao carregar promoções: ${error.message}")
+                if (listaPromocoes.isNotEmpty()) {
+                    binding.viewPagerPromocoes.visibility = View.VISIBLE
+                    promocaoAdapter.atualizarLista(listaPromocoes)
+                } else {
+                    binding.viewPagerPromocoes.visibility = View.GONE
                 }
-            })
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(requireContext(), "Erro ao carregar promoções", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
+
 
     private fun carregarDestaques() {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
