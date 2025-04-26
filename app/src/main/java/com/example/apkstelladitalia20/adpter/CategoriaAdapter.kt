@@ -6,14 +6,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apkstelladitalia20.databinding.ItemCategoriaBinding
-import com.example.apkstelladitalia20.databinding.ItemProdutoBinding
 import com.stelladitalia.adapters.ProdutoAdapter
-import com.stelladitalia.model.Produto
+import com.example.apkstelladitalia20.Entity.ProdutoEntity
 
 class CategoriaAdapter(
     private val context: Context,
-    private val categorias: List<Pair<String, List<Produto>>>,
-    private val onClickProduto: (Produto) -> Unit
+    private val categorias: List<Pair<String, List<ProdutoEntity>>>,
+    private val onClickProduto: (ProdutoEntity) -> Unit
 ) : RecyclerView.Adapter<CategoriaAdapter.CategoriaViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoriaViewHolder {
@@ -28,7 +27,7 @@ class CategoriaAdapter(
     override fun getItemCount(): Int = categorias.size
 
     inner class CategoriaViewHolder(private val binding: ItemCategoriaBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(categoria: Pair<String, List<Produto>>) {
+        fun bind(categoria: Pair<String, List<ProdutoEntity>>) {
             binding.tvNomeCategoria.text = categoria.first
 
             binding.recyclerProdutos.layoutManager =

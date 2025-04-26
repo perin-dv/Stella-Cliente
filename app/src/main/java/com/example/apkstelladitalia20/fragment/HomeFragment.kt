@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.apkstelladitalia20.Entity.ProdutoEntity
 import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.activity.PromocaoDetalhesActivity
 import com.example.apkstelladitalia20.adapter.CategoriaAdapter
@@ -30,7 +31,7 @@ import com.example.apkstelladitalia20.databinding.FragmentHomeBinding
 import com.example.apkstelladitalia20.helper.FirebaseHelper
 import com.example.apkstelladitalia20.model.Promocao
 import com.google.firebase.database.*
-import com.stelladitalia.model.Produto
+
 import java.util.*
 
 class HomeFragment : Fragment() {
@@ -39,8 +40,8 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val promocoes = mutableListOf<Promocao>()
-    private val destaques = mutableListOf<Produto>()
-    private val categorias = mutableListOf<Pair<String, List<Produto>>>()
+    private val destaques = mutableListOf<ProdutoEntity>()
+    private val categorias = mutableListOf<Pair<String, List<ProdutoEntity>>>()
 
     private lateinit var promocaoAdapter: PromocaoAdapter
     private lateinit var destaqueAdapter: DestaquesAdapter
@@ -157,7 +158,7 @@ class HomeFragment : Fragment() {
                     destaques.clear()
                     for (catSnap in snapshot.children) {
                         for (itemSnap in catSnap.children) {
-                            itemSnap.getValue(Produto::class.java)?.let { destaques.add(it) }
+                            itemSnap.getValue(ProdutoEntity::class.java)?.let { destaques.add(it) }
                         }
                     }
                     destaqueAdapter.notifyDataSetChanged()
@@ -181,7 +182,7 @@ class HomeFragment : Fragment() {
                     for (catSnap in snapshot.children) {
                         val nomeCat = catSnap.key ?: "Sem categoria"
                         val lista = catSnap.children.mapNotNull {
-                            it.getValue(Produto::class.java)
+                            it.getValue(ProdutoEntity::class.java)
                         }
                         categorias.add(Pair(nomeCat, lista))
                     }

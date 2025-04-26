@@ -7,15 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.example.apkstelladitalia20.R
+import com.example.apkstelladitalia20.Entity.ProdutoEntity
 import com.example.apkstelladitalia20.databinding.ItemDestaqueHorizontalBinding
-import com.stelladitalia.model.Produto
+
 
 class DestaquesAdapter(
     private val context: Context,
-    private val destaques: List<Produto>,
-    private val onClick: (Produto) -> Unit
+    private val destaques: List<ProdutoEntity>,
+    private val onClick: (ProdutoEntity) -> Unit
 ) : RecyclerView.Adapter<DestaquesAdapter.DestaqueViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DestaqueViewHolder {
@@ -31,7 +30,7 @@ class DestaquesAdapter(
 
     inner class DestaqueViewHolder(private val binding: ItemDestaqueHorizontalBinding) : RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SetTextI18n")
-        fun bind(produto: Produto) {
+        fun bind(produto: ProdutoEntity) {
             with(binding) {
                 txtNome.text = produto.nome
                 txtPrecoAtual.text = "R$ ${"%.2f".format(produto.precoAtual)}"

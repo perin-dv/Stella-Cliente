@@ -6,21 +6,20 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 
 import com.example.apkstelladitalia20.databinding.ItemProdutoBinding
 
-import com.stelladitalia.model.Produto
+import com.example.apkstelladitalia20.Entity.ProdutoEntity
 
 class ProdutoAdapter(
     private val context: Context,
-    private var produtos: List<Produto>,
-    private val onClick: (Produto) -> Unit
+    private var produtos: List<ProdutoEntity>,
+    private val onClick: (ProdutoEntity) -> Unit
 ) : RecyclerView.Adapter<ProdutoAdapter.ProdutoViewHolder>() {
 
     inner class ProdutoViewHolder(val binding: ItemProdutoBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(produto: Produto) {
+        fun bind(produto: ProdutoEntity) {
             binding.tvNomeProduto.text = produto.nome
             binding.tvPrecoProduto.text = "R$ ${produto.precoOriginal}"
 
@@ -50,7 +49,7 @@ class ProdutoAdapter(
 
     override fun getItemCount(): Int = produtos.size
 
-    fun atualizarLista(novaLista: List<Produto>) {
+    fun atualizarLista(novaLista: List<ProdutoEntity>) {
         produtos = novaLista
         notifyDataSetChanged()
     }

@@ -6,9 +6,9 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.stelladitalia20.Entity.ClienteEntity
 import com.example.stelladitaliaempresa.dao.ClienteDao
-import com.stelladitalia.model.Produto
+import com.example.apkstelladitalia20.Entity.ProdutoEntity
 
-@Database(entities = [ClienteEntity::class, Produto::class], version = 1)
+@Database(entities = [ClienteEntity::class, ProdutoEntity::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun clienteDao(): ClienteDao

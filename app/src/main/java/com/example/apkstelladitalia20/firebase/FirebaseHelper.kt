@@ -19,22 +19,27 @@ object FirebaseHelper {
 
     fun empresaDatabase(context: Context): DatabaseReference {
         if (empresaApp == null) {
-            val options = FirebaseOptions.Builder()
-                .setApplicationId("1:1085571235178:android:2f353fce63f6785b30f10f")
-                .setApiKey("AIzaSyDsW9UzEflhTtDFbCcRk3Z0gnxI6qpkdF4")
-                .setDatabaseUrl("https://stella-d-italia-default-rtdb.firebaseio.com/")
-                .setProjectId("stelladitaliaempresa")
-                .build()
-
-            empresaApp = FirebaseApp.initializeApp(context, options, "empresaApp")
+            try {
+                empresaApp = FirebaseApp.getApps(context).firstOrNull { it.name == "empresaApp" }
+                    ?: FirebaseApp.initializeApp(
+                        context,
+                        FirebaseOptions.Builder()
+                            .setDatabaseUrl("https://stella-d-italia-default-rtdb.firebaseio.com/")
+                            .build(),
+                        "empresaApp"
+                    )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
-        if (empresaDbRef == null) {
+        if (empresaDbRef == null && empresaApp != null) {
             empresaDbRef = FirebaseDatabase.getInstance(empresaApp!!).reference
         }
 
-        return empresaDbRef!!
+        return empresaDbRef ?: FirebaseDatabase.getInstance().reference
     }
+
 
     fun getIdUsuario(): String? {
         return auth.currentUser?.uid

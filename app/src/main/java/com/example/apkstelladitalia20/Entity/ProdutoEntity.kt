@@ -1,10 +1,10 @@
-package com.stelladitalia.model
+package com.example.apkstelladitalia20.Entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "produto")
-data class Produto(
+data class ProdutoEntity(
     @PrimaryKey val id: String = "",
     val nome: String = "",
     val imagemBase64: String = "",
