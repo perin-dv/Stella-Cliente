@@ -1,57 +1,60 @@
-// Atualizado PromocaoAdapter.kt - com melhorias
 package com.example.apkstelladitalia20.adapter
 
-import android.content.Context
-import android.content.Intent
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.apkstelladitalia20.activity.PromocaoDetalhesActivity
 import com.example.apkstelladitalia20.databinding.ItemBannerPromocaoBinding
 import com.example.apkstelladitalia20.model.PromocaoEntity
 
 class PromocaoAdapter(
-    private val context: Context,
-    private val lista: MutableList<PromocaoEntity>
-) : RecyclerView.Adapter<PromocaoAdapter.PromocaoViewHolder>() {
+    private val onClick: (PromocaoEntity) -> Unit
+) : ListAdapter<PromocaoEntity, PromocaoAdapter.PromocaoViewHolder>(PromocaoDiffCallback()) {
 
-    inner class PromocaoViewHolder(val binding: ItemBannerPromocaoBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class PromocaoViewHolder(private val binding: ItemBannerPromocaoBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
         fun bind(promocao: PromocaoEntity) {
-            if (!promocao.imagemBase64.isNullOrEmpty()) {
+            binding.root.setOnClickListener {
+                onClick(promocao)
+            }
+
+            if (!promocao.imagemBase64.isNullOrBlank()) {
                 try {
                     val base64Clean = promocao.imagemBase64.replace("\\s+".toRegex(), "")
                     val bytes = Base64.decode(base64Clean, Base64.DEFAULT)
                     val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    bmp?.let { binding.imgBanner.setImageBitmap(it) }
+                    bmp?.let {
+                        binding.imgBanner.setImageBitmap(it)
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-            }
-
-            binding.imgBanner.setOnClickListener {
-                val intent = Intent(context, PromocaoDetalhesActivity::class.java)
-                intent.putExtra("promocaoSelecionada", promocao)
-                context.startActivity(intent)
+            } else {
+                binding.imgBanner.setImageBitmap(null)
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PromocaoViewHolder {
-        val binding = ItemBannerPromocaoBinding.inflate(LayoutInflater.from(context), parent, false)
+        val binding = ItemBannerPromocaoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return PromocaoViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: PromocaoViewHolder, position: Int) {
-        holder.bind(lista[position])
+        holder.bind(getItem(position))
+    }
+}
+
+class PromocaoDiffCallback : DiffUtil.ItemCallback<PromocaoEntity>() {
+    override fun areItemsTheSame(oldItem: PromocaoEntity, newItem: PromocaoEntity): Boolean {
+        return oldItem.id == newItem.id
     }
 
-    override fun getItemCount() = lista.size
-
-    fun atualizarLista(novaLista: List<PromocaoEntity>) {
-        lista.clear()
-        lista.addAll(novaLista)
-        notifyDataSetChanged()
+    override fun areContentsTheSame(oldItem: PromocaoEntity, newItem: PromocaoEntity): Boolean {
+        return oldItem == newItem
     }
 }

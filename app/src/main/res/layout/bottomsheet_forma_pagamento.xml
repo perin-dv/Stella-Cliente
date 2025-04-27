@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/white"
+    android:padding="16dp">
+
+    <!-- Título -->
+    <TextView
+        android:id="@+id/txtTituloPagamento"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Forma de Pagamento"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="16dp" />
+
+    <!-- Botões App/Entrega -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnPagarApp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Pagar App"
+            android:backgroundTint="@color/colorPrimary"
+            android:textColor="@android:color/white" />
+
+        <Button
+            android:id="@+id/btnPagarEntrega"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Pagar Entrega"
+            android:backgroundTint="@color/gray"
+            android:textColor="@android:color/black"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <!-- Cartões -->
+    <TextView
+        android:id="@+id/txtCartoes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cartões"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp" />
+
+    <LinearLayout
+        android:id="@+id/btnCartaoCredito"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:background="@drawable/bg_option_selector"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_cartao"
+            android:contentDescription="Cartão de Crédito" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cartão de Crédito"
+            android:paddingStart="16dp"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/btnCartaoDebito"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:background="@drawable/bg_option_selector"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginTop="8dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_cartao"
+            android:contentDescription="Cartão de Débito" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cartão de Débito"
+            android:paddingStart="16dp"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Banco -->
+    <TextView
+        android:id="@+id/txtBanco"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Banco"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp" />
+
+    <LinearLayout
+        android:id="@+id/btnPix"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:background="@drawable/bg_option_selector"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_pix"
+            android:contentDescription="Pix" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pix"
+            android:paddingStart="16dp"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Dinheiro (Visível apenas quando Pagar Entrega) -->
+    <LinearLayout
+        android:id="@+id/layoutDinheiro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:paddingTop="24dp">
+
+        <LinearLayout
+            android:id="@+id/btnDinheiro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp"
+            android:background="@drawable/bg_option_selector"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_money"
+                android:contentDescription="Dinheiro" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dinheiro"
+                android:paddingStart="16dp"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/editTroco"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Troco para quanto?"
+            android:inputType="numberDecimal"
+            android:background="@drawable/bg_edittext"
+            android:padding="12dp"
+            android:layout_marginTop="8dp" />
+    </LinearLayout>
+
+</LinearLayout>

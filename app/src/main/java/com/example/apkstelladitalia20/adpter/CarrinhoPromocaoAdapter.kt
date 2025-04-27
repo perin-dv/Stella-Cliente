@@ -27,16 +27,16 @@ class CarrinhoPromocaoAdapter(
             if (!promocao.imagemBase64.isNullOrEmpty()) {
                 Picasso.get()
                     .load(promocao.imagemBase64)
-                    .into(binding.imgPromocao)
+                    .into(binding.imgProdutoCarrinho)
             }
 
-            binding.btnAdicionar.setOnClickListener {
+            binding.btnAdicionarQuantidade.setOnClickListener {
                 promocao.quantidade++
                 notifyItemChanged(adapterPosition)
                 listener.onQuantidadeAlterada()
             }
 
-            binding.btnRemover.setOnClickListener {
+            binding.btnRemoverQuantidade.setOnClickListener {
                 if (promocao.quantidade > 1) {
                     promocao.quantidade--
                     notifyItemChanged(adapterPosition)

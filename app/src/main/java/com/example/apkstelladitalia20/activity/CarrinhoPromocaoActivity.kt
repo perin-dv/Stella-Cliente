@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apkstelladitalia20.adapter.BebidaAdapter
 import com.example.apkstelladitalia20.adapter.CarrinhoPromocaoAdapter
@@ -16,6 +17,7 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
     private lateinit var binding: ActivityCarrinhoPromocaoBinding
     private lateinit var carrinhoAdapter: CarrinhoPromocaoAdapter
     private lateinit var bebidaAdapter: BebidaAdapter
+
 
     private val listaCarrinho = mutableListOf<PromocaoEntity>()
     private val listaBebidas = mutableListOf<BebidaEntity>()
@@ -35,10 +37,21 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
             Toast.makeText(this, "Continuando para Entrega...", Toast.LENGTH_SHORT).show()
             // startActivity(Intent(this, EntregaActivity::class.java))
         }
+        binding.recyclerItensCarrinho.layoutManager = LinearLayoutManager(
+            this,
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        binding.recyclerBebidas.layoutManager = LinearLayoutManager(
+            this,
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+
     }
 
+
     private fun setupToolbar() {
-        binding.includeToolbar.txtTituloToolbar.text = "Sacola"
         binding.includeToolbar.btnVoltar.setOnClickListener { finish() }
     }
 
@@ -55,7 +68,11 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
             adicionarBebidaAoCarrinho(bebida)
         }
         binding.recyclerBebidas.apply {
-            layoutManager = LinearLayoutManager(this@CarrinhoPromocaoActivity, LinearLayoutManager.HORIZONTAL, false)
+            layoutManager = LinearLayoutManager(
+                this@CarrinhoPromocaoActivity,
+                LinearLayoutManager.HORIZONTAL,
+                false
+            )
             adapter = bebidaAdapter
         }
     }

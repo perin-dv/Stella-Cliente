@@ -3,11 +3,15 @@ package com.example.apkstelladitalia20.activity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.apkstelladitalia20.bottomsheet.BottomSheetFormaPagamento
 import com.example.apkstelladitalia20.databinding.ActivityResumoPedidoBinding
 
 class ResumoPedidoActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityResumoPedidoBinding
+    private var formaPagamentoSelecionada: String? = null
+    private var trocoPara: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,9 +27,14 @@ class ResumoPedidoActivity : AppCompatActivity() {
             confirmarPedido()
         }
 
-        binding.btnVoltar.setOnClickListener {
+        binding.includeToolbar.btnVoltar.setOnClickListener {
             finish()
         }
+
+        binding.txtTrocarPagamento.setOnClickListener {
+            mostrarBottomSheetPagamento()
+        }
+
     }
 
     private fun carregarResumoValores() {
@@ -35,6 +44,23 @@ class ResumoPedidoActivity : AppCompatActivity() {
         binding.txtTotalResumo.text = "R$ 88,90"
     }
 
+    private fun mostrarBottomSheetPagamento() {
+        val bottomSheet = BottomSheetFormaPagamento { formaPagamento, troco ->
+            formaPagamentoSelecionada = formaPagamento
+            trocoPara = troco
+
+            // Atualizar visualmente na tela
+            val pagamentoTexto = if (formaPagamento == "Dinheiro" && troco != null) {
+                "Dinheiro (Troco para R$$troco)"
+            } else {
+                formaPagamento
+            }
+
+            binding.txtFormaPagamento.text = pagamentoTexto
+        }
+        bottomSheet.show(supportFragmentManager, bottomSheet.tag)
+    }
+
     private fun confirmarPedido() {
         Toast.makeText(this, "Pedido confirmado com sucesso!", Toast.LENGTH_LONG).show()
 
@@ -42,4 +68,9 @@ class ResumoPedidoActivity : AppCompatActivity() {
         // Por enquanto, apenas finaliza a activity:
         finish()
     }
+
+    private fun setupToolbar() {
+        binding.includeToolbar.btnVoltar.setOnClickListener { finish() }
+    }
+
 }

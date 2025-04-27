@@ -37,6 +37,8 @@
         <activity android:name="com.example.apkstelladitalia20.activity.HomeActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.DetalhesProdutoActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.CarrinhoPromocaoActivity" />
+
 
     </application>
 

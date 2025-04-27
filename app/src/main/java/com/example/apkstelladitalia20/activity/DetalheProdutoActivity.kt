@@ -68,6 +68,6 @@ class DetalhesProdutoActivity : AppCompatActivity() {
 
     private fun atualizarPrecoTotal() {
         val precoTotal = precoBase + adicionaisSelecionados.sumOf { it.preco }
-        binding.txtAdicionar.text = "Adicionar - R$ ${String.format("%.2f", precoTotal)}"
+        binding.tituloAdicionais.text = "Adicionar - R$ ${String.format("%.2f", precoTotal)}"
     }
 }

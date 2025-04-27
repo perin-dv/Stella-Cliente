@@ -68,6 +68,8 @@ dependencies {
     implementation (libs.glide)
     implementation (libs.shimmer)
     implementation(libs.play.services.location)
+    implementation (libs.picasso)
+
     kapt (libs.compiler)
 
 

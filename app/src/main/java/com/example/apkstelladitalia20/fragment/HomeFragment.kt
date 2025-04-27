@@ -78,26 +78,12 @@ class HomeFragment : Fragment() {
         destaqueAdapter = DestaquesAdapter(requireContext(), destaques) { }
         binding.recyclerDestaques.adapter = destaqueAdapter
 
-        promocaoAdapter = PromocaoAdapter(
-            emptyList(),
-            onClick = { promocao ->
-                val intent = Intent(requireContext(), DetalhesPromocaoActivity::class.java)
-                intent.putExtra("promocaoSelecionada", promocao)
-                startActivity(intent)
-            }
-
-        )
-
+        promocaoAdapter = PromocaoAdapter { promocao ->
+            val intent = Intent(requireContext(), DetalhesPromocaoActivity::class.java)
+            intent.putExtra("promocaoSelecionada", promocao)
+            startActivity(intent)
+        }
         binding.viewPagerPromocoes.adapter = promocaoAdapter
-
-        promocaoAdapter = PromocaoAdapter(
-            emptyList(), // 🔥 passa uma lista vazia primeiro
-            onClick = { promocao ->
-                val intent = Intent(requireContext(), DetalhesPromocaoActivity::class.java)
-                intent.putExtra("promocaoSelecionada", promocao)
-                startActivity(intent)
-            }
-        )
 
         binding.viewPagerPromocoes.adapter = promocaoAdapter
 
@@ -163,7 +149,7 @@ class HomeFragment : Fragment() {
                 if (listaPromocoes.isNotEmpty()) {
                     binding.viewPagerPromocoes.visibility = View.VISIBLE
                     binding.textSemPromocoes.visibility = View.GONE
-                    promocaoAdapter.atualizarLista(listaPromocoes)
+                    promocaoAdapter.submitList(listaPromocoes)
                 } else {
                     binding.viewPagerPromocoes.visibility = View.GONE
                     binding.textSemPromocoes.visibility = View.VISIBLE
