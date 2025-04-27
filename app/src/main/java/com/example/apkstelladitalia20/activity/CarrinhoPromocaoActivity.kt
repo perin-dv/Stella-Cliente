@@ -14,13 +14,14 @@ import com.example.apkstelladitalia20.databinding.ActivityCarrinhoPromocaoBindin
 import com.example.apkstelladitalia20.helper.setupToolbar
 import com.example.apkstelladitalia20.model.BebidaEntity
 import com.example.apkstelladitalia20.model.PromocaoEntity
+import com.google.firebase.firestore.FirebaseFirestore
 
 class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.CarrinhoListener {
 
     private lateinit var binding: ActivityCarrinhoPromocaoBinding
     private lateinit var carrinhoAdapter: CarrinhoPromocaoAdapter
     private lateinit var bebidaAdapter: BebidaAdapter
-
+    private var idPromocaoSelecionada: String? = null
 
     private val listaCarrinho = mutableListOf<PromocaoEntity>()
     private val listaBebidas = mutableListOf<BebidaEntity>()
@@ -31,33 +32,32 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
         setContentView(binding.root)
         setupToolbar(binding.includeToolbar)
 
+
+        carregarResumoDoCarrinho()
         setupCarrinhoRecycler()
         setupBebidaRecycler()
         carregarBebidasMock()
-        carregarCarrinhoMock()
 
+
+
+        idPromocaoSelecionada = intent.getStringExtra("idPromocaoSelecionada")
+        if (idPromocaoSelecionada != null) {
+            buscarPromocaoFirebase(idPromocaoSelecionada!!)
+        }
 
         binding.btnContinuar.setOnClickListener {
             Toast.makeText(this, "Continuando para Entrega...", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, ResumoPedidoActivity::class.java)
-            intent.putExtra("carrinhoSelecionado", ArrayList(listaCarrinho))
+            val intent = Intent(this, CarrinhoPromocaoActivity::class.java)
+            intent.putExtra("idPromocaoSelecionada", promocao.id)
             startActivity(intent)
 
         }
 
-
-        binding.recyclerItensCarrinho.layoutManager = LinearLayoutManager(
-            this,
-            LinearLayoutManager.HORIZONTAL,
-            false
-        )
-        binding.recyclerBebidas.layoutManager = LinearLayoutManager(
-            this,
-            LinearLayoutManager.HORIZONTAL,
-            false
-        )
-
-
+        binding.txtAdicionarMaisItens2.setOnClickListener {
+            val intent = Intent(this, HomeActivity::class.java) // ou sua HomeActivity real
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP // limpar stack e voltar limpo
+            startActivity(intent)
+        }
 
     }
 
@@ -105,16 +105,53 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
         bebidaAdapter.notifyDataSetChanged()
     }
 
-    private fun carregarCarrinhoMock() {
-        // Exemplo inicial de um item de promoção já no carrinho
-        val promocaoSelecionada = intent.getSerializableExtra("promocaoSelecionada") as? PromocaoEntity
-        promocaoSelecionada?.let {
-            listaCarrinho.add(it)
-            carrinhoAdapter.notifyDataSetChanged()
-            atualizarResumo()
-        }
+    private fun buscarPromocaoFirebase(idPromocao: String) {
+        val db = FirebaseFirestore.getInstance()
 
+        db.collection("promocoes").document(idPromocao)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val promocao = document.toObject(PromocaoEntity::class.java)
+                    if (promocao != null) {
+                        preencherCarrinho(promocao)
+                    }
+                }
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Erro ao buscar promoção.", Toast.LENGTH_SHORT).show()
+            }
     }
+
+    private fun carregarResumoDoCarrinho() {
+        val listaCarrinho = intent.getSerializableExtra("carrinhoSelecionado") as? ArrayList<PromocaoEntity>
+
+        if (!listaCarrinho.isNullOrEmpty()) {
+            var subtotal = 0.0
+
+            listaCarrinho.forEach { item ->
+                subtotal += (item.valor ?: 0.0) * (item.quantidade ?: 1)
+            }
+
+            val taxaEntrega = 5.0 // ou 0.0 se quiser grátis
+            val total = subtotal + taxaEntrega
+
+            binding.txtSubtotal.text = "R$ %.2f".format(subtotal)
+            binding.txtTaxaEntrega.text = if (taxaEntrega == 0.0) "Grátis" else "R$ %.2f".format(taxaEntrega)
+            binding.txtTotal.text = "R$ %.2f".format(total)
+        } else {
+            Toast.makeText(this, "Nenhum item encontrado no carrinho.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun preencherCarrinho(promocao: PromocaoEntity) {
+        // Atualiza seu adapter do carrinho aqui
+        listaCarrinho.clear()
+        listaCarrinho.add(promocao)
+        carrinhoAdapter.notifyDataSetChanged()
+    }
+
+
 
     private fun adicionarBebidaAoCarrinho(bebida: BebidaEntity) {
         val bebidaPromocao = PromocaoEntity(

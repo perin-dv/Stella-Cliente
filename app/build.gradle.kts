@@ -69,6 +69,7 @@ dependencies {
     implementation (libs.shimmer)
     implementation(libs.play.services.location)
     implementation (libs.picasso)
+    implementation(libs.firebase.firestore.ktx)
 
     kapt (libs.compiler)
 

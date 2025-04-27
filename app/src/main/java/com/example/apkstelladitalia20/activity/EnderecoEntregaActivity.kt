@@ -17,7 +17,6 @@ class EnderecoEntregaActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupToolbar(binding.includeToolbar)
-
         setupClicks()
 
 
