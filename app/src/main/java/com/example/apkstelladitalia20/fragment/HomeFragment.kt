@@ -85,9 +85,7 @@ class HomeFragment : Fragment() {
         }
         binding.viewPagerPromocoes.adapter = promocaoAdapter
 
-        binding.viewPagerPromocoes.adapter = promocaoAdapter
-
-        binding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
+               binding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
         categoriaAdapter = CategoriaAdapter(requireContext(), categorias) { }
         binding.rvCategorias.adapter = categoriaAdapter
 
