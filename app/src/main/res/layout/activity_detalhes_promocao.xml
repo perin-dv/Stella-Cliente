@@ -9,15 +9,13 @@
 
     <!-- TopBar bonita com botão de voltar -->
 
-    <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/toolbarDetalhes"
+    <include
+        android:id="@+id/includeToolbar"
+        layout="@layout/toolbar_layout"
+        android:layout_marginTop="30dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-         android:paddingTop="24dp"
-        android:title="Detalhes da Promoção"
-        android:titleTextColor="@android:color/white"
-        app:navigationIcon="@drawable/ic_arrow_back"
-        app:titleCentered="true" />
+        android:layout_height="wrap_content" />
+
 
     <ScrollView
         android:layout_width="match_parent"

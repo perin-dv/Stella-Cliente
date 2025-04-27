@@ -6,6 +6,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.apkstelladitalia20.adapter.AdicionalAdapter
 import com.example.apkstelladitalia20.databinding.ActivityDetalhesProdutoBinding
+import com.example.apkstelladitalia20.helper.setupToolbar
 import com.example.apkstelladitalia20.model.Adicional
 import com.example.stelladitaliaempresa.data.AppDatabase
 import kotlinx.coroutines.Dispatchers
@@ -22,6 +23,7 @@ class DetalhesProdutoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDetalhesProdutoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupToolbar(binding.includeToolbar)
 
         val produtoId = intent.getStringExtra("produtoId")
         val dao = AppDatabase.getDatabase(this).produtoDao()

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apkstelladitalia20.databinding.ActivityDetalhesPromocaoBinding
 import com.example.apkstelladitalia20.helper.CarrinhoController
+import com.example.apkstelladitalia20.helper.setupToolbar
 import com.example.apkstelladitalia20.model.PromocaoEntity
 
 class DetalhesPromocaoActivity : AppCompatActivity() {
@@ -22,6 +23,7 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityDetalhesPromocaoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupToolbar(binding.includeToolbar)
 
         val promocao = intent.getSerializableExtra("promocaoSelecionada") as? PromocaoEntity
 
@@ -29,10 +31,6 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
             exibirDados(promocao)
         } else {
             finish() // se deu ruim, fecha
-        }
-
-        binding.toolbarDetalhes.setNavigationOnClickListener {
-            finish()
         }
 
         setupQuantidadeButtons()

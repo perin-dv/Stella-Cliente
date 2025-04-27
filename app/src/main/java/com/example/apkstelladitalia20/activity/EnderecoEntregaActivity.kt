@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.apkstelladitalia20.databinding.ActivityEnderecoEntregaBinding
+import com.example.apkstelladitalia20.helper.setupToolbar
 
 class EnderecoEntregaActivity : AppCompatActivity() {
 
@@ -14,16 +15,14 @@ class EnderecoEntregaActivity : AppCompatActivity() {
         binding = ActivityEnderecoEntregaBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupToolbar()
+
+        setupToolbar(binding.includeToolbar)
+
         setupClicks()
         preencherEndereco()
+
     }
 
-    private fun setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener {
-            finish()
-        }
-    }
 
     private fun setupClicks() {
         binding.btnContinuarEndereco.setOnClickListener {
