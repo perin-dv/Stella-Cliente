@@ -29,7 +29,9 @@ import com.example.apkstelladitalia20.adapter.CategoriaAdapter
 import com.example.apkstelladitalia20.adapter.DestaquesAdapter
 import com.example.apkstelladitalia20.adapter.PromocaoAdapter
 import com.example.apkstelladitalia20.databinding.FragmentHomeBinding
+import com.example.apkstelladitalia20.helper.DepthPageTransformer
 import com.example.apkstelladitalia20.helper.FirebaseHelper
+import com.example.apkstelladitalia20.helper.ZoomOutPageTransformer
 import com.example.apkstelladitalia20.model.PromocaoEntity
 import com.google.firebase.database.*
 
@@ -84,8 +86,9 @@ class HomeFragment : Fragment() {
             startActivity(intent)
         }
         binding.viewPagerPromocoes.adapter = promocaoAdapter
+        binding.viewPagerPromocoes.setPageTransformer(DepthPageTransformer())
 
-               binding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
+        binding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
         categoriaAdapter = CategoriaAdapter(requireContext(), categorias) { }
         binding.rvCategorias.adapter = categoriaAdapter
 
@@ -93,6 +96,7 @@ class HomeFragment : Fragment() {
             offscreenPageLimit = 3
             (getChildAt(0) as RecyclerView).clipToPadding = false
         }
+
 
     }
 

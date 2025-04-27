@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.apkstelladitalia20.databinding.ActivityEnderecoEntregaBinding
+import com.example.apkstelladitalia20.fragment.EnderecoDialogFragment
 import com.example.apkstelladitalia20.helper.setupToolbar
 
 class EnderecoEntregaActivity : AppCompatActivity() {
@@ -15,18 +16,27 @@ class EnderecoEntregaActivity : AppCompatActivity() {
         binding = ActivityEnderecoEntregaBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         setupToolbar(binding.includeToolbar)
 
         setupClicks()
+
+
         preencherEndereco()
+
+
+        binding.txtTrocarEndereco.setOnClickListener {
+            val enderecoDialog = EnderecoDialogFragment(this) { enderecoSelecionado ->
+                binding.txtTrocarEndereco.text = enderecoSelecionado
+            }
+            enderecoDialog.show(supportFragmentManager, "EnderecoDialog")
+        }
 
     }
 
 
     private fun setupClicks() {
         binding.btnContinuarEndereco.setOnClickListener {
-            startActivity(Intent(this, ResumoPedidoActivity::class.java))
+            startActivity(Intent(this, CarrinhoPromocaoActivity::class.java))
         }
 
         binding.txtTrocarEndereco.setOnClickListener {

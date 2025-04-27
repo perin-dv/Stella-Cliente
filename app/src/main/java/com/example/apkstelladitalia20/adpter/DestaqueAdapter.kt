@@ -41,12 +41,10 @@ class DestaquesAdapter(
                     seloDesconto.text = "-$desconto%"
                     seloDesconto.visibility = View.VISIBLE
                     txtPrecoOriginal.visibility = View.VISIBLE
-                    txtPrecoOriginal.paintFlags = txtPrecoOriginal.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
-                } else {
+                                } else {
                     seloDesconto.visibility = View.GONE
                     txtPrecoOriginal.visibility = View.GONE
-                    txtPrecoOriginal.paintFlags = 0
-                }
+                             }
 
                 // "Mais pedido" se for marcado
                 seloMaisPedido.visibility = if (produto.maisPedido) View.VISIBLE else View.GONE

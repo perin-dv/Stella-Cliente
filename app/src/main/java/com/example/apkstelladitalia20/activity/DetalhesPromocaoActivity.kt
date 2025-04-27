@@ -104,7 +104,7 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
                 Toast.makeText(this, "Adicionado ao carrinho de compras ✅", Toast.LENGTH_SHORT).show()
 
                 // Abrir a tela do Carrinho
-                val intent = Intent(this, CarrinhoPromocaoActivity::class.java)
+                val intent = Intent(this, EnderecoEntregaActivity::class.java)
                 startActivity(intent)
                 finish()
             }

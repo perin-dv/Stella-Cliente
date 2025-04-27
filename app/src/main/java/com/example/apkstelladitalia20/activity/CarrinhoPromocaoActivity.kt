@@ -2,13 +2,16 @@ package com.example.apkstelladitalia20.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.adapter.BebidaAdapter
 import com.example.apkstelladitalia20.adapter.CarrinhoPromocaoAdapter
 import com.example.apkstelladitalia20.databinding.ActivityCarrinhoPromocaoBinding
+import com.example.apkstelladitalia20.helper.setupToolbar
 import com.example.apkstelladitalia20.model.BebidaEntity
 import com.example.apkstelladitalia20.model.PromocaoEntity
 
@@ -26,17 +29,23 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
         super.onCreate(savedInstanceState)
         binding = ActivityCarrinhoPromocaoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setupToolbar(binding.includeToolbar)
 
-        setupToolbar()
         setupCarrinhoRecycler()
         setupBebidaRecycler()
         carregarBebidasMock()
         carregarCarrinhoMock()
 
+
         binding.btnContinuar.setOnClickListener {
             Toast.makeText(this, "Continuando para Entrega...", Toast.LENGTH_SHORT).show()
-            // startActivity(Intent(this, EntregaActivity::class.java))
+            val intent = Intent(this, ResumoPedidoActivity::class.java)
+            intent.putExtra("carrinhoSelecionado", ArrayList(listaCarrinho))
+            startActivity(intent)
+
         }
+
+
         binding.recyclerItensCarrinho.layoutManager = LinearLayoutManager(
             this,
             LinearLayoutManager.HORIZONTAL,
@@ -48,20 +57,27 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
             false
         )
 
+
+
     }
 
 
-    private fun setupToolbar() {
-        binding.includeToolbar.btnVoltar.setOnClickListener { finish() }
-    }
 
     private fun setupCarrinhoRecycler() {
-        carrinhoAdapter = CarrinhoPromocaoAdapter(listaCarrinho, this)
+        carrinhoAdapter = CarrinhoPromocaoAdapter(listaCarrinho, object : CarrinhoPromocaoAdapter.CarrinhoListener {
+            override fun onQuantidadeAlterada() {
+                atualizarResumo()
+                binding.recyclerItensCarrinho.scheduleLayoutAnimation()
+            }
+        })
+
         binding.recyclerItensCarrinho.apply {
             layoutManager = LinearLayoutManager(this@CarrinhoPromocaoActivity)
             adapter = carrinhoAdapter
+            layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
         }
     }
+
 
     private fun setupBebidaRecycler() {
         bebidaAdapter = BebidaAdapter(listaBebidas) { bebida ->
@@ -77,6 +93,7 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
         }
     }
 
+
     private fun carregarBebidasMock() {
         listaBebidas.addAll(
             listOf(
@@ -90,16 +107,13 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
 
     private fun carregarCarrinhoMock() {
         // Exemplo inicial de um item de promoção já no carrinho
-        listaCarrinho.add(
-            PromocaoEntity(
-                id = "promo1",
-                titulo = "Promoção Pizza + Refri",
-                valor = 45.90,
-                quantidade = 1
-            )
-        )
-        carrinhoAdapter.notifyDataSetChanged()
-        atualizarResumo()
+        val promocaoSelecionada = intent.getSerializableExtra("promocaoSelecionada") as? PromocaoEntity
+        promocaoSelecionada?.let {
+            listaCarrinho.add(it)
+            carrinhoAdapter.notifyDataSetChanged()
+            atualizarResumo()
+        }
+
     }
 
     private fun adicionarBebidaAoCarrinho(bebida: BebidaEntity) {
@@ -131,4 +145,5 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
     override fun onQuantidadeAlterada() {
         atualizarResumo()
     }
+
 }

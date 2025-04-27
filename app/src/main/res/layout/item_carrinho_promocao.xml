@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="12dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp">
+    android:layout_margin="8dp"
+    app:cardElevation="4dp"
+    app:cardCornerRadius="12dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,32 +14,31 @@
         android:padding="12dp"
         android:gravity="center_vertical">
 
-        <!-- Imagem -->
+        <!-- Imagem do Produto -->
         <ImageView
             android:id="@+id/imgProdutoCarrinho"
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:scaleType="centerCrop"
-            android:background="@drawable/bg_circle_white" />
+            android:src="@drawable/ic_pizza"
+            android:layout_marginEnd="12dp" />
 
-        <!-- Informacoes -->
+        <!-- Coluna Nome + Preços -->
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="12dp">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/txtNomeProduto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pizza Margherita"
+                android:text="Pizza Calabresa"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/black"/>
+                android:textColor="@android:color/black" />
 
-            <!-- Precos -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -48,69 +46,74 @@
                 android:layout_marginTop="4dp">
 
                 <TextView
-                    android:id="@+id/txtPrecoOriginal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="R$ 0,00"/>
-
-
-                <TextView
                     android:id="@+id/txtPrecoAtual"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="R$ 59,90"
-                    android:textSize="16sp"
+                    android:text="R$ 29,90"
+                    android:textColor="#6EDD3D"
                     android:textStyle="bold"
-                    android:textColor="@color/black"
+                    android:textSize="16sp"/>
+
+                <TextView
+                    android:id="@+id/txtPrecoOriginal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="R$ 49,90"
+                    android:textColor="@color/vermelho"
+                    android:textSize="14sp"
                     android:layout_marginStart="8dp"/>
             </LinearLayout>
 
-            <!-- Controle de quantidade -->
+        </LinearLayout>
+
+        <!-- Quantidade + Lixeira -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp"
                 android:gravity="center_vertical">
 
-                <ImageView
+                <ImageButton
                     android:id="@+id/btnRemoverQuantidade"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_remove"
-                    android:background="@drawable/bg_circle_white"
-                    android:padding="6dp"
-                    android:elevation="2dp" />
+                    android:contentDescription="Diminuir quantidade" />
 
                 <TextView
                     android:id="@+id/txtQuantidade"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="1"
-                    android:textSize="14sp"
-                    android:layout_marginHorizontal="8dp"
-                    android:textColor="@color/black"/>
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginHorizontal="8dp" />
 
-                <ImageView
+                <ImageButton
                     android:id="@+id/btnAdicionarQuantidade"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_add"
-                    android:background="@drawable/bg_circle_white"
-                    android:padding="6dp"
-                    android:elevation="2dp" />
+                    android:contentDescription="Aumentar quantidade" />
             </LinearLayout>
 
+            <ImageButton
+                android:id="@+id/btnRemoverItem"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_delete"
+                android:layout_marginTop="8dp"
+                android:contentDescription="Remover item do carrinho" />
         </LinearLayout>
-
-        <!-- Botao excluir -->
-        <ImageView
-            android:id="@+id/btnExcluirItem"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/ic_delete"
-            android:layout_marginStart="8dp"
-            app:tint="@color/vermelho" />
 
     </LinearLayout>
 
