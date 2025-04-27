@@ -12,4 +12,5 @@
     <color name="colorPrimary">#C62828</color> <!-- Vermelho escuro gourmet -->
     <color name="colorPrimaryDark">#8E0000</color>
     <color name="colorAccent">#FFC107</color>
+    <color name="lightGray">#717171</color>
 </resources>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <!-- Toolbar -->
+    <include
+        layout="@layout/toolbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Conteúdo -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollEndereco"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp"
+        android:padding="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Endereço de Entrega -->
+            <TextView
+                android:id="@+id/txtEnderecoCompleto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rua das Rosas, 1001 - Centro"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/txtTrocarEndereco"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Trocar Endereço"
+                android:textColor="@color/vermelho"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+
+            <!-- Linha -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#8A8A8A"
+                android:layout_marginTop="16dp"/>
+
+            <!-- Opção de Entrega -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Entrega Padrão (30-40 min)"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/txtDescricaoEntrega"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Entrega hoje, com taxa grátis"
+                android:textSize="14sp"
+                android:textColor="@color/gray"
+                android:layout_marginTop="4dp"/>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Botão Continuar -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnContinuarEndereco"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Continuar"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:layout_margin="16dp"
+        android:layout_gravity="bottom"
+        app:cornerRadius="16dp"
+        app:backgroundTint="@color/vermelho"
+        android:textColor="@android:color/white"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

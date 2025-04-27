@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/layoutDetalhes"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.apkstelladitalia20.activity.DetalhesProdutoActivity">
+    android:background="#FAFAFA"
+    tools:context=".activity.DetalhesProdutoActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -13,99 +13,150 @@
         android:fillViewport="true">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center_horizontal">
 
-            <!-- Imagem grande -->
-            <ImageView
-                android:id="@+id/imagemProduto"
+            <!-- Imagem grande estilizada -->
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="220dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/exemplo_pizza" />
+                android:layout_height="240dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="8dp"
+                app:cardUseCompatPadding="true"
+                android:layout_marginBottom="16dp">
 
-            <!-- Nome -->
+                <ImageView
+                    android:id="@+id/imagemProduto"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="Imagem do Produto" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Nome do Produto -->
             <TextView
                 android:id="@+id/nomeProduto"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tilápia crocante"
+                android:text="Produto Incrível"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
+
+            <!-- Preço -->
+            <TextView
+                android:id="@+id/precoProduto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="R$ 49,90"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:padding="16dp"
-                android:textColor="#000000" />
+                android:textColor="#D32F2F"
+                android:gravity="center"
+                android:layout_marginBottom="8dp" />
 
             <!-- Descrição -->
             <TextView
                 android:id="@+id/descricaoProduto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Marmita Gourmet com tilápia crocante e risoto de limão siciliano."
-                android:textSize="15sp"
-                android:paddingHorizontal="16dp"
-                android:paddingBottom="8dp"
-                android:textColor="#444444" />
-
-            <!-- Preço -->
-            <TextView
-                android:id="@+id/precoProduto"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="R$ 49,90"
-                android:textSize="20sp"
-                android:textColor="#D32F2F"
-                android:textStyle="bold"
-                android:padding="16dp" />
-
-            <!-- Título dos adicionais -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Alguma bebida?"
-                android:textStyle="bold"
+                android:text="Descrição detalhada do produto."
                 android:textSize="16sp"
-                android:paddingStart="16dp"
-                android:paddingTop="16dp" />
+                android:textColor="#666666"
+                android:gravity="center"
+                android:layout_marginBottom="16dp"
+                android:lineSpacingExtra="4dp" />
+
+            <!-- Título adicionais -->
+            <TextView
+                android:id="@+id/tituloAdicionais"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Alguma bebida ou extra?"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#212121"
+                android:layout_marginBottom="8dp" />
 
             <!-- Lista de adicionais -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerAdicionais"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="16dp"
+                android:paddingBottom="100dp"
                 tools:listitem="@layout/item_adicional" />
+
         </LinearLayout>
     </ScrollView>
 
-    <!-- Botão de Adicionar -->
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:orientation="horizontal"
-        android:background="#D32F2F"
         android:gravity="center_vertical"
-        android:paddingHorizontal="16dp">
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#D32F2F">
 
-        <TextView
-            android:id="@+id/txtAdicionar"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Adicionar"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+        <!-- Botão de remover -->
+        <ImageButton
+            android:id="@+id/btnRemover"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:backgroundTint="@android:color/white"
+            android:background="@drawable/bg_circle_white"
+            android:src="@drawable/ic_remove"
+            android:contentDescription="Remover item" />
 
+        <!-- Quantidade -->
         <TextView
-            android:id="@+id/txtPrecoFinal"
+            android:id="@+id/quantidadeProduto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="R$ 49,90"
+            android:text="1"
+            android:textSize="22sp"
+            android:textStyle="bold"
             android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:paddingHorizontal="16dp" />
+
+        <!-- Botão de adicionar -->
+        <ImageButton
+            android:id="@+id/btnAdicionar"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:backgroundTint="@android:color/white"
+            android:background="@drawable/bg_circle_white"
+            android:src="@drawable/ic_add"
+            android:contentDescription="Adicionar item" />
+
+        <!-- Preço Total -->
+        <TextView
+            android:id="@+id/precoTotal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="R$ 0,00"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1" />
+
+        <!-- Botão Confirmar Pedido -->
+        <Button
+            android:id="@+id/btnConfirmarPedido"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Adicionar"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#212121"
+            app:cornerRadius="12dp" />
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
 import com.example.apkstelladitalia20.R
+import com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity
 import com.example.apkstelladitalia20.activity.PromocaoDetalhesActivity
 import com.example.apkstelladitalia20.adapter.CategoriaAdapter
 import com.example.apkstelladitalia20.adapter.DestaquesAdapter
@@ -77,11 +78,22 @@ class HomeFragment : Fragment() {
         destaqueAdapter = DestaquesAdapter(requireContext(), destaques) { }
         binding.recyclerDestaques.adapter = destaqueAdapter
 
+        promocaoAdapter = PromocaoAdapter(
+            emptyList(),
+            onClick = { promocao ->
+                val intent = Intent(requireContext(), DetalhesPromocaoActivity::class.java)
+                intent.putExtra("promocaoSelecionada", promocao)
+                startActivity(intent)
+            }
+
+        )
+
+        binding.viewPagerPromocoes.adapter = promocaoAdapter
 
         promocaoAdapter = PromocaoAdapter(
             emptyList(), // 🔥 passa uma lista vazia primeiro
             onClick = { promocao ->
-                val intent = Intent(requireContext(), PromocaoDetalhesActivity::class.java)
+                val intent = Intent(requireContext(), DetalhesPromocaoActivity::class.java)
                 intent.putExtra("promocaoSelecionada", promocao)
                 startActivity(intent)
             }
@@ -150,14 +162,17 @@ class HomeFragment : Fragment() {
 
                 if (listaPromocoes.isNotEmpty()) {
                     binding.viewPagerPromocoes.visibility = View.VISIBLE
+                    binding.textSemPromocoes.visibility = View.GONE
                     promocaoAdapter.atualizarLista(listaPromocoes)
                 } else {
                     binding.viewPagerPromocoes.visibility = View.GONE
+                    binding.textSemPromocoes.visibility = View.VISIBLE
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Erro ao carregar promoções", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Erro ao carregar promoções", Toast.LENGTH_SHORT)
+                    .show()
             }
         })
     }
@@ -220,8 +235,10 @@ class HomeFragment : Fragment() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val taxaEntrega = snapshot.child("taxaEntrega").getValue(String::class.java)
-                        val tempoEntrega = snapshot.child("tempoEntrega").getValue(String::class.java)
-                        binding.txtTempoEntrega.text = "Entrega em até $tempoEntrega min • R$ $taxaEntrega"
+                        val tempoEntrega =
+                            snapshot.child("tempoEntrega").getValue(String::class.java)
+                        binding.txtTempoEntrega.text =
+                            "Entrega em até $tempoEntrega min • R$ $taxaEntrega"
                     }
                 }
 
@@ -244,8 +261,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun solicitarPermissaoEConfigurarEndereco() {
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            )
+            != PackageManager.PERMISSION_GRANTED
+        ) {
             ActivityCompat.requestPermissions(
                 requireActivity(),
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
@@ -258,7 +279,8 @@ class HomeFragment : Fragment() {
 
     @SuppressLint("MissingPermission")
     private fun configurarEnderecoPorGps() {
-        val locationManager = requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val locationManager =
+            requireActivity().getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Toast.makeText(requireContext(), "Ative o GPS", Toast.LENGTH_SHORT).show()
             startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
@@ -276,7 +298,8 @@ class HomeFragment : Fragment() {
                     binding.tvEndereco.text = enderecoCurto
                     prefs.edit().putString("endereco", enderecoCurto).apply()
                 }
-            } ?: Toast.makeText(requireContext(), "Localização não encontrada", Toast.LENGTH_SHORT).show()
+            } ?: Toast.makeText(requireContext(), "Localização não encontrada", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
@@ -300,7 +323,8 @@ class HomeFragment : Fragment() {
                 binding.tvEndereco.text = enderecoDigitado
                 dialog.dismiss()
             } else {
-                Toast.makeText(requireContext(), "Digite um endereço válido", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Digite um endereço válido", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
 

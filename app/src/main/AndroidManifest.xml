@@ -36,6 +36,7 @@
         <!-- Atividades principais -->
         <activity android:name="com.example.apkstelladitalia20.activity.HomeActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.DetalhesProdutoActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity" />
 
     </application>
 

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <!-- Toolbar -->
+    <include
+        layout="@layout/toolbar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Conteúdo -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollResumo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp"
+        android:padding="16dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Forma de Pagamento -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pagamento"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_credit_card"
+                    app:tint="@color/black" />
+
+                <TextView
+                    android:id="@+id/txtFormaPagamento"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Cartão de Crédito"
+                    android:textSize="14sp"
+                    android:layout_marginStart="8dp"/>
+
+                <TextView
+                    android:id="@+id/txtTrocarPagamento"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Trocar"
+                    android:textColor="@color/vermelho"
+                    android:textSize="14sp"/>
+            </LinearLayout>
+
+            <!-- Cupom -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cupom"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/txtAdicionarCupom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adicionar Cupom"
+                android:textColor="@color/vermelho"
+                android:textSize="14sp"/>
+
+            <!-- CPF na Nota -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CPF na nota"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/txtCpfNota"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Adicionar CPF"
+                android:textColor="@color/vermelho"
+                android:textSize="14sp"/>
+
+            <!-- Linha -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/lightGray"
+                android:layout_marginTop="24dp"/>
+
+            <!-- Resumo do Pedido -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Resumo do Pedido"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <!-- Subtotal -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Subtotal"/>
+
+                <TextView
+                    android:id="@+id/txtSubtotalResumo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="R$ 0,00"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <!-- Taxa de Entrega -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Taxa de entrega"/>
+
+                <TextView
+                    android:id="@+id/txtTaxaEntregaResumo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Grátis"
+                    android:textStyle="bold"
+                    android:textColor="#25B900"/>
+            </LinearLayout>
+
+            <!-- Total -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Total"/>
+
+                <TextView
+                    android:id="@+id/txtTotalResumo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="R$ 0,00"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Botão Confirmar Pedido -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirmarPedido"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Confirmar Pedido"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:layout_margin="16dp"
+        android:layout_gravity="bottom"
+        app:cornerRadius="16dp"
+        app:backgroundTint="@color/vermelho"
+        android:textColor="@android:color/white"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
