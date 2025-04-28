@@ -1,7 +1,10 @@
 package com.example.apkstelladitalia20.model
 
-import java.io.Serializable
+import android.os.Parcelable
+import com.example.apkstelladitalia20.Entity.ProdutoEntity
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class PromocaoEntity(
     val id: String = "",
     val idUsuario: String = "",
@@ -12,5 +15,5 @@ data class PromocaoEntity(
     val descricao: String = "",
     var quantidade: Int = 1,
     val imagemBase64: String = "",
-    val produtos: List<String> = emptyList()
-) : Serializable
+    var produtos: List<ProdutoEntity> = emptyList() // <--- mudou aqui!
+) : Parcelable

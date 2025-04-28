@@ -1,8 +1,11 @@
 package com.example.apkstelladitalia20.Entity
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 @Entity(tableName = "produto")
 data class ProdutoEntity(
     @PrimaryKey val id: String = "",
@@ -15,4 +18,4 @@ data class ProdutoEntity(
     val categoria: String = "",
     val descricao: String = "",
     val valor: Double = 0.0
-)
+) : Parcelable

@@ -144,8 +144,49 @@ class HomeFragment : Fragment() {
                 val listaPromocoes = mutableListOf<PromocaoEntity>()
 
                 for (dados in snapshot.children) {
-                    val promocao = dados.getValue(PromocaoEntity::class.java)
-                    promocao?.let { listaPromocoes.add(it) }
+                    try {
+                        val promocaoMap = dados.value as? Map<String, Any> ?: continue
+
+                        val produtosList = mutableListOf<ProdutoEntity>()
+                        val produtosData = promocaoMap["produtos"] as? List<Any> ?: emptyList()
+
+                        for (produtoData in produtosData) {
+                            when (produtoData) {
+                                is String -> {
+                                    // Produto antigo (só ID)
+                                    produtosList.add(ProdutoEntity(id = produtoData))
+                                }
+                                is Map<*, *> -> {
+                                    // Produto completo (novo)
+                                    produtosList.add(
+                                        ProdutoEntity(
+                                            id = produtoData["id"] as? String ?: "",
+                                            nome = produtoData["nome"] as? String ?: "",
+                                            imagemBase64 = produtoData["imagemBase64"] as? String ?: "",
+                                            valor = (produtoData["valor"] as? Number)?.toDouble() ?: 0.0
+                                        )
+                                    )
+                                }
+                            }
+                        }
+
+                        val promocao = PromocaoEntity(
+                            id = promocaoMap["id"] as? String ?: "",
+                            idUsuario = promocaoMap["idUsuario"] as? String ?: "",
+                            titulo = promocaoMap["titulo"] as? String ?: "",
+                            observacao = promocaoMap["observacao"] as? String ?: "",
+                            valor = (promocaoMap["valor"] as? Number)?.toDouble() ?: 0.0,
+                            nome = promocaoMap["nome"] as? String ?: "",
+                            descricao = promocaoMap["descricao"] as? String ?: "",
+                            quantidade = (promocaoMap["quantidade"] as? Number)?.toInt() ?: 1,
+                            imagemBase64 = promocaoMap["imagemBase64"] as? String ?: "",
+                            produtos = produtosList
+                        )
+
+                        listaPromocoes.add(promocao)
+                    } catch (e: Exception) {
+                        Log.e("HomeFragment", "Erro ao converter promoção: ${e.message}")
+                    }
                 }
 
                 if (listaPromocoes.isNotEmpty()) {
@@ -159,11 +200,12 @@ class HomeFragment : Fragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Erro ao carregar promoções", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "Erro ao carregar promoções", Toast.LENGTH_SHORT).show()
             }
         })
     }
+
+
 
 
     private fun carregarDestaques() {
