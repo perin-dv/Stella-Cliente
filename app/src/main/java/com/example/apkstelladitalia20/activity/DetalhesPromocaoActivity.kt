@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
 import com.example.apkstelladitalia20.adapter.AdicionaisAdapter
+import com.example.apkstelladitalia20.adpter.ProdutoInclusoAdapter
 import com.example.apkstelladitalia20.databinding.ActivityDetalhesPromocaoBinding
 import com.example.apkstelladitalia20.helper.CarrinhoController
 import com.example.apkstelladitalia20.helper.setupToolbar
@@ -34,53 +35,50 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
         setContentView(binding.root)
         setupToolbar(binding.includeToolbar)
 
-        promocao = intent.getParcelableExtra<PromocaoEntity>("promocaoSelecionada")
-            ?: throw IllegalArgumentException("Promoção não encontrada!")
 
+        promocaoAtual = intent.getParcelableExtra("promocaoSelecionada")
+        if (promocaoAtual == null) {
+            Toast.makeText(this, "Erro ao carregar promoção!", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
 
-        promocaoAtual = promocao // 🔥
-
-        carregarProdutosDaPromocao(promocao) // 🔥 Primeiro carrega os produtos
-
+        buscarProdutosIncluidos()
         setupQuantidadeButtons()
         setupBotaoAdicionar()
     }
 
     private fun exibirDados(promocao: PromocaoEntity) {
-        binding.nomeProduto.text = promocao.titulo.ifEmpty { "Promoção Especial" }
-        binding.descricaoProduto.text = promocao.descricao.ifEmpty { "" }
+        binding.nomeProduto.text = promocao.titulo
+        binding.descricaoProduto.text = promocao.descricao
 
-        // Exibir imagem da promoção (se tiver)
         if (!promocao.imagemBase64.isNullOrEmpty()) {
-            try {
-                val imagemBytes = Base64.decode(promocao.imagemBase64, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.size)
-                binding.imagemProduto.setImageBitmap(bitmap)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            val imagemBytes = Base64.decode(promocao.imagemBase64, Base64.DEFAULT)
+            val bitmap = BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.size)
+            binding.imagemProduto.setImageBitmap(bitmap)
         }
 
         val produtos = promocao.produtos
-
         val valorOriginal = produtos.sumOf { it.valor }
         val valorPromocional = promocao.valor.takeIf { it > 0.0 } ?: valorOriginal
 
         if (valorOriginal > 0 && valorPromocional > 0) {
             val percentualDesconto = ((valorOriginal - valorPromocional) / valorOriginal) * 100
             binding.txtDescontoPromocao.text =
-                "🔥 Economize ${percentualDesconto.toInt()}%!\nDe R$ %.2f por R$ %.2f".format(valorOriginal, valorPromocional)
+                "🔥 Economize ${percentualDesconto.toInt()}%!\nDe R$ %.2f por R$ %.2f".format(
+                    valorOriginal,
+                    valorPromocional
+                )
         } else {
             binding.txtDescontoPromocao.text = ""
         }
 
         precoUnitario = valorPromocional
         binding.precoProduto.text = "R$ %.2f".format(precoUnitario)
-
         atualizarPrecoTotal()
 
-        // Montar o RecyclerView dos adicionais (produtos incluídos)
-        atualizarRecyclerView(produtos)
+        binding.recyclerAdicionais.layoutManager = LinearLayoutManager(this)
+        binding.recyclerAdicionais.adapter = ProdutoInclusoAdapter(produtos)
     }
 
 
@@ -101,6 +99,43 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
     private fun atualizarQuantidade() {
         binding.quantidadeProduto.text = quantidade.toString()
         atualizarPrecoTotal()
+    }
+
+    private fun buscarProdutosIncluidos() {
+        val produtosParaBuscar = promocaoAtual?.produtos ?: return
+        val listaProdutos = mutableListOf<ProdutoEntity>()
+
+        if (produtosParaBuscar.isEmpty()) {
+            exibirDados(promocaoAtual!!)
+            return
+        }
+
+        val databaseRef = FirebaseDatabase.getInstance()
+            .getReference("empresa")
+            .child(promocaoAtual!!.idUsuario)
+            .child("produtos")
+
+        var produtosBuscados = 0
+
+        for (produto in produtosParaBuscar) {
+            databaseRef.child(produto.id).get().addOnSuccessListener { snapshot ->
+                val produtoCompleto = snapshot.getValue(ProdutoEntity::class.java)
+                produtoCompleto?.let {
+                    listaProdutos.add(it)
+                }
+                produtosBuscados++
+                if (produtosBuscados == produtosParaBuscar.size) {
+                    promocaoAtual?.produtos = listaProdutos
+                    exibirDados(promocaoAtual!!)
+                }
+            }.addOnFailureListener {
+                produtosBuscados++
+                if (produtosBuscados == produtosParaBuscar.size) {
+                    promocaoAtual?.produtos = listaProdutos
+                    exibirDados(promocaoAtual!!)
+                }
+            }
+        }
     }
 
     private fun atualizarPrecoTotal() {
@@ -125,43 +160,40 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
         atualizarDesconto()
     }
 
-
     private fun carregarProdutosDaPromocao(promocao: PromocaoEntity) {
         val listaProdutos = mutableListOf<ProdutoEntity>()
         val databaseRef = FirebaseDatabase.getInstance()
             .getReference("empresa")
-            .child(idEmpresa)
+            .child("7a3118oNdgcpmwSqrgyRTqBnFFx2")
             .child("produtos")
 
-        var totalProdutosParaBuscar = promocao.produtos.size
+        val produtosParaBuscar = promocao.produtos
         var produtosBuscados = 0
 
-        for (produto in promocao.produtos) {
+        if (produtosParaBuscar.isEmpty()) {
+            exibirDados(promocao)
+            return
+        }
+
+        for (produto in produtosParaBuscar) {
             databaseRef.child(produto.id).get().addOnSuccessListener { snapshot ->
                 val produtoCompleto = snapshot.getValue(ProdutoEntity::class.java)
-
                 produtoCompleto?.let {
                     listaProdutos.add(it)
                 }
 
                 produtosBuscados++
 
-                if (produtosBuscados == totalProdutosParaBuscar) {
-                    // Atualizar promoção com a lista completa de produtos
+                if (produtosBuscados == produtosParaBuscar.size) {
                     promocaoAtual?.produtos = listaProdutos
-
-                    // Atualizar a tela toda depois que todos os produtos foram buscados
-                    exibirDados(promocaoAtual!!) // 🔥 Chama aqui SEMPRE, depois de carregar
+                    exibirDados(promocaoAtual!!)
                 }
-
-            }.addOnFailureListener { error ->
-                Log.e("DetalhesPromocao", "Erro ao buscar produto ${produto.id}: ${error.message}")
-
+            }.addOnFailureListener {
                 produtosBuscados++
 
-                if (produtosBuscados == totalProdutosParaBuscar) {
+                if (produtosBuscados == produtosParaBuscar.size) {
                     promocaoAtual?.produtos = listaProdutos
-                    exibirDados(promocaoAtual!!) // 🔥 Mesmo se falhar, mostra o que conseguiu
+                    exibirDados(promocaoAtual!!)
                 }
             }
         }
@@ -176,12 +208,14 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
         if (valorOriginal > 0 && valorPromocional > 0) {
             val percentualDesconto = ((valorOriginal - valorPromocional) / valorOriginal) * 100
             binding.txtDescontoPromocao.text =
-                "🔥 Economize ${percentualDesconto.toInt()}%!\nDe R$ %.2f por R$ %.2f".format(valorOriginal, valorPromocional)
+                "🔥 Economize ${percentualDesconto.toInt()}%!\nDe R$ %.2f por R$ %.2f".format(
+                    valorOriginal,
+                    valorPromocional
+                )
         } else {
             binding.txtDescontoPromocao.text = ""
         }
     }
-
 
 
     private fun setupBotaoAdicionar() {
@@ -189,7 +223,8 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
             promocaoAtual?.let { promocao ->
                 CarrinhoController.adicionarItem(promocao, quantidade)
 
-                Toast.makeText(this, "Adicionado ao carrinho de compras ✅", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Adicionado ao carrinho de compras ✅", Toast.LENGTH_SHORT)
+                    .show()
 
                 val intent = Intent(this, EnderecoEntregaActivity::class.java)
                 startActivity(intent)

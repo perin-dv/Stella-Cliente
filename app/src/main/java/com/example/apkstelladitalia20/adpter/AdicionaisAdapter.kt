@@ -3,7 +3,6 @@ package com.example.apkstelladitalia20.adapter
 import android.graphics.BitmapFactory
 import android.util.Base64
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
@@ -33,24 +32,27 @@ class AdicionaisAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(produto: ProdutoEntity) {
-            binding.txtNomeAdicional.text = produto.nome
-            binding.txtPrecoAdicional.text = "R$ %.2f".format(produto.valor)
+            binding.txtNomeAdicional.text = produto.nome ?: "Sem nome"
+            binding.txtPrecoAdicional.text = "R$ %.2f".format(produto.valor ?: 0.0)
 
             if (!produto.imagemBase64.isNullOrEmpty()) {
-                val imagemBytes = Base64.decode(produto.imagemBase64, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.size)
-                binding.imgAdicional.setImageBitmap(bitmap)
+                try {
+                    val imagemBytes = Base64.decode(produto.imagemBase64, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.size)
+                    binding.imgAdicional.setImageBitmap(bitmap)
+                } catch (e: Exception) {
+                    binding.imgAdicional.setImageResource(R.drawable.ic_bebidas)
+                }
             } else {
-                binding.imgAdicional.setImageResource(R.drawable.ic_bebidas) // 🔥 caso o produto não tenha imagem, usa padrão
+                binding.imgAdicional.setImageResource(R.drawable.ic_bebidas)
             }
 
             binding.root.setOnClickListener {
                 onClick(produto)
             }
 
-            // Opcional: mudar cor se estiver selecionado
             if (adicionaisSelecionados.contains(produto)) {
-                binding.root.setBackgroundResource(R.drawable.bg_categoria_circle) // ou outro fundo que quiser
+                binding.root.setBackgroundResource(R.drawable.bg_categoria_circle)
             } else {
                 binding.root.setBackgroundResource(R.drawable.bg_card_gourmet)
             }
