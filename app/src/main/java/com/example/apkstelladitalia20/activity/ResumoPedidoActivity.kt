@@ -4,13 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.apkstelladitalia20.adapter.ResumoPedidoAdapter
 import com.example.apkstelladitalia20.bottomsheet.BottomSheetFormaPagamento
 import com.example.apkstelladitalia20.databinding.ActivityResumoPedidoBinding
 import com.example.apkstelladitalia20.helper.setupToolbar
 import com.example.apkstelladitalia20.model.PromocaoEntity
 import com.google.firebase.firestore.FirebaseFirestore
 
-class ResumoPedidoActivity : AppCompatActivity() {
+class ResumoPedidoActivity : AppCompatActivity(),ResumoPedidoAdapter.ResumoListener {
 
     private lateinit var binding: ActivityResumoPedidoBinding
     private var listaCarrinho: ArrayList<PromocaoEntity> = arrayListOf()
@@ -21,6 +23,8 @@ class ResumoPedidoActivity : AppCompatActivity() {
     private var formaPagamentoSelecionada: String? = null
     private var trocoPara: String? = null
     private var idPromocaoSelecionada: String? = null
+    private lateinit var resumoAdapter: ResumoPedidoAdapter
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +34,7 @@ class ResumoPedidoActivity : AppCompatActivity() {
 
         setupToolbar(binding.includeToolbar)
         setupListeners()
+        setupRecyclerResumo()
         carregarResumoValores()
         carregarTaxaEntregaFirebase()
 
@@ -108,6 +113,13 @@ class ResumoPedidoActivity : AppCompatActivity() {
             Toast.makeText(this, "CPF inválido. Deve conter 11 dígitos.", Toast.LENGTH_SHORT).show()
         }
     }
+    private fun setupRecyclerResumo() {
+        resumoAdapter = ResumoPedidoAdapter(listaCarrinho, this)
+        binding.recyclerResumoPedido.apply {
+            layoutManager = LinearLayoutManager(this@ResumoPedidoActivity)
+            adapter = resumoAdapter
+        }
+    }
 
     private fun atualizarResumoValores() {
         val subtotalComDesconto = (subtotal - descontoCupom).coerceAtLeast(0.0)
@@ -119,16 +131,15 @@ class ResumoPedidoActivity : AppCompatActivity() {
     }
 
     private fun confirmarPedido() {
-        Toast.makeText(this, "Pedido confirmado com sucesso!", Toast.LENGTH_LONG).show()
-        enviarNotificacaoEmpresa()
+             Toast.makeText(this, "Pedido realizado com sucesso!", Toast.LENGTH_SHORT).show()
+            // val intent = Intent(this, PedidosActivity::class.java)
+            intent.putExtra("abrirPedidos", true) // Indicar pra abrir o Fragment de Pedidos
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            startActivity(intent)
+            finish()
 
-        val intent = Intent(this, HomeActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
-        finish()
     }
-
-    private fun enviarNotificacaoEmpresa() {
+        private fun enviarNotificacaoEmpresa() {
         println("🔔 Empresa: Novo pedido aguardando confirmação!")
     }
 
@@ -164,5 +175,9 @@ class ResumoPedidoActivity : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Erro ao buscar promoção.", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    override fun onResumoAtualizado() {
+        TODO("Not yet implemented")
     }
 }

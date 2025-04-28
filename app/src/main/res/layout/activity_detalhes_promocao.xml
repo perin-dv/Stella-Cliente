@@ -12,8 +12,7 @@
     <include
         android:id="@+id/includeToolbar"
         layout="@layout/toolbar_layout"
-        android:layout_marginTop="30dp"
-        android:layout_width="match_parent"
+           android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
 
@@ -73,6 +72,16 @@
                 android:gravity="center"
                 android:layout_marginBottom="8dp" />
 
+            <TextView
+                android:id="@+id/txtDescontoPromocao"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔥 Economize 40%!"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#388E3C"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
             <!-- Descrição -->
             <TextView
                 android:id="@+id/descricaoProduto"
@@ -94,6 +103,7 @@
                 android:textStyle="bold"
                 android:textColor="#212121"
                 android:layout_marginBottom="8dp" />
+
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerAdicionais"

@@ -10,13 +10,15 @@
 
     <ImageView
         android:id="@+id/btnVoltar"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="13dp"
         android:padding="8dp"
         android:src="@drawable/ic_arrow_back"
         android:contentDescription="Voltar"
         android:clickable="true"
         android:focusable="true"
+
         android:background="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"

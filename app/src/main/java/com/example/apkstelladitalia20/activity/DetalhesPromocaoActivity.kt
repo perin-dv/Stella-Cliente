@@ -38,36 +38,28 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
     }
 
     private fun exibirDados(promocao: PromocaoEntity) {
-        // Exibir imagem da promoção
-        promocao.imagemBase64?.let {
-            try {
-                val base64Clean = it.replace("\\s".toRegex(), "")
-                val bytes = Base64.decode(base64Clean, Base64.DEFAULT)
-                val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                if (bmp != null) {
-                    binding.imagemProduto.setImageBitmap(bmp)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+        binding.nomeProduto.text = promocao.titulo ?: "Promoção Especial"
+        binding.descricaoProduto.text = promocao.descricao ?: ""
+
+        val produtos = promocao.produtos ?: emptyList()
+
+        val valorOriginal = produtos.sumOf { it.valor ?: 0.0 }
+        val valorPromocional = promocao.valor ?: valorOriginal
+
+        if (valorOriginal > 0 && valorPromocional > 0) {
+            val percentualDesconto = ((valorOriginal - valorPromocional) / valorOriginal) * 100
+            binding.txtDescontoPromocao.text = "🔥 Economize ${percentualDesconto.toInt()}%!\nDe R$ %.2f por R$ %.2f".format(valorOriginal, valorPromocional)
+        } else {
+            binding.txtDescontoPromocao.text = ""
         }
 
-        // Nome
-        binding.nomeProduto.text = promocao.titulo ?: "Promoção Especial"
-
-        // Descrição
-        binding.descricaoProduto.text = promocao.observacao ?: "Sem observações."
-
-        // Preço
-        precoUnitario = promocao.valor ?: 0.0
+        precoUnitario = valorPromocional
         binding.precoProduto.text = "R$ %.2f".format(precoUnitario)
 
-        // Preço total inicial
         atualizarPrecoTotal()
 
-        // RecyclerView de adicionais (caso tenha)
         binding.recyclerAdicionais.layoutManager = LinearLayoutManager(this)
-        // binding.recyclerAdicionais.adapter = AdicionaisAdapter(promocao.produtos)
+        // binding.recyclerAdicionais.adapter = AdicionaisAdapter(produtos) (já ajeitamos pra fazer certo depois)
     }
 
     private fun setupQuantidadeButtons() {
@@ -110,5 +102,6 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
             }
         }
     }
+
 
 }

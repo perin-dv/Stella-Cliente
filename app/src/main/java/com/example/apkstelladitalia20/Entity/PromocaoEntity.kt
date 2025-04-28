@@ -8,6 +8,8 @@ data class PromocaoEntity(
     val titulo: String = "",
     val observacao: String = "",
     val valor: Double = 0.0,
+    val nome: String = "",
+    val descricao: String = "",
     var quantidade: Int = 1,
     val imagemBase64: String = "",
     val produtos: List<String> = emptyList()

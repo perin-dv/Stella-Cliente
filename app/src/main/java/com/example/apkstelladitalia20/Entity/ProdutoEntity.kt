@@ -13,5 +13,6 @@ data class ProdutoEntity(
     val maisPedido: Boolean = false,
     val quantidadeVendida: Int = 0,
     val categoria: String = "",
-    val descricao: String = ""
+    val descricao: String = "",
+    val valor: Double = 0.0
 )
