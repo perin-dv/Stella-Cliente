@@ -22,11 +22,10 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDetalhesPromocaoBinding
     private val adicionaisSelecionadosPromocao = mutableListOf<ProdutoEntity>()
     private var promocaoAtual: PromocaoEntity? = null
-    private lateinit var promocao: PromocaoEntity
 
     private var quantidade = 1
     private var precoUnitario = 0.0 // preço de 1 item
-    private val idEmpresa = "7a3118oNdgcpmwSqrgyRTqBnFFx2" // substitui pelo seu ID correto
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,49 +35,53 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
         setupToolbar(binding.includeToolbar)
 
 
-        promocaoAtual = intent.getParcelableExtra("promocaoSelecionada")
+        promocaoAtual = intent.getParcelableExtra<PromocaoEntity>("promocaoSelecionada")
         if (promocaoAtual == null) {
             Toast.makeText(this, "Erro ao carregar promoção!", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
-
+        exibirDados(promocaoAtual!!)
         buscarProdutosIncluidos()
         setupQuantidadeButtons()
         setupBotaoAdicionar()
     }
 
     private fun exibirDados(promocao: PromocaoEntity) {
-        binding.nomeProduto.text = promocao.titulo
-        binding.descricaoProduto.text = promocao.descricao
+        // Título e descrição
+        binding.nomeProduto.text = promocao.titulo.ifEmpty { "Promoção Especial" }
+        binding.descricaoProduto.text = promocao.observacao.ifEmpty { "" }
 
+        // Imagem da promoção
         if (!promocao.imagemBase64.isNullOrEmpty()) {
             val imagemBytes = Base64.decode(promocao.imagemBase64, Base64.DEFAULT)
             val bitmap = BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.size)
             binding.imagemProduto.setImageBitmap(bitmap)
         }
 
-        val produtos = promocao.produtos
-        val valorOriginal = produtos.sumOf { it.valor }
+        // Produtos inclusos na promoção
+        val produtosInclusos = promocao.produtos ?: emptyList()
+
+        // Exibir os produtos com imagem, nome e preço
+        binding.recyclerAdicionais.layoutManager = LinearLayoutManager(this)
+        binding.recyclerAdicionais.adapter = ProdutoInclusoAdapter(produtosInclusos)
+
+        // Preços e desconto
+        val valorOriginal = produtosInclusos.sumOf { it.valor }
         val valorPromocional = promocao.valor.takeIf { it > 0.0 } ?: valorOriginal
+
+        binding.precoProduto.text = "R$ %.2f".format(valorPromocional)
+        precoUnitario = valorPromocional
 
         if (valorOriginal > 0 && valorPromocional > 0) {
             val percentualDesconto = ((valorOriginal - valorPromocional) / valorOriginal) * 100
             binding.txtDescontoPromocao.text =
-                "🔥 Economize ${percentualDesconto.toInt()}%!\nDe R$ %.2f por R$ %.2f".format(
-                    valorOriginal,
-                    valorPromocional
-                )
+                "🔥 Economize ${percentualDesconto.toInt()}%!\nDe R$ %.2f por R$ %.2f".format(valorOriginal, valorPromocional)
         } else {
             binding.txtDescontoPromocao.text = ""
         }
 
-        precoUnitario = valorPromocional
-        binding.precoProduto.text = "R$ %.2f".format(precoUnitario)
         atualizarPrecoTotal()
-
-        binding.recyclerAdicionais.layoutManager = LinearLayoutManager(this)
-        binding.recyclerAdicionais.adapter = ProdutoInclusoAdapter(produtos)
     }
 
 
@@ -158,45 +161,6 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
 
         // 🔥 Aqui recalculamos o desconto com os produtos completos
         atualizarDesconto()
-    }
-
-    private fun carregarProdutosDaPromocao(promocao: PromocaoEntity) {
-        val listaProdutos = mutableListOf<ProdutoEntity>()
-        val databaseRef = FirebaseDatabase.getInstance()
-            .getReference("empresa")
-            .child("7a3118oNdgcpmwSqrgyRTqBnFFx2")
-            .child("produtos")
-
-        val produtosParaBuscar = promocao.produtos
-        var produtosBuscados = 0
-
-        if (produtosParaBuscar.isEmpty()) {
-            exibirDados(promocao)
-            return
-        }
-
-        for (produto in produtosParaBuscar) {
-            databaseRef.child(produto.id).get().addOnSuccessListener { snapshot ->
-                val produtoCompleto = snapshot.getValue(ProdutoEntity::class.java)
-                produtoCompleto?.let {
-                    listaProdutos.add(it)
-                }
-
-                produtosBuscados++
-
-                if (produtosBuscados == produtosParaBuscar.size) {
-                    promocaoAtual?.produtos = listaProdutos
-                    exibirDados(promocaoAtual!!)
-                }
-            }.addOnFailureListener {
-                produtosBuscados++
-
-                if (produtosBuscados == produtosParaBuscar.size) {
-                    promocaoAtual?.produtos = listaProdutos
-                    exibirDados(promocaoAtual!!)
-                }
-            }
-        }
     }
 
 
