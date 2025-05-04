@@ -30,8 +30,8 @@
 
         <!-- Login e Cadastro -->
         <activity android:name="com.example.apkstelladitalia20.activity.LoginActivity" />
-        <activity android:name="com.example.apkstelladitalia20.ui.login.CadastroActivity" />
-        <activity android:name="com.example.apkstelladitalia20.ui.login.DadosEntregaActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.CadastroActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.DadosEntregaActivity" />
 
         <!-- Atividades principais -->
         <activity android:name="com.example.apkstelladitalia20.activity.HomeActivity" />

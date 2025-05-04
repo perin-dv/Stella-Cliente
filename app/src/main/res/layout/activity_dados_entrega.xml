@@ -24,6 +24,20 @@
             android:textSize="22sp"
             android:layout_marginBottom="16dp" />
 
+        <!-- CEP -->
+        <EditText
+            android:id="@+id/editCep"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="CEP"
+            android:inputType="number"
+            android:maxLength="8"
+            android:textColor="@color/black"
+            android:textColorHint="#CCCCCC"
+            android:background="@drawable/bg_edit_text"
+            android:padding="16dp"
+            android:layout_marginBottom="8dp" />
+
         <!-- Rua -->
         <EditText
             android:id="@+id/editRua"

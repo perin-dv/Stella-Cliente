@@ -15,4 +15,7 @@ object FirebaseHelper {
     fun empresaDatabase(context: Context): DatabaseReference {
         return FirebaseDatabase.getInstance().reference
     }
+    fun getIdUsuario(): String? {
+        return FirebaseApp.getInstance().currentUser?.uid
+    }
 }

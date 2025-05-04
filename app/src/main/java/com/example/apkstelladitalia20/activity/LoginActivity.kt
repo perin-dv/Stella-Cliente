@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.apkstelladitalia20.databinding.ActivityLoginBinding
 import com.example.apkstelladitalia20.helper.FirebaseHelper
-import com.example.apkstelladitalia20.ui.login.CadastroActivity
 import com.example.stelladitalia20.Entity.ClienteEntity
 import com.google.firebase.database.*
 
@@ -26,6 +25,7 @@ class LoginActivity : AppCompatActivity() {
             if (emailInput.isEmpty() || senhaInput.isEmpty()) {
                 Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
+
             }
 
             FirebaseHelper.database

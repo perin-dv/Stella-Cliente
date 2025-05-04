@@ -66,7 +66,9 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        prefs.edit().putString("uidEmpresa", "7a3118oNdgcpmwSqrgyRTqBnFFx2").apply()
         return binding.root
+
 
     }
 
@@ -87,7 +89,7 @@ class HomeFragment : Fragment() {
     }
     private fun carregarProdutosOrdenados() {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
-        val empresaKey = prefs.getString("uidEmpresa", "") ?: ""
+        val empresaKey = "7a3118oNdgcpmwSqrgyRTqBnFFx2"
 
         val ordemDesejada = listOf(
             "Pizza Tradicional",
@@ -226,14 +228,28 @@ class HomeFragment : Fragment() {
 
 
     private fun carregarSaudacao() {
-        val nome = prefs.getString("nome", null)
-        binding.tvSaudacao.text = if (!nome.isNullOrEmpty()) {
-            "Olá, $nome 👋"
-        } else "Olá, cliente 👋"
-    }
+        val uidCliente = prefs.getString("uid", "") ?: return
+        val refCliente = FirebaseHelper.database.child("clientes").child(uidCliente)
 
+        refCliente.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val nome = snapshot.child("nome").getValue(String::class.java)
+                if (!nome.isNullOrBlank()) {
+                    binding.tvSaudacao.text = "Olá, $nome 👋"
+                    prefs.edit().putString("nome", nome).apply()
+                } else {
+                    binding.tvSaudacao.text = "Olá, cliente 👋"
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HomeFragment", "Erro ao buscar nome do cliente: ${error.message}")
+                binding.tvSaudacao.text = "Olá, cliente 👋"
+            }
+        })
+    }
     private fun carregarEnderecoCliente() {
-        val uidCliente = prefs.getString("uid", "") ?: ""
+        val uidCliente = prefs.getString("uid", "") ?: return
         val refCliente = FirebaseHelper.database.child("clientes").child(uidCliente)
 
         refCliente.child("endereco").addListenerForSingleValueEvent(object : ValueEventListener {
@@ -251,7 +267,7 @@ class HomeFragment : Fragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("HomeFragment", "Erro ao buscar endereço do cadastro: ${error.message}")
+                Log.e("HomeFragment", "Erro ao buscar endereço do cliente: ${error.message}")
                 if (isAdded) solicitarPermissaoEConfigurarEndereco()
             }
         })
