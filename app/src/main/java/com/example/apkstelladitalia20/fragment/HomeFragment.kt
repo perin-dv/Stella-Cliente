@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Bundle
@@ -21,6 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
 import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity
@@ -33,7 +35,9 @@ import com.example.apkstelladitalia20.helper.DepthPageTransformer
 import com.example.apkstelladitalia20.helper.FirebaseHelper
 import com.example.apkstelladitalia20.helper.ZoomOutPageTransformer
 import com.example.apkstelladitalia20.model.PromocaoEntity
+import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.database.*
+import com.stelladitalia.adapters.ProdutoAdapter
 
 import java.util.*
 
@@ -41,14 +45,18 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-
-    private val promocoes = mutableListOf<PromocaoEntity>()
+    private val handler = android.os.Handler()
+    private lateinit var autoScrollRunnable: Runnable
+    private var currentPage = 0
     private val destaques = mutableListOf<ProdutoEntity>()
     private val categorias = mutableListOf<Pair<String, List<ProdutoEntity>>>()
-
+    private var listaPromocoesDoBanner: List<PromocaoEntity> = emptyList()
     private lateinit var promocaoAdapter: PromocaoAdapter
     private lateinit var destaqueAdapter: DestaquesAdapter
     private lateinit var categoriaAdapter: CategoriaAdapter
+    private lateinit var produtoAdapter: ProdutoAdapter
+    private val produtosOrdenados = mutableListOf<ProdutoEntity>()
+
 
     private val prefs by lazy {
         requireContext().getSharedPreferences("clientePrefs", Context.MODE_PRIVATE)
@@ -59,6 +67,7 @@ class HomeFragment : Fragment() {
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,38 +76,154 @@ class HomeFragment : Fragment() {
         setupAdapters()
         carregarSaudacao()
         carregarEnderecoCliente()
+        carregarProdutosOrdenados()
         carregarPromocao()
         carregarDestaques()
         carregarCategorias()
         carregarConfiguracoes()
         setupCategoryScroll()
-    }
-
-    private fun setupAdapters() {
-        binding.recyclerDestaques.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        destaqueAdapter = DestaquesAdapter(requireContext(), destaques) { }
-        binding.recyclerDestaques.adapter = destaqueAdapter
-
-        promocaoAdapter = PromocaoAdapter { promocao ->
-            val intent = Intent(requireContext(), DetalhesPromocaoActivity::class.java)
-            intent.putExtra("promocaoSelecionada", promocao)
-            startActivity(intent)
-        }
-        binding.viewPagerPromocoes.adapter = promocaoAdapter
-        binding.viewPagerPromocoes.setPageTransformer(DepthPageTransformer())
-
-        binding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
-        categoriaAdapter = CategoriaAdapter(requireContext(), categorias) { }
-        binding.rvCategorias.adapter = categoriaAdapter
-
-        binding.viewPagerPromocoes.apply {
-            offscreenPageLimit = 3
-            (getChildAt(0) as RecyclerView).clipToPadding = false
-        }
-
+        startAutoScroll()
 
     }
+    private fun carregarProdutosOrdenados() {
+        val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
+        val empresaKey = prefs.getString("uidEmpresa", "") ?: ""
+
+        val ordemDesejada = listOf(
+            "Pizza Tradicional",
+            "Pizza Especial",
+            "Pizza Vegetariana",
+            "Pizza Premium",
+            "Pizza Doce",
+            "Porções",
+            "Bebidas sem álcool",
+            "Bebidas com álcool"
+        )
+
+        empresaDb.child("empresa").child(empresaKey).child("produtos")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val listaTemp = mutableListOf<ProdutoEntity>()
+
+                    for (categoria in ordemDesejada) {
+                        val categoriaSnap = snapshot.child(categoria)
+                        for (produtoSnap in categoriaSnap.children) {
+                            produtoSnap.getValue(ProdutoEntity::class.java)?.let {
+                                listaTemp.add(it)
+                            }
+                        }
+                    }
+
+                    produtosOrdenados.clear()
+                    produtosOrdenados.addAll(listaTemp)
+                    produtoAdapter.notifyDataSetChanged()
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("HomeFragment", "Erro ao carregar produtos ordenados: ${error.message}")
+                }
+            })
+    }
+
+        private fun setupAdapters() {
+            binding.recyclerDestaques.layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            destaqueAdapter = DestaquesAdapter(requireContext(), destaques) { }
+            binding.recyclerDestaques.adapter = destaqueAdapter
+
+            promocaoAdapter = PromocaoAdapter {
+                val posAtual = binding.viewPagerPromocoes.currentItem
+                val promocao = promocaoAdapter.currentList.getOrNull(posAtual)
+                if (promocao != null) {
+                    val intent = Intent(requireContext(), DetalhesPromocaoActivity::class.java)
+                    intent.putExtra("promocaoSelecionada", promocao)
+                    startActivity(intent)
+                }
+            }
+
+            binding.recyclerProdutos.layoutManager =
+                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+            produtoAdapter = ProdutoAdapter(requireContext(), produtosOrdenados)
+            { produtoSelecionado ->
+
+        }
+            binding.recyclerProdutos.adapter = produtoAdapter
+
+
+
+            binding.viewPagerPromocoes.adapter = promocaoAdapter
+            binding.viewPagerPromocoes.setPageTransformer(DepthPageTransformer())
+            binding.tabLayoutIndicator.setSelectedTabIndicatorColor(Color.TRANSPARENT)
+            binding.tabLayoutIndicator.setBackgroundColor(Color.TRANSPARENT)
+            (binding.tabLayoutIndicator.parent as ViewGroup).clipChildren = false
+
+
+                    // Escala animada da bolinha selecionada
+            binding.viewPagerPromocoes.registerOnPageChangeCallback(object :
+                ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    val tabStrip = binding.tabLayoutIndicator.getChildAt(0) as ViewGroup
+                    for (i in 0 until tabStrip.childCount) {
+                        val tabView = tabStrip.getChildAt(i)
+                        tabView.background = null
+                        tabView.setBackgroundColor(android.graphics.Color.TRANSPARENT) // <- ESSENCIAL
+                        tabView.animate()
+                            .scaleX(if (i == position) 1.3f else 1f)
+                            .scaleY(if (i == position) 1.3f else 1f)
+                            .setDuration(300)
+                            .setInterpolator(android.view.animation.OvershootInterpolator())
+                            .start()
+                    }
+                }
+            })
+
+            binding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
+            categoriaAdapter = CategoriaAdapter(requireContext(), categorias) { }
+            binding.rvCategorias.adapter = categoriaAdapter
+
+            binding.viewPagerPromocoes.apply {
+                offscreenPageLimit = 3
+                (getChildAt(0) as RecyclerView).clipToPadding = false
+
+                // Usa layout personalizado com a bolinha
+                TabLayoutMediator(binding.tabLayoutIndicator, binding.viewPagerPromocoes) { tab, _ ->
+                    tab.setCustomView(R.layout.tab_custom_dot)
+                }.attach()
+
+                binding.tabLayoutIndicator.post {
+                    val tabStrip = binding.tabLayoutIndicator.getChildAt(0) as ViewGroup
+                    for (i in 0 until tabStrip.childCount) {
+                        val tabView = tabStrip.getChildAt(i)
+
+                        // 🔥 ESSENCIAL: forçar largura mínima da célula da aba
+                        tabView.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+                        tabView.requestLayout()
+
+                        // 🔄 Garante que não haja fundo
+                        tabView.background = null
+                        tabView.setBackgroundColor(Color.TRANSPARENT)
+                    }
+                }
+            }
+            binding.tabLayoutIndicator.post {
+                val tabStrip = binding.tabLayoutIndicator.getChildAt(0) as ViewGroup
+                for (i in 0 until tabStrip.childCount) {
+                    val tabView = tabStrip.getChildAt(i)
+
+                    // 🔥 Essencial: remover padding invisível aplicado pelo Material
+                    tabView.setPadding(0, 0, 0, 0)
+
+                    // Garante que o tabView use apenas o necessário
+                    tabView.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+                    tabView.background = null
+                    tabView.setBackgroundColor(Color.TRANSPARENT)
+                    tabView.requestLayout()
+                }
+            }
+
+        }
+
 
     private fun carregarSaudacao() {
         val nome = prefs.getString("nome", null)
@@ -132,6 +257,20 @@ class HomeFragment : Fragment() {
         })
     }
 
+    private fun startAutoScroll() {
+        autoScrollRunnable = object : Runnable {
+            override fun run() {
+                val totalPages = promocaoAdapter.itemCount
+                if (totalPages > 0) {
+                    currentPage = (binding.viewPagerPromocoes.currentItem + 1) % totalPages
+                    binding.viewPagerPromocoes.setCurrentItem(currentPage, true)
+                    handler.postDelayed(this, 10000) // 10 segundos
+                }
+            }
+        }
+        handler.postDelayed(autoScrollRunnable, 10000)
+    }
+
     private fun carregarPromocao() {
         val database = FirebaseDatabase.getInstance()
         val referencia = database
@@ -156,14 +295,17 @@ class HomeFragment : Fragment() {
                                     // Produto antigo (só ID)
                                     produtosList.add(ProdutoEntity(id = produtoData))
                                 }
+
                                 is Map<*, *> -> {
                                     // Produto completo (novo)
                                     produtosList.add(
                                         ProdutoEntity(
                                             id = produtoData["id"] as? String ?: "",
                                             nome = produtoData["nome"] as? String ?: "",
-                                            imagemBase64 = produtoData["imagemBase64"] as? String ?: "",
-                                            valor = (produtoData["valor"] as? Number)?.toDouble() ?: 0.0
+                                            imagemBase64 = produtoData["imagemBase64"] as? String
+                                                ?: "",
+                                            valor = (produtoData["valor"] as? Number)?.toDouble()
+                                                ?: 0.0
                                         )
                                     )
                                 }
@@ -192,7 +334,12 @@ class HomeFragment : Fragment() {
                 if (listaPromocoes.isNotEmpty()) {
                     binding.viewPagerPromocoes.visibility = View.VISIBLE
                     binding.textSemPromocoes.visibility = View.GONE
-                    promocaoAdapter.submitList(listaPromocoes)
+                    listaPromocoesDoBanner = listaPromocoes
+                    promocaoAdapter.submitList(null)
+                    promocaoAdapter.submitList(listaPromocoes.toList())
+
+
+
                 } else {
                     binding.viewPagerPromocoes.visibility = View.GONE
                     binding.textSemPromocoes.visibility = View.VISIBLE
@@ -200,12 +347,11 @@ class HomeFragment : Fragment() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(requireContext(), "Erro ao carregar promoções", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Erro ao carregar promoções", Toast.LENGTH_SHORT)
+                    .show()
             }
         })
     }
-
-
 
 
     private fun carregarDestaques() {
@@ -237,16 +383,44 @@ class HomeFragment : Fragment() {
 
         empresaDb.child("empresa").child(empresaKey).child("produtos")
             .addListenerForSingleValueEvent(object : ValueEventListener {
-                @SuppressLint("NotifyDataSetChanged")
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    categorias.clear()
-                    for (catSnap in snapshot.children) {
-                        val nomeCat = catSnap.key ?: "Sem categoria"
-                        val lista = catSnap.children.mapNotNull {
-                            it.getValue(ProdutoEntity::class.java)
-                        }
-                        categorias.add(Pair(nomeCat, lista))
+                    val produtosPorCategoria = mutableMapOf<String, MutableList<ProdutoEntity>>()
+
+                    for (produtoSnap in snapshot.children) {
+                        val produto = produtoSnap.getValue(ProdutoEntity::class.java) ?: continue
+                        val categoria = produtoSnap.child("categoria").getValue(String::class.java) ?: "Sem categoria"
+
+                        produtosPorCategoria.getOrPut(categoria) { mutableListOf() }.add(produto)
                     }
+
+                    // Ordena manualmente na ordem desejada
+                    val ordemDesejada = listOf(
+                        "Pizza Tradicional",
+                        "Pizza Especial",
+                        "Pizza Vegetariana",
+                        "Pizza Premium",
+                        "Pizza Doce",
+                        "Porções",
+                        "Bebidas sem álcool",
+                        "Bebidas com álcool"
+                    )
+
+                    categorias.clear()
+
+                    // Adiciona na ordem correta
+                    ordemDesejada.forEach { nome ->
+                        produtosPorCategoria[nome]?.let { lista ->
+                            categorias.add(Pair(nome, lista))
+                        }
+                    }
+
+                    // Adiciona outras categorias não previstas (se houver)
+                    produtosPorCategoria.forEach { (categoria, lista) ->
+                        if (categoria !in ordemDesejada) {
+                            categorias.add(Pair(categoria, lista))
+                        }
+                    }
+
                     categoriaAdapter.notifyDataSetChanged()
                 }
 
@@ -258,22 +432,31 @@ class HomeFragment : Fragment() {
 
     private fun carregarConfiguracoes() {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
-        val empresaKey = prefs.getString("uidEmpresa", "") ?: ""
+        val empresaKey = "7a3118oNdgcpmwSqrgyRTqBnFFx2" // UID fixo da empresa
+
+        Log.d("HomeFragment", "Buscando config da empresa: $empresaKey")
 
         empresaDb.child("empresa").child(empresaKey).child("config")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
                         val taxaEntrega = snapshot.child("taxaEntrega").getValue(String::class.java)
-                        val tempoEntrega =
-                            snapshot.child("tempoEntrega").getValue(String::class.java)
-                        binding.txtTempoEntrega.text =
-                            "Entrega em até $tempoEntrega min • R$ $taxaEntrega"
+                        val tempoEntrega = snapshot.child("tempoEntrega").getValue(String::class.java)
+
+                        if (!taxaEntrega.isNullOrEmpty() && !tempoEntrega.isNullOrEmpty()) {
+                            binding.txtTempoEntrega.text =
+                                "Entrega em até $tempoEntrega min • R$ $taxaEntrega"
+                        } else {
+                            binding.txtTempoEntrega.text = "Informações indisponíveis"
+                            Log.w("HomeFragment", "Dados incompletos: taxaEntrega ou tempoEntrega nulo")
+                        }
+                    } else {
+                        Log.w("HomeFragment", "Snapshot não encontrado em /config")
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("HomeFragment", "Erro ao carregar configuracoes: ${error.message}")
+                    Log.e("HomeFragment", "Erro ao carregar configurações: ${error.message}")
                 }
             })
     }
@@ -363,6 +546,7 @@ class HomeFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        handler.removeCallbacks(autoScrollRunnable)
         _binding = null
     }
 }

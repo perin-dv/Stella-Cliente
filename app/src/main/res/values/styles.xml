@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="DialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
-        <item name="android:background">@drawable/bg_dialog_rounded</item>
-        <item name="android:windowMinWidthMajor">90%</item>
-        <item name="android:windowMinWidthMinor">90%</item>
+
+    <!-- Estilo para textos personalizados -->
+    <style name="MeuEstiloDeTexto">
+        <item name="android:textColor">@color/vermelho</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="Theme.Apkstelladitalia20" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
-        <item name="colorOnPrimary">@android:color/white</item>
-        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
-        <item name="android:navigationBarColor">@color/colorPrimary</item>
+    <!-- Estilo para cards com elevação -->
+    <style name="CardElevado">
+        <item name="cardElevation">8dp</item>
+        <item name="cardCornerRadius">16dp</item>
+    </style>
+
+    <!-- Estilo para botões arredondados -->
+    <style name="BotaoArredondado">
+        <item name="android:backgroundTint">@color/vermelho</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:background">@drawable/bg_botao_arredondado</item>
     </style>
 
 </resources>

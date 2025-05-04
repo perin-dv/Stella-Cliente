@@ -14,14 +14,11 @@ class PromocaoAdapter(
     private val onClick: (PromocaoEntity) -> Unit
 ) : ListAdapter<PromocaoEntity, PromocaoAdapter.PromocaoViewHolder>(PromocaoDiffCallback()) {
 
-    inner class PromocaoViewHolder(private val binding: ItemBannerPromocaoBinding) :
+    inner class PromocaoViewHolder(val binding: ItemBannerPromocaoBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(promocao: PromocaoEntity) {
-            binding.root.setOnClickListener {
-                onClick(promocao)
-            }
-
+            // Exibe imagem da promoção
             if (!promocao.imagemBase64.isNullOrBlank()) {
                 try {
                     val base64Clean = promocao.imagemBase64.replace("\\s+".toRegex(), "")
@@ -36,12 +33,22 @@ class PromocaoAdapter(
             } else {
                 binding.imgBanner.setImageBitmap(null)
             }
+
+            // Clique correto com referência direta ao objeto
+            binding.root.setOnClickListener {
+                onClick(promocao)
+            }
         }
     }
 
+
+
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PromocaoViewHolder {
         val binding = ItemBannerPromocaoBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return PromocaoViewHolder(binding)
+        val holder = PromocaoViewHolder(binding)
+
+        return holder
     }
 
     override fun onBindViewHolder(holder: PromocaoViewHolder, position: Int) {

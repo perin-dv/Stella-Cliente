@@ -20,7 +20,6 @@ import com.google.firebase.database.FirebaseDatabase
 class DetalhesPromocaoActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetalhesPromocaoBinding
-    private val adicionaisSelecionadosPromocao = mutableListOf<ProdutoEntity>()
     private var promocaoAtual: PromocaoEntity? = null
 
     private var quantidade = 1
@@ -45,6 +44,8 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
         buscarProdutosIncluidos()
         setupQuantidadeButtons()
         setupBotaoAdicionar()
+
+
     }
 
     private fun exibirDados(promocao: PromocaoEntity) {
@@ -76,7 +77,8 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
         if (valorOriginal > 0 && valorPromocional > 0) {
             val percentualDesconto = ((valorOriginal - valorPromocional) / valorOriginal) * 100
             binding.txtDescontoPromocao.text =
-                "🔥 Economize ${percentualDesconto.toInt()}%!\nDe R$ %.2f por R$ %.2f".format(valorOriginal, valorPromocional)
+                "🔥 Economize ${percentualDesconto.toInt()}%%!\nDe R$ %.2f por R$ %.2f".format(valorOriginal, valorPromocional)
+
         } else {
             binding.txtDescontoPromocao.text = ""
         }
@@ -104,6 +106,8 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
         atualizarPrecoTotal()
     }
 
+
+
     private fun buscarProdutosIncluidos() {
         val produtosParaBuscar = promocaoAtual?.produtos ?: return
         val listaProdutos = mutableListOf<ProdutoEntity>()
@@ -129,13 +133,13 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
                 produtosBuscados++
                 if (produtosBuscados == produtosParaBuscar.size) {
                     promocaoAtual?.produtos = listaProdutos
-                    exibirDados(promocaoAtual!!)
+
                 }
             }.addOnFailureListener {
                 produtosBuscados++
                 if (produtosBuscados == produtosParaBuscar.size) {
                     promocaoAtual?.produtos = listaProdutos
-                    exibirDados(promocaoAtual!!)
+
                 }
             }
         }
@@ -147,21 +151,7 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
     }
 
 
-    private fun atualizarRecyclerView(produtos: List<ProdutoEntity>) {
-        binding.recyclerAdicionais.layoutManager = LinearLayoutManager(this)
-        binding.recyclerAdicionais.adapter =
-            AdicionaisAdapter(produtos, adicionaisSelecionadosPromocao) { adicional ->
-                if (adicionaisSelecionadosPromocao.contains(adicional)) {
-                    adicionaisSelecionadosPromocao.remove(adicional)
-                } else {
-                    adicionaisSelecionadosPromocao.add(adicional)
-                }
-                atualizarPrecoTotal()
-            }
 
-        // 🔥 Aqui recalculamos o desconto com os produtos completos
-        atualizarDesconto()
-    }
 
 
     private fun atualizarDesconto() {

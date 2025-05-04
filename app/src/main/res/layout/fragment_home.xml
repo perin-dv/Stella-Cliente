@@ -4,7 +4,7 @@
     android:id="@+id/homeScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fundo_gourmet"
+    android:background="@android:color/transparent"
     android:fillViewport="true"
     android:paddingTop="32dp">
 
@@ -124,22 +124,42 @@
             android:id="@+id/textSemPromocoes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="16dp"
             android:text="Nenhuma promoção disponível no momento!"
             android:textAlignment="center"
-            android:visibility="gone"
-            android:padding="16dp"
+            android:textColor="@android:color/darker_gray"
             android:textSize="16sp"
-            android:textColor="@android:color/darker_gray" />
+            android:visibility="gone" />
 
         <!-- Promoções -->
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPagerPromocoes"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="250dp"
             android:layout_marginTop="20dp"
-            android:clickable="true"
-            android:focusable="true"
-            />
+            android:background="@android:color/transparent">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPagerPromocoes"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayoutIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="12dp"
+                android:padding="4dp"
+                android:layout_margin="2dp"
+                app:tabGravity="center"
+                app:tabIndicatorColor="@android:color/transparent"
+                app:tabIndicatorHeight="0dp"
+                app:tabMode="scrollable"
+                app:tabRippleColor="@android:color/transparent" />
+
+        </FrameLayout>
         <!-- Horizontal categorias redondas -->
 
         <androidx.recyclerview.widget.RecyclerView
@@ -308,9 +328,6 @@
             android:layout_height="114dp"
             android:layout_marginTop="8dp"
             android:nestedScrollingEnabled="false" />
-
-
-
 
 
     </LinearLayout>
