@@ -11,7 +11,7 @@ data class EnderecoEntity(
     var cidade: String,
     var estado: String,
     var cep: String,
-        var endereco: String,
+    var endereco: String,
     var telefone: String,
     var referencia: String
 ) {

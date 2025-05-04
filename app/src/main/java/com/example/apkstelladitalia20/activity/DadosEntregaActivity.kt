@@ -49,9 +49,9 @@ class DadosEntregaActivity : AppCompatActivity() {
         ref.get().addOnSuccessListener { snapshot ->
             snapshot.getValue(ClienteEntity::class.java)?.let { cliente ->
                 binding.editTelefone.setText(cliente.telefone)
-                binding.editRua.setText(cliente.rua)
-                binding.editBairro.setText(cliente.bairro)
-                binding.editReferencia.setText(cliente.referencia)
+                binding.editRua.setText(cliente.endereco?.rua?:"")
+                binding.editBairro.setText(cliente.endereco?.bairro?:"")
+                binding.editReferencia.setText(cliente.endereco?.referencia?:"")
             }
         }
     }
