@@ -1,6 +1,7 @@
 package com.example.apkstelladitalia20.data
 
 import android.content.Context
+import com.example.apkstelladitalia20.Entity.EnderecoEntity
 import com.example.apkstelladitalia20.model.LoggedInUser
 import com.example.stelladitalia20.Entity.ClienteEntity
 import com.example.stelladitaliaempresa.data.AppDatabase
@@ -38,7 +39,7 @@ class LoginRepository(private val context: Context) {
                             nome = nome,
                             email = email,
                             senha = senha,
-                            endereco = endereco,
+                            endereco = EnderecoEntity(),
                             telefone = telefone,
                                                  )
 

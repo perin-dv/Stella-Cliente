@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.apkstelladitalia20.Entity.EnderecoEntity
 import com.example.apkstelladitalia20.databinding.ActivityCadastroBinding
 import com.example.stelladitalia20.Entity.ClienteEntity
 import com.google.firebase.auth.FirebaseAuth
@@ -50,7 +51,7 @@ class CadastroActivity : AppCompatActivity() {
                     uid = uid,
                     nome = nome,
                     email = email,
-                    endereco = "",
+                    endereco = EnderecoEntity(),
                     telefone = "",
                     senha = senha
                 )

@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.apkstelladitalia20.databinding.ActivityLoginBinding
-import com.example.apkstelladitalia20.helper.FirebaseHelper
 import com.example.stelladitalia20.Entity.ClienteEntity
 import com.google.firebase.database.*
 

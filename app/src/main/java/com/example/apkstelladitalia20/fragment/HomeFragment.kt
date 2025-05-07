@@ -32,7 +32,6 @@ import com.example.apkstelladitalia20.adapter.DestaquesAdapter
 import com.example.apkstelladitalia20.adapter.PromocaoAdapter
 import com.example.apkstelladitalia20.databinding.FragmentHomeBinding
 import com.example.apkstelladitalia20.helper.DepthPageTransformer
-import com.example.apkstelladitalia20.helper.FirebaseHelper
 import com.example.apkstelladitalia20.helper.ZoomOutPageTransformer
 import com.example.apkstelladitalia20.model.PromocaoEntity
 import com.google.android.material.tabs.TabLayoutMediator
