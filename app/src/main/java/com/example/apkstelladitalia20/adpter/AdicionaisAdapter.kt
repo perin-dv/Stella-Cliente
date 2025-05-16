@@ -35,9 +35,9 @@ class AdicionaisAdapter(
             binding.txtNomeAdicional.text = produto.nome ?: "Sem nome"
             binding.txtPrecoAdicional.text = "R$ %.2f".format(produto.valor ?: 0.0)
 
-            if (!produto.imagemBase64.isNullOrEmpty()) {
+            if (!produto.imagem.isNullOrEmpty()) {
                 try {
-                    val imagemBytes = Base64.decode(produto.imagemBase64, Base64.DEFAULT)
+                    val imagemBytes = Base64.decode(produto.imagem, Base64.DEFAULT)
                     val bitmap = BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.size)
                     binding.imgAdicional.setImageBitmap(bitmap)
                 } catch (e: Exception) {

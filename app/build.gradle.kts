@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.play.services.location)
     implementation (libs.picasso)
     implementation(libs.firebase.firestore.ktx)
+    implementation (libs.gson)
 
     kapt (libs.compiler)
 

@@ -6,6 +6,7 @@ import android.location.Geocoder
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.apkstelladitalia20.Entity.ClienteFirebase
 import com.example.apkstelladitalia20.Entity.EnderecoEntity
 import com.example.apkstelladitalia20.databinding.ActivityDadosEntregaBinding
 import com.example.stelladitalia20.Entity.ClienteEntity
@@ -20,6 +21,7 @@ class DadosEntregaActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         carregarDadosExistentes()
+
 
         binding.btnConcluirCadastro.setOnClickListener {
             validarDados()
@@ -76,20 +78,20 @@ class DadosEntregaActivity : AppCompatActivity() {
             cidade = cidade,
             estado = estado,
             cep = cep,
-            endereco = "$rua, $numero - $bairro, $cidade/$estado",
-            telefone = telefone,
             referencia = referencia
         )
 
-        val cliente = ClienteEntity(
+        val nome = intent.getStringExtra("nome") ?: ""
+        val email = intent.getStringExtra("email") ?: ""
+        val senha = intent.getStringExtra("senha") ?: ""
+        val cliente = ClienteFirebase(
             uid = FirebaseHelper.getIdUsuario() ?: "",
-            nome = "", // ou preencha
-            email = "", // ou preencha
-            senha = "", // se necessário
+            nome = nome,
+            email = email,
+            senha = senha,
             telefone = telefone,
             endereco = enderecoCompleto
         )
-
         salvarCliente(cliente)
     }
 
@@ -111,7 +113,7 @@ class DadosEntregaActivity : AppCompatActivity() {
     }
 
 
-    private fun salvarCliente(cliente: ClienteEntity) {
+    private fun salvarCliente(cliente: ClienteFirebase) {
         val uid = FirebaseHelper.getIdUsuario() ?: return
 
         FirebaseHelper.database

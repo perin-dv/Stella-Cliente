@@ -22,16 +22,18 @@ class SplashActivity : AppCompatActivity() {
         logo.startAnimation(anim)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            val prefs = getSharedPreferences("clientePrefs", Context.MODE_PRIVATE)
+            val prefs = getSharedPreferences("appStella", Context.MODE_PRIVATE)
             val nome = prefs.getString("nome", null)
+            val uidCliente = prefs.getString("uidCliente", null)
 
-            if (nome != null) {
-                // Usuário já está logado
+            val usuarioAtual = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+
+            if (uidCliente != null && usuarioAtual != null) {
+                // Usuário autenticado com Firebase + tem dados salvos
                 val intent = Intent(this, HomeActivity::class.java)
                 intent.putExtra("nomeCliente", nome)
                 startActivity(intent)
             } else {
-                // Usuário não logado, vai pro login
                 startActivity(Intent(this, LoginActivity::class.java))
             }
             finish()

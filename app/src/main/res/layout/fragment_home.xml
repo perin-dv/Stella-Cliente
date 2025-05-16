@@ -325,10 +325,10 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerProdutos"
             android:layout_width="match_parent"
-            android:layout_height="114dp"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
             android:layout_marginTop="8dp"
-            android:nestedScrollingEnabled="false" />
-
+            />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

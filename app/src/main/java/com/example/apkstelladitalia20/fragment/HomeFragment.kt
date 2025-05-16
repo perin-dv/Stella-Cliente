@@ -25,8 +25,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
 import com.example.apkstelladitalia20.R
+import com.example.apkstelladitalia20.activity.DetalhesProdutoActivity
 import com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity
-import com.example.apkstelladitalia20.activity.PromocaoDetalhesActivity
 import com.example.apkstelladitalia20.adapter.CategoriaAdapter
 import com.example.apkstelladitalia20.adapter.DestaquesAdapter
 import com.example.apkstelladitalia20.adapter.PromocaoAdapter
@@ -58,8 +58,9 @@ class HomeFragment : Fragment() {
 
 
     private val prefs by lazy {
-        requireContext().getSharedPreferences("clientePrefs", Context.MODE_PRIVATE)
+        requireContext().getSharedPreferences("appStella", Context.MODE_PRIVATE)
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -77,10 +78,10 @@ class HomeFragment : Fragment() {
         setupAdapters()
         carregarSaudacao()
         carregarEnderecoCliente()
-        carregarProdutosOrdenados()
+      //  carregarProdutosOrdenados()
         carregarPromocao()
         carregarDestaques()
-        carregarCategorias()
+        carregarProdutosPorCategoria()
         carregarConfiguracoes()
         setupCategoryScroll()
         startAutoScroll()
@@ -136,19 +137,35 @@ class HomeFragment : Fragment() {
                 val posAtual = binding.viewPagerPromocoes.currentItem
                 val promocao = promocaoAdapter.currentList.getOrNull(posAtual)
                 if (promocao != null) {
+                    val promocaoLimpa = promocao.copy(
+                        produtos = promocao.produtos.map {
+                            it.copy(imagem = "")
+                        }
+                    )
+
                     val intent = Intent(requireContext(), DetalhesPromocaoActivity::class.java)
-                    intent.putExtra("promocaoSelecionada", promocao)
-                    startActivity(intent)
+                    if (promocao.produtos.all { it.id.isNotBlank() && it.valor >= 0.0 }) {
+                        intent.putExtra("promocaoSelecionada", promocaoLimpa)
+                        startActivity(intent)
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Promoção incompleta ou com produtos inválidos",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
 
             binding.recyclerProdutos.layoutManager =
-                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            produtoAdapter = ProdutoAdapter(requireContext(), produtosOrdenados)
-            { produtoSelecionado ->
+                LinearLayoutManager(requireContext())
+            categoriaAdapter = CategoriaAdapter(requireContext(), categorias) { produtoSelecionado ->
+                val intent = Intent(requireContext(), DetalhesProdutoActivity::class.java)
+                intent.putExtra("produtoId", produtoSelecionado.id)
+                startActivity(intent)
+            }
+            binding.recyclerProdutos.adapter = categoriaAdapter
 
-        }
-            binding.recyclerProdutos.adapter = produtoAdapter
 
 
 
@@ -179,9 +196,14 @@ class HomeFragment : Fragment() {
                 }
             })
 
-            binding.rvCategorias.layoutManager = LinearLayoutManager(requireContext())
-            categoriaAdapter = CategoriaAdapter(requireContext(), categorias) { }
-            binding.rvCategorias.adapter = categoriaAdapter
+            binding.recyclerProdutos.layoutManager = LinearLayoutManager(requireContext())
+            categoriaAdapter = CategoriaAdapter(requireContext(), categorias) { produtoSelecionado ->
+                val intent = Intent(requireContext(), DetalhesProdutoActivity::class.java)
+                intent.putExtra("produtoId", produtoSelecionado.id)
+                startActivity(intent)
+            }
+            binding.recyclerProdutos.adapter = categoriaAdapter
+
 
             binding.viewPagerPromocoes.apply {
                 offscreenPageLimit = 3
@@ -225,53 +247,76 @@ class HomeFragment : Fragment() {
 
         }
 
+    private fun carregarProdutosPorCategoria() {
+        val idUsuario = prefs.getString("uidEmpresa", "") ?: return
+        val ref = FirebaseDatabase.getInstance()
+            .getReference("empresa")
+            .child(idUsuario)
+            .child("produtos")
+
+        ref.get().addOnSuccessListener { snapshot ->
+            val mapaCategorias = mutableMapOf<String, MutableList<ProdutoEntity>>()
+
+            for (item in snapshot.children) {
+                val produto = item.getValue(ProdutoEntity::class.java)
+                produto?.let {
+                    val categoria = it.categoria.ifBlank { "Outros" }
+                    val lista = mapaCategorias.getOrPut(categoria) { mutableListOf() }
+                    lista.add(it)
+                }
+            }
+
+            val listaFinal = mapaCategorias.map { it.key to it.value }
+            categoriaAdapter.atualizarLista(listaFinal)
+        }
+    }
 
     private fun carregarSaudacao() {
-        val uidCliente = prefs.getString("uid", "") ?: return
+        val nomeCache = prefs.getString("nome", null)
+        binding.tvSaudacao.text = "Olá, ${nomeCache ?: "cliente"} 👋"
+
+        val uidCliente = prefs.getString("uidCliente", "") ?: return
         val refCliente = FirebaseHelper.database.child("clientes").child(uidCliente)
 
-        refCliente.addListenerForSingleValueEvent(object : ValueEventListener {
+        refCliente.child("nome").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val nome = snapshot.child("nome").getValue(String::class.java)
-                if (!nome.isNullOrBlank()) {
-                    binding.tvSaudacao.text = "Olá, $nome 👋"
-                    prefs.edit().putString("nome", nome).apply()
-                } else {
-                    binding.tvSaudacao.text = "Olá, cliente 👋"
+                val nomeFirebase = snapshot.getValue(String::class.java)
+                if (!nomeFirebase.isNullOrBlank() && nomeFirebase != nomeCache && isAdded) {
+                    binding.tvSaudacao.text = "Olá, $nomeFirebase 👋"
+                    prefs.edit().putString("nome", nomeFirebase).apply()
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("HomeFragment", "Erro ao buscar nome do cliente: ${error.message}")
-                binding.tvSaudacao.text = "Olá, cliente 👋"
             }
         })
     }
     private fun carregarEnderecoCliente() {
-        val uidCliente = prefs.getString("uid", "") ?: return
+        val enderecoCache = prefs.getString("endereco", null)
+        if (!enderecoCache.isNullOrBlank() && isAdded && _binding != null) {
+            binding.tvEndereco.text = enderecoCache
+        } else {
+            binding.tvEndereco.text = "Carregando endereço..."
+        }
+
+        val uidCliente = prefs.getString("uidCliente", "") ?: return
         val refCliente = FirebaseHelper.database.child("clientes").child(uidCliente)
 
         refCliente.child("endereco").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val enderecoCadastro = snapshot.getValue(String::class.java)
-                if (!enderecoCadastro.isNullOrEmpty()) {
-                    if (isAdded && _binding != null) {
-                        val enderecoFiltrado = enderecoCadastro.split("-")[0].trim()
-                        binding.tvEndereco.text = enderecoFiltrado
-                        prefs.edit().putString("endereco", enderecoCadastro).apply()
-                    }
-                } else {
-                    if (isAdded) solicitarPermissaoEConfigurarEndereco()
+                val rua = snapshot.child("rua").getValue(String::class.java) ?: ""
+                if (rua.isNotEmpty() && rua != enderecoCache && isAdded && _binding != null) {
+                    binding.tvEndereco.text = rua
+                    prefs.edit().putString("endereco", rua).apply()
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("HomeFragment", "Erro ao buscar endereço do cliente: ${error.message}")
-                if (isAdded) solicitarPermissaoEConfigurarEndereco()
+                Log.e("HomeFragment", "Erro ao buscar endereço: ${error.message}")
             }
         })
     }
-
     private fun startAutoScroll() {
         autoScrollRunnable = object : Runnable {
             override fun run() {
@@ -292,6 +337,7 @@ class HomeFragment : Fragment() {
             .getReference("empresa")
             .child("7a3118oNdgcpmwSqrgyRTqBnFFx2")
             .child("promocoes")
+
 
         referencia.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -317,7 +363,7 @@ class HomeFragment : Fragment() {
                                         ProdutoEntity(
                                             id = produtoData["id"] as? String ?: "",
                                             nome = produtoData["nome"] as? String ?: "",
-                                            imagemBase64 = produtoData["imagemBase64"] as? String
+                                            imagem = produtoData["imagemBase64"] as? String
                                                 ?: "",
                                             valor = (produtoData["valor"] as? Number)?.toDouble()
                                                 ?: 0.0
@@ -380,7 +426,14 @@ class HomeFragment : Fragment() {
                     destaques.clear()
                     for (catSnap in snapshot.children) {
                         for (itemSnap in catSnap.children) {
-                            itemSnap.getValue(ProdutoEntity::class.java)?.let { destaques.add(it) }
+                            val raw = itemSnap.value
+                            if (raw is Map<*, *>) {
+                                itemSnap.getValue(ProdutoEntity::class.java)?.let {
+                                    destaques.add(it)
+                                }
+                            } else {
+                                Log.w("HomeFragment", "Produto ignorado: não é objeto válido")
+                            }
                         }
                     }
                     destaqueAdapter.notifyDataSetChanged()

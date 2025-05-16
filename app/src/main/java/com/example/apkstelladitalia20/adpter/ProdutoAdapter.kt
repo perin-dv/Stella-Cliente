@@ -1,6 +1,8 @@
 package com.stelladitalia.adapters
 
 import android.content.Context
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
@@ -15,13 +17,27 @@ class ProdutoAdapter(
     private val context: Context,
     private var produtos: List<ProdutoEntity>,
     private val onClick: (ProdutoEntity) -> Unit
+
 ) : RecyclerView.Adapter<ProdutoAdapter.ProdutoViewHolder>() {
+
+
 
     inner class ProdutoViewHolder(val binding: ItemProdutoBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(produto: ProdutoEntity) {
             binding.tvNomeProduto.text = produto.nome
-            binding.tvPrecoProduto.text = "R$ ${produto.precoOriginal}"
+            binding.tvPrecoProduto.text = "R$ %.2f".format(produto.valor)
+            // Exibir imagem do produto
+            if (!produto.imagem.isNullOrBlank()) {
+                try {
+                    val base64Clean = produto.imagem.replace("\\s".toRegex(), "")
+                    val imagemBytes = Base64.decode(base64Clean, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.size)
+                    binding.imgProduto.setImageBitmap(bitmap)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
 
 
             binding.root.setOnClickListener {

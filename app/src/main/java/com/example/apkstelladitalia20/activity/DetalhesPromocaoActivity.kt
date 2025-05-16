@@ -26,13 +26,11 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
     private var precoUnitario = 0.0 // preço de 1 item
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetalhesPromocaoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setupToolbar(binding.includeToolbar)
-
 
         promocaoAtual = intent.getParcelableExtra<PromocaoEntity>("promocaoSelecionada")
         if (promocaoAtual == null) {
@@ -44,7 +42,6 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
         buscarProdutosIncluidos()
         setupQuantidadeButtons()
         setupBotaoAdicionar()
-
 
     }
 
@@ -117,9 +114,16 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
             return
         }
 
+        val idUsuario = promocaoAtual?.idUsuario
+        if (idUsuario.isNullOrBlank()) {
+            Log.e("DetalhesPromocao", "ID do usuário da promoção está vazio")
+            exibirDados(promocaoAtual!!)
+            return
+        }
+
         val databaseRef = FirebaseDatabase.getInstance()
             .getReference("empresa")
-            .child(promocaoAtual!!.idUsuario)
+            .child(idUsuario)
             .child("produtos")
 
         var produtosBuscados = 0
@@ -127,23 +131,28 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
         for (produto in produtosParaBuscar) {
             databaseRef.child(produto.id).get().addOnSuccessListener { snapshot ->
                 val produtoCompleto = snapshot.getValue(ProdutoEntity::class.java)
+                Log.d("FIREBASE_PRODUTO", "Nome: ${produtoCompleto?.nome}, imagem: ${produtoCompleto?.imagem?.take(20)}")
+
                 produtoCompleto?.let {
-                    listaProdutos.add(it)
+                    val produtoComValor = it.copy(valor = produto.valor) // ← aqui mantém o valor original
+                    listaProdutos.add(produtoComValor)
                 }
+
                 produtosBuscados++
                 if (produtosBuscados == produtosParaBuscar.size) {
                     promocaoAtual?.produtos = listaProdutos
-
+                    exibirDados(promocaoAtual!!)
                 }
             }.addOnFailureListener {
                 produtosBuscados++
                 if (produtosBuscados == produtosParaBuscar.size) {
                     promocaoAtual?.produtos = listaProdutos
-
+                    exibirDados(promocaoAtual!!)
                 }
             }
         }
     }
+
 
     private fun atualizarPrecoTotal() {
         val precoTotal = precoUnitario * quantidade
