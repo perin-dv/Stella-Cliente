@@ -45,7 +45,7 @@
                 android:id="@+id/tvDescricaoProduto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Calabresa, mussarela e orégano"
+                android:text=""
                 android:textSize="14sp"
                 android:textColor="#666"
                 android:layout_marginTop="4dp" />

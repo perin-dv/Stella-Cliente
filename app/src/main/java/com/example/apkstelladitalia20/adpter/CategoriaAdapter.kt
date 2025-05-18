@@ -11,18 +11,28 @@ import com.example.apkstelladitalia20.Entity.ProdutoEntity
 
 class CategoriaAdapter(
     private val context: Context,
-    private var categorias: MutableList<Pair<String, List<ProdutoEntity>>> = mutableListOf(),
-    private val onClickProduto: (ProdutoEntity) -> Unit
-) : RecyclerView.Adapter<CategoriaAdapter.CategoriaViewHolder>() {
+    private val onClickProduto: (ProdutoEntity) -> Unit,
 
+) : RecyclerView.Adapter<CategoriaAdapter.CategoriaViewHolder>() {
+    private var categorias: MutableList<Pair<String, List<ProdutoEntity>>> = mutableListOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoriaViewHolder {
         val binding =
             ItemCategoriaBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return CategoriaViewHolder(binding)
     }
 
+    fun atualizarLista(novaLista: List<Pair<String, List<ProdutoEntity>>>) {
+        categorias.clear()
+        categorias.addAll(novaLista)
+        notifyDataSetChanged()
+    }
+
     override fun onBindViewHolder(holder: CategoriaViewHolder, position: Int) {
         holder.bind(categorias[position])
+    }
+
+    fun getPosicaoCategoria(nome: String): Int {
+        return categorias.indexOfFirst { it.first.equals(nome, ignoreCase = true) }
     }
 
     override fun getItemCount(): Int = categorias.size
@@ -39,10 +49,8 @@ class CategoriaAdapter(
         }
     }
 
-    fun atualizarLista(novaLista: List<Pair<String, List<ProdutoEntity>>>) {
-        (categorias as MutableList).clear()
-        (categorias as MutableList).addAll(novaLista)
-        notifyDataSetChanged()
-    }
+
+
+
 
 }

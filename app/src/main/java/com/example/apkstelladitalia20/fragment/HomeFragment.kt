@@ -10,11 +10,14 @@ import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -78,7 +81,7 @@ class HomeFragment : Fragment() {
         setupAdapters()
         carregarSaudacao()
         carregarEnderecoCliente()
-      //  carregarProdutosOrdenados()
+       carregarProdutosOrdenados()
         carregarPromocao()
         carregarDestaques()
         carregarProdutosPorCategoria()
@@ -87,38 +90,28 @@ class HomeFragment : Fragment() {
         startAutoScroll()
 
     }
-    private fun carregarProdutosOrdenados() {
+    private fun carregarProdutosOrdenados(onComplete: (() -> Unit)? = null) {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
         val empresaKey = "7a3118oNdgcpmwSqrgyRTqBnFFx2"
-
-        val ordemDesejada = listOf(
-            "Pizza Tradicional",
-            "Pizza Especial",
-            "Pizza Vegetariana",
-            "Pizza Premium",
-            "Pizza Doce",
-            "Porções",
-            "Bebidas sem álcool",
-            "Bebidas com álcool"
-        )
 
         empresaDb.child("empresa").child(empresaKey).child("produtos")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val listaTemp = mutableListOf<ProdutoEntity>()
 
-                    for (categoria in ordemDesejada) {
-                        val categoriaSnap = snapshot.child(categoria)
-                        for (produtoSnap in categoriaSnap.children) {
-                            produtoSnap.getValue(ProdutoEntity::class.java)?.let {
-                                listaTemp.add(it)
-                            }
+                    for (produtoSnap in snapshot.children) {
+                        val produto = produtoSnap.getValue(ProdutoEntity::class.java)
+                        Log.d("CARREGAMENTO", "Produto lido: ${produto?.nome}")
+                        if (produto != null && !produto.nome.isNullOrBlank()) {
+                            listaTemp.add(produto)
                         }
                     }
 
                     produtosOrdenados.clear()
                     produtosOrdenados.addAll(listaTemp)
-                    produtoAdapter.notifyDataSetChanged()
+
+                    Log.d("CARREGAMENTO", "Produtos carregados: ${produtosOrdenados.size}")
+                    onComplete?.invoke()
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -127,7 +120,10 @@ class HomeFragment : Fragment() {
             })
     }
 
-        private fun setupAdapters() {
+
+
+
+    private fun setupAdapters() {
             binding.recyclerDestaques.layoutManager =
                 LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
             destaqueAdapter = DestaquesAdapter(requireContext(), destaques) { }
@@ -159,12 +155,13 @@ class HomeFragment : Fragment() {
 
             binding.recyclerProdutos.layoutManager =
                 LinearLayoutManager(requireContext())
-            categoriaAdapter = CategoriaAdapter(requireContext(), categorias) { produtoSelecionado ->
-                val intent = Intent(requireContext(), DetalhesProdutoActivity::class.java)
-                intent.putExtra("produtoId", produtoSelecionado.id)
-                startActivity(intent)
-            }
-            binding.recyclerProdutos.adapter = categoriaAdapter
+        categoriaAdapter = CategoriaAdapter(requireContext()) { produtoSelecionado ->
+            val intent = Intent(requireContext(), DetalhesProdutoActivity::class.java)
+            intent.putExtra("produtoId", produtoSelecionado.id)
+            startActivity(intent)
+        }
+
+        binding.recyclerProdutos.adapter = categoriaAdapter
 
 
 
@@ -196,13 +193,38 @@ class HomeFragment : Fragment() {
                 }
             })
 
-            binding.recyclerProdutos.layoutManager = LinearLayoutManager(requireContext())
-            categoriaAdapter = CategoriaAdapter(requireContext(), categorias) { produtoSelecionado ->
-                val intent = Intent(requireContext(), DetalhesProdutoActivity::class.java)
-                intent.putExtra("produtoId", produtoSelecionado.id)
-                startActivity(intent)
+        binding.etBusca.setOnEditorActionListener { v, actionId, event ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || (event != null && event.keyCode == android.view.KeyEvent.KEYCODE_ENTER)) {
+                v.clearFocus() // remove foco do teclado
+
+                val termo = v.text.toString().trim()
+                if (termo.isNotEmpty()) {
+                    v.isEnabled = false // desativa momentaneamente pra prevenir novo toque
+
+                    carregarProdutosOrdenados {
+                        Log.d("BUSCA", "Iniciando busca por: $termo")
+                        exibirResultadoBusca(termo)
+                        v.isEnabled = true // reativa depois que carregar
+                    }
+                }
+                true
+            } else {
+                false
             }
-            binding.recyclerProdutos.adapter = categoriaAdapter
+        }
+
+
+
+
+
+        binding.recyclerProdutos.layoutManager = LinearLayoutManager(requireContext())
+        categoriaAdapter = CategoriaAdapter(requireContext()) { produtoSelecionado ->
+            val intent = Intent(requireContext(), DetalhesProdutoActivity::class.java)
+            intent.putExtra("produtoId", produtoSelecionado.id)
+            startActivity(intent)
+        }
+
+        binding.recyclerProdutos.adapter = categoriaAdapter
 
 
             binding.viewPagerPromocoes.apply {
@@ -247,6 +269,24 @@ class HomeFragment : Fragment() {
 
         }
 
+    private fun exibirResultadoBusca(query: String) {
+        val resultados = produtosOrdenados.filter {
+            it.nome.contains(query, ignoreCase = true) ||
+                    it.descricao?.contains(query, ignoreCase = true) == true
+        }
+
+        Log.d("BUSCA", "Resultado da busca: ${resultados.size}")
+
+        if (resultados.isEmpty()) {
+            Toast.makeText(requireContext(), "Nenhum resultado encontrado", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val bottomSheet = ResultadoBuscaBottomSheet.newInstance(resultados)
+        bottomSheet.show(parentFragmentManager, "resultadoBusca")
+    }
+
+
     private fun carregarProdutosPorCategoria() {
         val idUsuario = prefs.getString("uidEmpresa", "") ?: return
         val ref = FirebaseDatabase.getInstance()
@@ -257,19 +297,46 @@ class HomeFragment : Fragment() {
         ref.get().addOnSuccessListener { snapshot ->
             val mapaCategorias = mutableMapOf<String, MutableList<ProdutoEntity>>()
 
-            for (item in snapshot.children) {
-                val produto = item.getValue(ProdutoEntity::class.java)
-                produto?.let {
-                    val categoria = it.categoria.ifBlank { "Outros" }
-                    val lista = mapaCategorias.getOrPut(categoria) { mutableListOf() }
-                    lista.add(it)
+            for (produtoSnap in snapshot.children) {
+                val produto = produtoSnap.getValue(ProdutoEntity::class.java)
+                if (produto != null && !produto.nome.isNullOrBlank()) {
+                    val categoria = produto.categoria.takeIf { !it.isNullOrBlank() } ?: "Sem categoria"
+                    mapaCategorias.getOrPut(categoria) { mutableListOf() }.add(produto)
                 }
             }
 
-            val listaFinal = mapaCategorias.map { it.key to it.value }
-            categoriaAdapter.atualizarLista(listaFinal)
+            val ordemDesejada = listOf(
+                "Pizza Tradicional",
+                "Pizza Especial",
+                "Pizza Vegetariana",
+                "Pizza Premium",
+                "Pizza Doce",
+                "Porções",
+                "Bebidas sem álcool",
+                "Bebidas com álcool",
+                "Sem categoria"
+            )
+
+            val listaOrdenada = mutableListOf<Pair<String, List<ProdutoEntity>>>()
+
+            for (categoria in ordemDesejada) {
+                mapaCategorias[categoria]?.let {
+                    listaOrdenada.add(categoria to it)
+                }
+            }
+
+            // adiciona qualquer categoria extra que não estava na ordem
+            mapaCategorias.entries
+                .filter { it.key !in ordemDesejada }
+                .forEach { listaOrdenada.add(it.key to it.value) }
+
+            categoriaAdapter.atualizarLista(listaOrdenada)
+            binding.recyclerProdutos.adapter = categoriaAdapter
+            binding.recyclerProdutos.visibility = View.VISIBLE
         }
     }
+
+
 
     private fun carregarSaudacao() {
         val nomeCache = prefs.getString("nome", null)
@@ -445,97 +512,69 @@ class HomeFragment : Fragment() {
             })
     }
 
-    private fun carregarCategorias() {
-        val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
-        val empresaKey = prefs.getString("uidEmpresa", "") ?: ""
-
-        empresaDb.child("empresa").child(empresaKey).child("produtos")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val produtosPorCategoria = mutableMapOf<String, MutableList<ProdutoEntity>>()
-
-                    for (produtoSnap in snapshot.children) {
-                        val produto = produtoSnap.getValue(ProdutoEntity::class.java) ?: continue
-                        val categoria = produtoSnap.child("categoria").getValue(String::class.java) ?: "Sem categoria"
-
-                        produtosPorCategoria.getOrPut(categoria) { mutableListOf() }.add(produto)
-                    }
-
-                    // Ordena manualmente na ordem desejada
-                    val ordemDesejada = listOf(
-                        "Pizza Tradicional",
-                        "Pizza Especial",
-                        "Pizza Vegetariana",
-                        "Pizza Premium",
-                        "Pizza Doce",
-                        "Porções",
-                        "Bebidas sem álcool",
-                        "Bebidas com álcool"
-                    )
-
-                    categorias.clear()
-
-                    // Adiciona na ordem correta
-                    ordemDesejada.forEach { nome ->
-                        produtosPorCategoria[nome]?.let { lista ->
-                            categorias.add(Pair(nome, lista))
-                        }
-                    }
-
-                    // Adiciona outras categorias não previstas (se houver)
-                    produtosPorCategoria.forEach { (categoria, lista) ->
-                        if (categoria !in ordemDesejada) {
-                            categorias.add(Pair(categoria, lista))
-                        }
-                    }
-
-                    categoriaAdapter.notifyDataSetChanged()
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.e("HomeFragment", "Erro ao carregar categorias: ${error.message}")
-                }
-            })
-    }
 
     private fun carregarConfiguracoes() {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
-        val empresaKey = "7a3118oNdgcpmwSqrgyRTqBnFFx2" // UID fixo da empresa
+        val empresaKey = "7a3118oNdgcpmwSqrgyRTqBnFFx2"
 
-        Log.d("HomeFragment", "Buscando config da empresa: $empresaKey")
-
-        empresaDb.child("empresa").child(empresaKey).child("config")
+        empresaDb.child("empresa").child(empresaKey)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        val taxaEntrega = snapshot.child("taxaEntrega").getValue(String::class.java)
-                        val tempoEntrega = snapshot.child("tempoEntrega").getValue(String::class.java)
+                    val taxaEntrega = snapshot.child("taxaEntrega").getValue(String::class.java)
+                    val tempoEntrega = snapshot.child("tempoEntrega").getValue(String::class.java)
 
-                        if (!taxaEntrega.isNullOrEmpty() && !tempoEntrega.isNullOrEmpty()) {
-                            binding.txtTempoEntrega.text =
-                                "Entrega em até $tempoEntrega min • R$ $taxaEntrega"
+                    if (!taxaEntrega.isNullOrBlank() && !tempoEntrega.isNullOrBlank()) {
+                        val taxa = taxaEntrega?.toDoubleOrNull()
+                        val tempo = tempoEntrega?.toIntOrNull()
+
+                        if (taxa != null && tempo != null) {
+                            binding.txtTempoEntrega.text = "Entrega em até ${tempo} min"
+
+                            if (taxa == 0.0) {
+                                binding.txtFrete.text = "Frete Grátis!"
+                                binding.txtFrete.setTextColor(Color.parseColor("#2E7D32"))
+                            } else {
+                                binding.txtFrete.text = "R$ %.2f".format(taxa)
+                                binding.txtFrete.setTextColor(Color.parseColor("#666666"))
+                            }
+
+                            binding.txtAvaliacao.text = "4.8"
                         } else {
-                            binding.txtTempoEntrega.text = "Informações indisponíveis"
-                            Log.w("HomeFragment", "Dados incompletos: taxaEntrega ou tempoEntrega nulo")
+                            binding.txtTempoEntrega.text = "Indisponível"
+                            binding.txtFrete.text = ""
+                            binding.txtAvaliacao.text = ""
                         }
-                    } else {
-                        Log.w("HomeFragment", "Snapshot não encontrado em /config")
                     }
                 }
-
-                override fun onCancelled(error: DatabaseError) {
+                        override fun onCancelled(error: DatabaseError) {
                     Log.e("HomeFragment", "Erro ao carregar configurações: ${error.message}")
                 }
             })
     }
 
+
     private fun setupCategoryScroll() {
-        binding.categoriaPizza.setOnClickListener { scrollToView(binding.categoriaPizza) }
-        binding.categoriaMassas.setOnClickListener { scrollToView(binding.categoriaMassas) }
-        binding.categoriaBebidas.setOnClickListener { scrollToView(binding.categoriaBebidas) }
-        binding.categoriaSobremesas.setOnClickListener { scrollToView(binding.categoriaSobremesas) }
-        binding.tvEndereco.setOnClickListener { abrirDialogEndereco() }
+        binding.categoriaPizza.setOnClickListener {
+            scrollToCategoria("Pizza Tradicional")
+        }
+
+        binding.categoriaMassas.setOnClickListener {
+            scrollToCategoria("Pizza Premium")
+        }
+
+        binding.categoriaBebidas.setOnClickListener {
+            scrollToCategoria("Bebidas sem álcool")
+        }
+
+        binding.categoriaSobremesas.setOnClickListener {
+            scrollToCategoria("Pizza Doce")
+        }
+
+        binding.tvEndereco.setOnClickListener {
+            abrirDialogEndereco()
+        }
     }
+
 
     private fun scrollToView(v: View) {
         binding.homeScroll.post { binding.homeScroll.smoothScrollTo(0, v.top) }
@@ -555,6 +594,15 @@ class HomeFragment : Fragment() {
             )
         } else {
             configurarEnderecoPorGps()
+        }
+    }
+
+    private fun scrollToCategoria(nome: String) {
+        val index = categoriaAdapter.getPosicaoCategoria(nome)
+        if (index != -1) {
+            binding.recyclerProdutos.smoothScrollToPosition(index)
+        } else {
+            Toast.makeText(requireContext(), "Categoria não encontrada", Toast.LENGTH_SHORT).show()
         }
     }
 
