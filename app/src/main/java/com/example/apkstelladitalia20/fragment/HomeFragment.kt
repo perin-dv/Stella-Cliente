@@ -81,7 +81,7 @@ class HomeFragment : Fragment() {
         setupAdapters()
         carregarSaudacao()
         carregarEnderecoCliente()
-       carregarProdutosOrdenados()
+        carregarProdutosOrdenados()
         carregarPromocao()
         carregarDestaques()
         carregarProdutosPorCategoria()
@@ -90,6 +90,7 @@ class HomeFragment : Fragment() {
         startAutoScroll()
 
     }
+
     private fun carregarProdutosOrdenados(onComplete: (() -> Unit)? = null) {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
         val empresaKey = "7a3118oNdgcpmwSqrgyRTqBnFFx2"
@@ -121,40 +122,38 @@ class HomeFragment : Fragment() {
     }
 
 
-
-
     private fun setupAdapters() {
-            binding.recyclerDestaques.layoutManager =
-                LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-            destaqueAdapter = DestaquesAdapter(requireContext(), destaques) { }
-            binding.recyclerDestaques.adapter = destaqueAdapter
+        binding.recyclerDestaques.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        destaqueAdapter = DestaquesAdapter(requireContext(), destaques) { }
+        binding.recyclerDestaques.adapter = destaqueAdapter
 
-            promocaoAdapter = PromocaoAdapter {
-                val posAtual = binding.viewPagerPromocoes.currentItem
-                val promocao = promocaoAdapter.currentList.getOrNull(posAtual)
-                if (promocao != null) {
-                    val promocaoLimpa = promocao.copy(
-                        produtos = promocao.produtos.map {
-                            it.copy(imagem = "")
-                        }
-                    )
-
-                    val intent = Intent(requireContext(), DetalhesPromocaoActivity::class.java)
-                    if (promocao.produtos.all { it.id.isNotBlank() && it.valor >= 0.0 }) {
-                        intent.putExtra("promocaoSelecionada", promocaoLimpa)
-                        startActivity(intent)
-                    } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Promoção incompleta ou com produtos inválidos",
-                            Toast.LENGTH_SHORT
-                        ).show()
+        promocaoAdapter = PromocaoAdapter {
+            val posAtual = binding.viewPagerPromocoes.currentItem
+            val promocao = promocaoAdapter.currentList.getOrNull(posAtual)
+            if (promocao != null) {
+                val promocaoLimpa = promocao.copy(
+                    produtos = promocao.produtos.map {
+                        it.copy(imagem = "")
                     }
+                )
+
+                val intent = Intent(requireContext(), DetalhesPromocaoActivity::class.java)
+                if (promocao.produtos.all { it.id.isNotBlank() && it.valor >= 0.0 }) {
+                    intent.putExtra("promocaoSelecionada", promocaoLimpa)
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Promoção incompleta ou com produtos inválidos",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+        }
 
-            binding.recyclerProdutos.layoutManager =
-                LinearLayoutManager(requireContext())
+        binding.recyclerProdutos.layoutManager =
+            LinearLayoutManager(requireContext())
         categoriaAdapter = CategoriaAdapter(requireContext()) { produtoSelecionado ->
             val intent = Intent(requireContext(), DetalhesProdutoActivity::class.java)
             intent.putExtra("produtoId", produtoSelecionado.id)
@@ -166,32 +165,32 @@ class HomeFragment : Fragment() {
 
 
 
-            binding.viewPagerPromocoes.adapter = promocaoAdapter
-            binding.viewPagerPromocoes.setPageTransformer(DepthPageTransformer())
-            binding.tabLayoutIndicator.setSelectedTabIndicatorColor(Color.TRANSPARENT)
-            binding.tabLayoutIndicator.setBackgroundColor(Color.TRANSPARENT)
-            (binding.tabLayoutIndicator.parent as ViewGroup).clipChildren = false
+        binding.viewPagerPromocoes.adapter = promocaoAdapter
+        binding.viewPagerPromocoes.setPageTransformer(DepthPageTransformer())
+        binding.tabLayoutIndicator.setSelectedTabIndicatorColor(Color.TRANSPARENT)
+        binding.tabLayoutIndicator.setBackgroundColor(Color.TRANSPARENT)
+        (binding.tabLayoutIndicator.parent as ViewGroup).clipChildren = false
 
 
-                    // Escala animada da bolinha selecionada
-            binding.viewPagerPromocoes.registerOnPageChangeCallback(object :
-                ViewPager2.OnPageChangeCallback() {
-                override fun onPageSelected(position: Int) {
-                    super.onPageSelected(position)
-                    val tabStrip = binding.tabLayoutIndicator.getChildAt(0) as ViewGroup
-                    for (i in 0 until tabStrip.childCount) {
-                        val tabView = tabStrip.getChildAt(i)
-                        tabView.background = null
-                        tabView.setBackgroundColor(android.graphics.Color.TRANSPARENT) // <- ESSENCIAL
-                        tabView.animate()
-                            .scaleX(if (i == position) 1.3f else 1f)
-                            .scaleY(if (i == position) 1.3f else 1f)
-                            .setDuration(300)
-                            .setInterpolator(android.view.animation.OvershootInterpolator())
-                            .start()
-                    }
+        // Escala animada da bolinha selecionada
+        binding.viewPagerPromocoes.registerOnPageChangeCallback(object :
+            ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                val tabStrip = binding.tabLayoutIndicator.getChildAt(0) as ViewGroup
+                for (i in 0 until tabStrip.childCount) {
+                    val tabView = tabStrip.getChildAt(i)
+                    tabView.background = null
+                    tabView.setBackgroundColor(android.graphics.Color.TRANSPARENT) // <- ESSENCIAL
+                    tabView.animate()
+                        .scaleX(if (i == position) 1.3f else 1f)
+                        .scaleY(if (i == position) 1.3f else 1f)
+                        .setDuration(300)
+                        .setInterpolator(android.view.animation.OvershootInterpolator())
+                        .start()
                 }
-            })
+            }
+        })
 
         binding.etBusca.setOnEditorActionListener { v, actionId, event ->
             if (actionId == EditorInfo.IME_ACTION_SEARCH || (event != null && event.keyCode == android.view.KeyEvent.KEYCODE_ENTER)) {
@@ -227,47 +226,47 @@ class HomeFragment : Fragment() {
         binding.recyclerProdutos.adapter = categoriaAdapter
 
 
-            binding.viewPagerPromocoes.apply {
-                offscreenPageLimit = 3
-                (getChildAt(0) as RecyclerView).clipToPadding = false
+        binding.viewPagerPromocoes.apply {
+            offscreenPageLimit = 3
+            (getChildAt(0) as RecyclerView).clipToPadding = false
 
-                // Usa layout personalizado com a bolinha
-                TabLayoutMediator(binding.tabLayoutIndicator, binding.viewPagerPromocoes) { tab, _ ->
-                    tab.setCustomView(R.layout.tab_custom_dot)
-                }.attach()
+            // Usa layout personalizado com a bolinha
+            TabLayoutMediator(binding.tabLayoutIndicator, binding.viewPagerPromocoes) { tab, _ ->
+                tab.setCustomView(R.layout.tab_custom_dot)
+            }.attach()
 
-                binding.tabLayoutIndicator.post {
-                    val tabStrip = binding.tabLayoutIndicator.getChildAt(0) as ViewGroup
-                    for (i in 0 until tabStrip.childCount) {
-                        val tabView = tabStrip.getChildAt(i)
-
-                        // 🔥 ESSENCIAL: forçar largura mínima da célula da aba
-                        tabView.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
-                        tabView.requestLayout()
-
-                        // 🔄 Garante que não haja fundo
-                        tabView.background = null
-                        tabView.setBackgroundColor(Color.TRANSPARENT)
-                    }
-                }
-            }
             binding.tabLayoutIndicator.post {
                 val tabStrip = binding.tabLayoutIndicator.getChildAt(0) as ViewGroup
                 for (i in 0 until tabStrip.childCount) {
                     val tabView = tabStrip.getChildAt(i)
 
-                    // 🔥 Essencial: remover padding invisível aplicado pelo Material
-                    tabView.setPadding(0, 0, 0, 0)
-
-                    // Garante que o tabView use apenas o necessário
+                    // 🔥 ESSENCIAL: forçar largura mínima da célula da aba
                     tabView.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+                    tabView.requestLayout()
+
+                    // 🔄 Garante que não haja fundo
                     tabView.background = null
                     tabView.setBackgroundColor(Color.TRANSPARENT)
-                    tabView.requestLayout()
                 }
             }
-
         }
+        binding.tabLayoutIndicator.post {
+            val tabStrip = binding.tabLayoutIndicator.getChildAt(0) as ViewGroup
+            for (i in 0 until tabStrip.childCount) {
+                val tabView = tabStrip.getChildAt(i)
+
+                // 🔥 Essencial: remover padding invisível aplicado pelo Material
+                tabView.setPadding(0, 0, 0, 0)
+
+                // Garante que o tabView use apenas o necessário
+                tabView.layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+                tabView.background = null
+                tabView.setBackgroundColor(Color.TRANSPARENT)
+                tabView.requestLayout()
+            }
+        }
+
+    }
 
     private fun exibirResultadoBusca(query: String) {
         val resultados = produtosOrdenados.filter {
@@ -278,7 +277,8 @@ class HomeFragment : Fragment() {
         Log.d("BUSCA", "Resultado da busca: ${resultados.size}")
 
         if (resultados.isEmpty()) {
-            Toast.makeText(requireContext(), "Nenhum resultado encontrado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Nenhum resultado encontrado", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
@@ -300,7 +300,8 @@ class HomeFragment : Fragment() {
             for (produtoSnap in snapshot.children) {
                 val produto = produtoSnap.getValue(ProdutoEntity::class.java)
                 if (produto != null && !produto.nome.isNullOrBlank()) {
-                    val categoria = produto.categoria.takeIf { !it.isNullOrBlank() } ?: "Sem categoria"
+                    val categoria =
+                        produto.categoria.takeIf { !it.isNullOrBlank() } ?: "Sem categoria"
                     mapaCategorias.getOrPut(categoria) { mutableListOf() }.add(produto)
                 }
             }
@@ -337,7 +338,6 @@ class HomeFragment : Fragment() {
     }
 
 
-
     private fun carregarSaudacao() {
         val nomeCache = prefs.getString("nome", null)
         binding.tvSaudacao.text = "Olá, ${nomeCache ?: "cliente"} 👋"
@@ -359,6 +359,7 @@ class HomeFragment : Fragment() {
             }
         })
     }
+
     private fun carregarEnderecoCliente() {
         val enderecoCache = prefs.getString("endereco", null)
         if (!enderecoCache.isNullOrBlank() && isAdded && _binding != null) {
@@ -384,6 +385,7 @@ class HomeFragment : Fragment() {
             }
         })
     }
+
     private fun startAutoScroll() {
         autoScrollRunnable = object : Runnable {
             override fun run() {
@@ -467,7 +469,6 @@ class HomeFragment : Fragment() {
                     promocaoAdapter.submitList(listaPromocoes.toList())
 
 
-
                 } else {
                     binding.viewPagerPromocoes.visibility = View.GONE
                     binding.textSemPromocoes.visibility = View.VISIBLE
@@ -519,12 +520,11 @@ class HomeFragment : Fragment() {
         empresaDb.child("empresa").child(empresaKey)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val taxa = snapshot.child("taxaEntrega").getValue(Double::class.java)
-                        ?: snapshot.child("taxaEntrega").getValue(Long::class.java)?.toDouble()
+                    val taxaStr = snapshot.child("taxaEntrega").value?.toString()
+                    val tempoStr = snapshot.child("tempoEntrega").value?.toString()
 
-                    val tempo = snapshot.child("tempoEntrega").getValue(Int::class.java)
-                        ?: snapshot.child("tempoEntrega").getValue(Long::class.java)?.toInt()
-
+                    val taxa = taxaStr?.toDoubleOrNull()
+                    val tempo = tempoStr?.toIntOrNull()
 
 
                     if (taxa != null && tempo != null) {
@@ -546,12 +546,11 @@ class HomeFragment : Fragment() {
                     }
                 }
 
-                    override fun onCancelled(error: DatabaseError) {
+                override fun onCancelled(error: DatabaseError) {
                     Log.e("HomeFragment", "Erro ao carregar configurações: ${error.message}")
                 }
             })
     }
-
 
 
     private fun setupCategoryScroll() {
