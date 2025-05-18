@@ -512,7 +512,6 @@ class HomeFragment : Fragment() {
             })
     }
 
-
     private fun carregarConfiguracoes() {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
         val empresaKey = "7a3118oNdgcpmwSqrgyRTqBnFFx2"
@@ -520,37 +519,39 @@ class HomeFragment : Fragment() {
         empresaDb.child("empresa").child(empresaKey)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val taxaEntrega = snapshot.child("taxaEntrega").getValue(String::class.java)
-                    val tempoEntrega = snapshot.child("tempoEntrega").getValue(String::class.java)
+                    val taxa = snapshot.child("taxaEntrega").getValue(Double::class.java)
+                        ?: snapshot.child("taxaEntrega").getValue(Long::class.java)?.toDouble()
 
-                    if (!taxaEntrega.isNullOrBlank() && !tempoEntrega.isNullOrBlank()) {
-                        val taxa = taxaEntrega?.toDoubleOrNull()
-                        val tempo = tempoEntrega?.toIntOrNull()
+                    val tempo = snapshot.child("tempoEntrega").getValue(Int::class.java)
+                        ?: snapshot.child("tempoEntrega").getValue(Long::class.java)?.toInt()
 
-                        if (taxa != null && tempo != null) {
-                            binding.txtTempoEntrega.text = "Entrega em até ${tempo} min"
 
-                            if (taxa == 0.0) {
-                                binding.txtFrete.text = "Frete Grátis!"
-                                binding.txtFrete.setTextColor(Color.parseColor("#2E7D32"))
-                            } else {
-                                binding.txtFrete.text = "R$ %.2f".format(taxa)
-                                binding.txtFrete.setTextColor(Color.parseColor("#666666"))
-                            }
 
-                            binding.txtAvaliacao.text = "4.8"
+                    if (taxa != null && tempo != null) {
+                        binding.txtTempoEntrega.text = "Entrega em até ${tempo} min"
+
+                        if (taxa == 0.0) {
+                            binding.txtFrete.text = "Frete Grátis!"
+                            binding.txtFrete.setTextColor(Color.parseColor("#2E7D32"))
                         } else {
-                            binding.txtTempoEntrega.text = "Indisponível"
-                            binding.txtFrete.text = ""
-                            binding.txtAvaliacao.text = ""
+                            binding.txtFrete.text = "R$ %.2f".format(taxa)
+                            binding.txtFrete.setTextColor(Color.parseColor("#666666"))
                         }
+
+                        binding.txtAvaliacao.text = "4.8"
+                    } else {
+                        binding.txtTempoEntrega.text = "Indisponível"
+                        binding.txtFrete.text = ""
+                        binding.txtAvaliacao.text = ""
                     }
                 }
-                        override fun onCancelled(error: DatabaseError) {
+
+                    override fun onCancelled(error: DatabaseError) {
                     Log.e("HomeFragment", "Erro ao carregar configurações: ${error.message}")
                 }
             })
     }
+
 
 
     private fun setupCategoryScroll() {
