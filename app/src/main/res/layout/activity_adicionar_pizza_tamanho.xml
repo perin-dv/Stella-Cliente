@@ -1,0 +1,116 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutRaiz"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/layoutAdicionar"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/container"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imgPizzaTopo"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginBottom="12dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_pizza" />
+
+            <TextView
+                android:id="@+id/tvTituloPizza"
+                android:text="GRANDE 2 SABORES (8 pedaços)"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tvPrecoBase"
+                android:text="A partir de R$ 49,99"
+                android:textSize="16sp"
+                android:textColor="#444"
+                android:layout_marginBottom="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:text="Importante: A pizza de mais de 1 sabor será cobrada pelo preço cheio do sabor mais caro"
+                android:textSize="14sp"
+                android:textColor="#B00020"
+                android:layout_marginBottom="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!-- 🔥 ESCOLHA 1/2 -->
+            <TextView
+                android:id="@+id/tituloEscolha1"
+                android:text="Escolha 1/2"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvEscolha1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+
+            <!-- 🔥 ESCOLHA 2/2 -->
+            <TextView
+                android:id="@+id/tituloEscolha2"
+                android:text="Escolha 2/2"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvEscolha2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/layoutAdicionar"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@android:color/white"
+        android:padding="12dp"
+        android:elevation="8dp"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvTotal"
+            android:text="Total: R$ 49,99"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btnAdicionar"
+            android:text="Adicionar"
+            android:textAllCaps="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</RelativeLayout>

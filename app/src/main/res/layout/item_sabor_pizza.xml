@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    card_view:cardCornerRadius="12dp"
+    card_view:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/imgSabor"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_pizza_placeholder"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/bg_image_round" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtNomeSabor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1/2 Calabresa"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/txtDescricaoSabor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Calabresa com cebola e mussarela"
+                android:textSize="14sp"
+                android:textColor="#555555"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/txtPrecoSabor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+ R$ 34,99"
+                android:textSize="13sp"
+                android:textColor="#757575"
+                android:layout_marginTop="4dp"
+                android:textStyle="italic" />
+        </LinearLayout>
+
+        <RadioButton
+            android:id="@+id/radioSabor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/black" />
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

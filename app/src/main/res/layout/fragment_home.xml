@@ -1,12 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/homeScroll"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayoutHome"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
-    android:fillViewport="true"
-    android:paddingTop="32dp">
+    android:paddingTop="32dp"
+    tools:ignore="ExtraText">
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,8 +46,10 @@
                 android:id="@+id/txtTempoEntrega"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Entrega em até 40 min"
+                android:text="..."
+                android:visibility="gone"
                 android:textSize="14sp"
+                android:tag="tempoEntregaVisivel"
                 android:textColor="@color/gray"
                 android:layout_marginEnd="12dp" />
 
@@ -54,8 +65,10 @@
                 android:id="@+id/txtFrete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="R$ 5,00"
+                android:text="..."
+                android:visibility="gone"
                 android:textSize="14sp"
+                android:tag="freteVisivel"
                 android:textColor="@color/gray"
                 android:layout_marginEnd="12dp" />
 
@@ -71,7 +84,9 @@
                 android:id="@+id/txtAvaliacao"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="4.8"
+                android:text="..."
+                android:visibility="gone"
+                android:tag="avaliacaoVisivel"
                 android:textSize="14sp"
                 android:textColor="@color/gray" />
         </LinearLayout>
@@ -325,6 +340,28 @@
             android:layout_marginTop="8dp"
             android:nestedScrollingEnabled="false" />
 
+
+
+        <TextView
+            android:id="@+id/tvCategoriasPizza"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Por Tamanho"
+            android:textColor="#000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerPizzaTamanhos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:minHeight="160dp"
+            android:nestedScrollingEnabled="false"
+            android:orientation="horizontal"
+            tools:listitem="@layout/item_pizza_tamanho"/>
+
         <!--Produtos-->
         <TextView
             android:id="@+id/tvProdutos"
@@ -345,4 +382,5 @@
             />
 
     </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

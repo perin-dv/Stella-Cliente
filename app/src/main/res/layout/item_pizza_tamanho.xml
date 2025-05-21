@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="160dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:layout_marginEnd="12dp"
+    android:background="@drawable/bg_card_pizza"
+    android:elevation="4dp"
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/imgPizza"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_pizza" />
+
+    <TextView
+        android:id="@+id/txtNome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pizza Grande"
+        android:textStyle="bold"
+        android:textColor="#000"
+        android:textSize="16sp"
+        android:paddingTop="6dp" />
+
+    <TextView
+        android:id="@+id/txtDetalhes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="8 pedaços"
+        android:textColor="#666"
+        android:textSize="14sp"
+        android:paddingTop="2dp" />
+
+    <TextView
+        android:id="@+id/txtPreco"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="a partir de R$ 44,99"
+        android:textColor="#E53935"
+        android:textStyle="bold"
+        android:textSize="15sp"
+        android:paddingTop="4dp" />
+</LinearLayout>

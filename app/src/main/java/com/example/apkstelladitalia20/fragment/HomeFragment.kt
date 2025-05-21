@@ -1,5 +1,6 @@
 package com.example.apkstelladitalia20.fragment
 
+import PizzaTamanhoAdapter
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
@@ -9,6 +10,8 @@ import android.graphics.Color
 import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,20 +22,24 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
 import com.example.apkstelladitalia20.R
+import com.example.apkstelladitalia20.activity.AdicionarPizzaTamanhoActivity
 import com.example.apkstelladitalia20.activity.DetalhesProdutoActivity
 import com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity
 import com.example.apkstelladitalia20.adapter.CategoriaAdapter
 import com.example.apkstelladitalia20.adapter.DestaquesAdapter
 import com.example.apkstelladitalia20.adapter.PromocaoAdapter
+import com.example.apkstelladitalia20.data.PizzaTamanho
 import com.example.apkstelladitalia20.databinding.FragmentHomeBinding
 import com.example.apkstelladitalia20.helper.DepthPageTransformer
 import com.example.apkstelladitalia20.helper.ZoomOutPageTransformer
@@ -69,15 +76,21 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        prefs.edit().putString("uidEmpresa", "7a3118oNdgcpmwSqrgyRTqBnFFx2").apply()
-        return binding.root
+
+        return binding.coordinatorLayoutHome
+
 
 
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        prefs.edit().putString("uidEmpresa", "7a3118oNdgcpmwSqrgyRTqBnFFx2").apply()
 
+
+
+        carregarConfiguracoes()
+        setupPizzaTamanhos()
         setupAdapters()
         carregarSaudacao()
         carregarEnderecoCliente()
@@ -85,9 +98,9 @@ class HomeFragment : Fragment() {
         carregarPromocao()
         carregarDestaques()
         carregarProdutosPorCategoria()
-        carregarConfiguracoes()
         setupCategoryScroll()
         startAutoScroll()
+
 
     }
 
@@ -515,44 +528,69 @@ class HomeFragment : Fragment() {
 
     private fun carregarConfiguracoes() {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
-        val empresaKey = "7a3118oNdgcpmwSqrgyRTqBnFFx2"
+        val empresaKey = prefs.getString("uidEmpresa", "").orEmpty()
 
-        empresaDb.child("empresa").child(empresaKey)
+        if (empresaKey.isBlank()) {
+            Log.e("CONFIG", "❌ UID empresa está vazio.")
+            return
+        }
+
+        empresaDb.child("empresa").child(empresaKey).child("config")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val taxaStr = snapshot.child("taxaEntrega").value?.toString()
-                    val tempoStr = snapshot.child("tempoEntrega").value?.toString()
+                    val rawTaxa = snapshot.child("taxaEntrega").value
+                    val rawTempo = snapshot.child("tempoEntrega").value
 
-                    val taxa = taxaStr?.toDoubleOrNull()
-                    val tempo = tempoStr?.toIntOrNull()
+                    val taxaEntrega = when (rawTaxa) {
+                        is Long -> rawTaxa.toDouble()
+                        is Double -> rawTaxa
+                        is String -> rawTaxa.toDoubleOrNull()
+                        else -> null
+                    }
 
+                    val tempoEntrega = when (rawTempo) {
+                        is Long -> rawTempo.toInt()
+                        is Double -> rawTempo.toInt()
+                        is String -> rawTempo.toIntOrNull()
+                        else -> null
+                    }
 
-                    if (taxa != null && tempo != null) {
-                        binding.txtTempoEntrega.text = "Entrega em até ${tempo} min"
+                    Log.d("CONFIG", "🧮 taxa=$taxaEntrega, tempo=$tempoEntrega")
 
-                        if (taxa == 0.0) {
-                            binding.txtFrete.text = "Frete Grátis!"
+                    if (taxaEntrega == null || tempoEntrega == null) {
+                        Log.e("CONFIG", "❌ Dados inválidos ou mal formatados")
+                        return
+                    }
+
+                    if (!isAdded || _binding == null) {
+                        Log.w("CONFIG", "⚠️ Fragment destruído, não atualizando UI")
+                        return
+                    }
+
+                    binding.root.post {
+                        binding.txtTempoEntrega.text = "Entrega em até ${tempoEntrega} min"
+                        binding.txtFrete.text = if (taxaEntrega == 0.0) {
                             binding.txtFrete.setTextColor(Color.parseColor("#2E7D32"))
+                            "Frete Grátis!"
                         } else {
-                            binding.txtFrete.text = "R$ %.2f".format(taxa)
                             binding.txtFrete.setTextColor(Color.parseColor("#666666"))
+                            "R$ %.2f".format(taxaEntrega)
                         }
+                        binding.txtAvaliacao.text = "%.1f".format(4.8)
 
-                        binding.txtAvaliacao.text = "4.8"
-                    } else {
-                        binding.txtTempoEntrega.text = "Indisponível"
-                        binding.txtFrete.text = ""
-                        binding.txtAvaliacao.text = ""
+                        binding.txtTempoEntrega.visibility = View.VISIBLE
+                        binding.txtFrete.visibility = View.VISIBLE
+                        binding.txtAvaliacao.visibility = View.VISIBLE
+
+                        Log.d("CONFIG", "✅ Configurações aplicadas")
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    Log.e("HomeFragment", "Erro ao carregar configurações: ${error.message}")
+                    Log.e("CONFIG", "❌ Erro Firebase: ${error.message}")
                 }
             })
     }
-
-
     private fun setupCategoryScroll() {
         binding.categoriaPizza.setOnClickListener {
             scrollToCategoria("Pizza Tradicional")
@@ -576,9 +614,37 @@ class HomeFragment : Fragment() {
     }
 
 
-    private fun scrollToView(v: View) {
-        binding.homeScroll.post { binding.homeScroll.smoothScrollTo(0, v.top) }
+    private fun scrollToView(view: View) {
+        view.parent?.requestChildFocus(view, view)
     }
+
+
+
+
+
+    private fun setupPizzaTamanhos() {
+        val lista = listOf(
+            PizzaTamanho("Pequena", "4 pedaços", "R$ 39,99", "https://firebasestorage.googleapis.com/pequena.jpg"),
+            PizzaTamanho("Média", "6 pedaços", "R$ 41,99", "https://firebasestorage.googleapis.com/media.jpg"),
+            PizzaTamanho("Grande", "8 pedaços", "R$ 44,99", "https://firebasestorage.googleapis.com/grande.jpg")
+        )
+
+        val adapter = PizzaTamanhoAdapter(lista) { tamanho ->
+            val intent = Intent(requireContext(), AdicionarPizzaTamanhoActivity::class.java)
+            intent.putExtra("tamanhoNome", tamanho.nome)
+            intent.putExtra("precoBase", tamanho.preco)
+            intent.putExtra("descricao", tamanho.descricao)
+            intent.putExtra("imagemUrl", tamanho.imagem)
+            startActivity(intent)
+        }
+
+        binding.recyclerPizzaTamanhos.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclerPizzaTamanhos.adapter = adapter
+    }
+
+
+
 
     private fun solicitarPermissaoEConfigurarEndereco() {
         if (ContextCompat.checkSelfPermission(
