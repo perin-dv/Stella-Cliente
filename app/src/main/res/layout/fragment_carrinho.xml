@@ -14,8 +14,7 @@
         android:layout_height="wrap_content"
         />
 
-
-    <!-- Conteúdo -->
+       <!-- Botão Continuar -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
@@ -25,9 +24,9 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <!-- Nome do restaurante -->
             <TextView
@@ -35,55 +34,88 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Stella D'Italia"
-                android:textStyle="bold"
+                android:textColor="@color/black"
                 android:textSize="18sp"
-                android:textColor="@color/black"/>
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layoutCarrinhoVazio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="32dp"
+                android:elevation="6dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:contentDescription="Carrinho vazio"
+                    android:src="@drawable/ic_empty_cart"
+                    app:tint="@color/bordeaux_stella" />
+
+                <TextView
+                    android:id="@+id/txtCarrinhoVazio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Seu carrinho está vazio!"
+                    android:textColor="@color/bordeaux_stella"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Adicione pizzas, bebidas e sobremesas 😋"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
 
             <!-- Seção Itens Adicionados -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
                 android:text="Itens adicionados"
-                android:textStyle="bold"
                 android:textSize="16sp"
-                android:layout_marginTop="24dp"/>
+                android:textStyle="bold"
+                />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerItensCarrinho"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content" />
+
+            <!-- Linha divisória -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/vermelho" />
 
 
-            <!-- Texto: adicionar mais itens -->
-            <TextView
-                android:id="@+id/txtAdicionarMaisItens2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Adicionar mais itens"
-                android:textColor="@color/vermelho"
-                android:textSize="14sp"
-                android:layout_marginTop="8dp"
-                android:gravity="center_horizontal"
-                android:layout_gravity="center_horizontal"/>
             <!-- Entre o RecyclerView dos itens e o Resumo de Valores -->
             <TextView
                 android:id="@+id/txtPecaTambem"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
                 android:text="Peça também"
-                android:textStyle="bold"
                 android:textSize="16sp"
-                android:layout_marginTop="24dp"/>
+                android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerBebidas"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_bebida" />
-
 
 
             <!-- Linha divisória -->
@@ -91,85 +123,84 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="16dp"
-                android:background="@color/vermelho"/>
+                android:background="@color/vermelho" />
 
             <!-- Resumo de valores -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:text="Resumo de valores"
-                android:textStyle="bold"
                 android:textSize="16sp"
-                android:layout_marginTop="16dp"/>
+                android:textStyle="bold" />
 
             <!-- Subtotal -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Subtotal"/>
+                    android:text="Subtotal" />
 
                 <TextView
                     android:id="@+id/txtSubtotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="R$ 0,00"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <!-- Taxa de Entrega -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Taxa de entrega"/>
+                    android:text="Taxa de entrega" />
 
                 <TextView
                     android:id="@+id/txtTaxaEntrega"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Grátis"
-                    android:textStyle="bold"
-                    android:textColor="#25B900"/>
+                    android:textColor="#25B900"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <!-- Total -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Total"/>
+                    android:text="Total" />
 
                 <TextView
                     android:id="@+id/txtTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="R$ 0,00"
-                    android:textStyle="bold"/>
+                    android:textStyle="bold" />
             </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Botão Continuar -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnContinuar"
         android:layout_width="match_parent"
@@ -180,7 +211,7 @@
         android:layout_margin="16dp"
         android:layout_gravity="bottom"
         app:cornerRadius="16dp"
-        app:backgroundTint="@color/colorPrimary"
+        app:backgroundTint="@color/vermelho"
         android:textColor="@android:color/white"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

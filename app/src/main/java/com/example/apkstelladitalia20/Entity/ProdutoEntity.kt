@@ -13,16 +13,31 @@ import kotlinx.parcelize.Parcelize
 data class ProdutoEntity(
     @PrimaryKey val id: String = "",
     val nome: String = "",
-    @field:JvmField
+
     @SerializedName("imagem")
-    val imagem: String = "",
+    val imagem: String? = "",
+
     val precoOriginal: Double = 0.0,
     val precoAtual: Double = 0.0,
     val maisPedido: Boolean = false,
     val quantidadeVendida: Int = 0,
-    val categoria: String = "",
-    val descricao: String = "",
-    @field:JvmField
-    @field:com.google.firebase.database.PropertyName("preco")
-    val valor: Double = 0.0
-) : Parcelable
+    val categoria: String? = "",
+    val descricao: String? = "",
+    val idUsuario: String? = "",
+    var quantidade: Int = 1,
+
+    @get:com.google.firebase.database.PropertyName("preco")
+    @set:com.google.firebase.database.PropertyName("preco")
+    var valor: Double = 0.0
+) : Parcelable {
+
+    // ✅ Fallback para sempre retornar o preço correto
+    fun getPrecoReal(): Double {
+        return when {
+            precoAtual > 0 -> precoAtual
+            valor > 0 -> valor
+            precoOriginal > 0 -> precoOriginal
+            else -> 0.0
+        }
+    }
+}

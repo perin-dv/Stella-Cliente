@@ -16,9 +16,12 @@
         <ImageView
             android:id="@+id/imgBebida"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="110dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_placeholder" />
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_placeholder"
+            android:background="@drawable/bg_card" />
+
 
         <TextView
             android:id="@+id/txtNomeBebida"

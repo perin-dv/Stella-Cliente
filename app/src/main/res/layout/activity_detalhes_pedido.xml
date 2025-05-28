@@ -1,0 +1,227 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Nome loja + status -->
+        <TextView
+            android:id="@+id/tvNomeLoja"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stella D’Italia - Maringá"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="#222222" />
+
+        <TextView
+            android:id="@+id/tvNumeroPedido"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pedido nº 1582 • 18/05/2025 19:45"
+            android:textSize="14sp"
+            android:textColor="#777777" />
+
+        <!-- Status com ícone -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_check_circle"
+                android:layout_marginEnd="6dp"
+                app:tint="#0AFF00" />
+
+            <TextView
+                android:id="@+id/tvStatusPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pedido concluído às 20:35"
+                android:textColor="#222"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Itens do pedido -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Itens do pedido"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginTop="24dp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerItens"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            tools:listitem="@layout/item_resumo_visualizacao" />
+
+        <!-- Resumo valores com ícone -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_receipt"
+                android:layout_marginEnd="6dp"
+                app:tint="#222" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Resumo de valores"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvResumoSubtotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Subtotal: R$ 0,00"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvResumoDescontos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Descontos: - R$ 0,00"
+            android:textColor="#008000"
+            android:textSize="14sp" />
+
+
+        <TextView
+            android:id="@+id/tvResumoEntrega"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Entrega: Grátis"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvResumoTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total: R$ 0,00"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginTop="6dp" />
+
+        <!-- Botão repetir pedido -->
+        <Button
+            android:id="@+id/btnPedirNovamente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pedir novamente"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/vermelho"
+            android:layout_marginTop="20dp" />
+
+        <!-- Pagamento -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_credit_card"
+                android:layout_marginEnd="6dp"
+                app:tint="#222" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pagamento"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvMetodoPagamento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cartão de crédito •••• 9636"
+            android:textSize="14sp"
+            android:textColor="#333333"
+            android:layout_marginTop="4dp" />
+        <!-- Endereço -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_location"
+                android:layout_marginEnd="6dp"
+                app:tint="#222" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Endereço de entrega"
+                android:textStyle="bold"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvEnderecoEntrega"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="R. Rio da Prata, 105B - Jardim Novo Oasis"
+            android:textSize="14sp"
+            android:textColor="#333333"
+            android:layout_marginTop="4dp" />
+
+
+        <!-- Avaliação -->
+        <LinearLayout
+            android:id="@+id/boxAvaliacao"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Avalie seu pedido:"
+                android:layout_marginEnd="8dp" />
+
+            <RatingBar
+                android:id="@+id/ratingAvaliacao"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:numStars="5"
+                android:stepSize="1.0"
+                android:rating="0" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

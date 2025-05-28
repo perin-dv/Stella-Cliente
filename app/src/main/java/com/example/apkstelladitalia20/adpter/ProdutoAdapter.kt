@@ -26,7 +26,7 @@ class ProdutoAdapter(
         RecyclerView.ViewHolder(binding.root) {
         fun bind(produto: ProdutoEntity) {
             binding.tvNomeProduto.text = produto.nome
-            binding.tvPrecoProduto.text = "R$ %.2f".format(produto.valor)
+            binding.tvPrecoProduto.text = "R$ %.2f".format(produto.getPrecoReal())
             binding.tvDescricaoProduto.text = produto.descricao
 
             // Exibir imagem do produto

@@ -1,24 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Estilo para textos personalizados -->
+    <!-- Estilo para textos -->
     <style name="MeuEstiloDeTexto">
         <item name="android:textColor">@color/vermelho</item>
         <item name="android:textSize">18sp</item>
     </style>
 
-    <!-- Estilo para cards com elevação -->
-    <style name="CardElevado">
-        <item name="cardElevation">8dp</item>
-        <item name="cardCornerRadius">16dp</item>
-    </style>
-
-    <!-- Estilo para botões arredondados -->
+    <!-- Botões -->
     <style name="BotaoArredondado">
         <item name="android:backgroundTint">@color/vermelho</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:padding">12dp</item>
         <item name="android:background">@drawable/bg_botao_arredondado</item>
+    </style>
+
+    <style name="botaoPadrao" parent="Theme.AppCompat.DayNight">
+        <item name="colorControlHighlight">#DD0000</item>
+        <item name="colorButtonNormal">#990000</item>
+        <item name="android:textColor">@color/vermelho</item>
+    </style>
+
+    <!-- Estilo MLFont base e variações -->
+    <style name="MLFont">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="MLFont.Bold">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MLFont.Bold.Semi">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MLFont.Medium">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="MLFont.Regular">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
 </resources>

@@ -6,12 +6,16 @@ import android.os.Bundle
 import android.util.Base64
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
 import com.example.apkstelladitalia20.adapter.AdicionaisAdapter
 import com.example.apkstelladitalia20.databinding.ActivityDetalhesProdutoBinding
 import com.example.apkstelladitalia20.helper.setupToolbar
+import com.example.apkstelladitalia20.model.CarrinhoViewModel
+import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
+import com.example.apkstelladitalia20.ui.carrinho.CarrinhoFragment
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.launch
 import kotlin.jvm.java
@@ -35,11 +39,27 @@ class DetalhesProdutoActivity : AppCompatActivity() {
 
 
         binding.btnConfirmarPedido.setOnClickListener {
-            val intent = Intent(this, CarrinhoActivity::class.java)
-            Toast.makeText(this, "Adicionado ao carrinho ✅", Toast.LENGTH_SHORT).show()
-            finish()
+            val item = ProdutoCarrinhoEntity(
+                idProduto = "prod_${System.currentTimeMillis()}",
+                nome = binding.nomeProduto.text.toString(),
+                valor = precoBase + adicionaisSelecionadosProduto.sumOf { it.valor },
+                quantidade = quantidade,
+                tipo = "produto",
+                descricao = binding.descricaoProduto.text.toString(),
+                imagemUrl = null
+            )
+
+            val viewModel = ViewModelProvider(this)[CarrinhoViewModel::class.java]
+            viewModel.adicionar(item)
+
+
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.putExtra("abrirCarrinho", true)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
+            finish()
         }
+
 
         val produtoId = intent.getStringExtra("produtoId")
         if (produtoId.isNullOrBlank()) {

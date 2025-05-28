@@ -1,0 +1,17 @@
+<resources>
+    <declare-styleable name="MP_Fix">
+        <attr name="state" format="string" />
+        <attr name="type" format="string" />
+        <attr name="hasTriangle" format="boolean" />
+        <attr name="button_size">
+            <enum name="small" value="0"/>
+            <enum name="medium" value="1"/>
+            <enum name="large" value="2"/>
+        </attr>
+        <attr name="card_header_behaviour" format="string" />
+        <attr name="card_header_internal_padding" format="dimension" />
+        <attr name="flexWrap" format="string" />
+        <attr name="size" format="string" />
+
+    </declare-styleable>
+</resources>

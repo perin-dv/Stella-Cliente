@@ -1,58 +1,111 @@
 package com.example.apkstelladitalia20.activity
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.icu.text.SimpleDateFormat
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.apkstelladitalia20.adapter.ResumoPedidoAdapter
-import com.example.apkstelladitalia20.bottomsheet.BottomSheetFormaPagamento
+import com.example.apkstelladitalia20.Entity.EnderecoEntity
+import com.example.apkstelladitalia20.Entity.PedidoEntity
 import com.example.apkstelladitalia20.databinding.ActivityResumoPedidoBinding
 import com.example.apkstelladitalia20.helper.setupToolbar
-import com.example.apkstelladitalia20.model.PromocaoEntity
+import com.example.apkstelladitalia20.Entity.ProdutoEntity
+import com.example.apkstelladitalia20.adapter.ResumoPedidoProdutoVisualAdapter
+import com.example.apkstelladitalia20.bottomsheet.BottomSheetFormaPagamento
+import com.example.apkstelladitalia20.controller.CarrinhoController
+import com.example.apkstelladitalia20.repository.PedidoRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.ktx.functions
+import com.google.firebase.ktx.Firebase
+import java.util.Date
+import java.util.Locale
 
-class ResumoPedidoActivity : AppCompatActivity(),ResumoPedidoAdapter.ResumoListener {
+class ResumoPedidoProdutoActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityResumoPedidoBinding
-    private var listaCarrinho: ArrayList<PromocaoEntity> = arrayListOf()
+    private var listaCarrinho: ArrayList<ProdutoEntity> = arrayListOf()
+    private var resumoAdapter = ResumoPedidoProdutoVisualAdapter(listaCarrinho)
+
     private var subtotal = 0.0
     private var taxaEntrega = 0.0
     private var descontoCupom = 0.0
     private var cpfNaNota: String? = null
     private var formaPagamentoSelecionada: String? = null
     private var trocoPara: String? = null
-    private var idPromocaoSelecionada: String? = null
-    private lateinit var resumoAdapter: ResumoPedidoAdapter
-
-
+    private lateinit var prefs: SharedPreferences
+    private val REQUEST_CODE_MERCADO_PAGO = 1234
+    private var pedidoParaSalvar: PedidoEntity? = null
+    private var enderecoSelecionado: EnderecoEntity? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityResumoPedidoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        prefs = getSharedPreferences("appStella", Context.MODE_PRIVATE)
         setupToolbar(binding.includeToolbar)
         setupListeners()
+
+        listaCarrinho =
+            intent.getSerializableExtra("carrinhoSelecionado") as? ArrayList<ProdutoEntity>
+                ?: arrayListOf()
+
         setupRecyclerResumo()
-        carregarResumoValores()
         carregarTaxaEntregaFirebase()
-
-        idPromocaoSelecionada = intent.getStringExtra("idPromocaoSelecionada")
-        if (idPromocaoSelecionada != null) {
-            buscarPromocaoResumoFirebase(idPromocaoSelecionada!!)
-        }
-
-        carregarTaxaEntregaFirebase()
+        atualizarResumoValores()
 
     }
 
+
     private fun setupListeners() {
         binding.btnConfirmarPedido.setOnClickListener {
-            confirmarPedido()
+            val pedido = PedidoEntity(
+                numero = gerarNumeroAleatorio(),
+                nomeLoja = "Stella D’Italia - Maringá",
+                dataHora = obterDataHoraAtual(),
+                status = "aguardando",
+                itens = CarrinhoController.getItens(),
+                subtotal = calcularSubtotal(),
+                desconto = calcularDesconto(),
+                entrega = "Grátis",
+                total = calcularTotalFinal(),
+                formaPagamento = formaPagamentoSelecionada ?: "Não informado",
+                enderecoEntrega = enderecoSelecionado.toString(),
+                clienteId = FirebaseAuth.getInstance().uid ?: "",
+                nomeCliente = FirebaseAuth.getInstance().currentUser?.displayName ?: "Anônimo",
+                telefoneCliente = FirebaseAuth.getInstance().currentUser?.phoneNumber ?: ""
+            )
+
+// Salva o ID do pedido temporariamente
+            val pedidoId = FirebaseDatabase.getInstance()
+                .getReference("empresa")
+                .child(prefs.getString("uidEmpresa", "") ?: "")
+                .child("pedidos")
+                .push().key ?: return@setOnClickListener
+
+
+// Salva temporariamente no Firebase para uso posterior (ou pode guardar local)
+            FirebaseDatabase.getInstance().reference
+                .child("tempPedidos")
+                .child(pedidoId)
+                .setValue(pedido)
+
+
+            iniciarPagamentoStripe(
+                valorTotal = pedido.total,
+                nomeCliente = pedido.nomeCliente,
+                idEmpresa = prefs.getString("uidEmpresa", "") ?: "",
+                pedidoId = pedidoId
+            )
         }
 
-        binding.txtTrocarPagamento.setOnClickListener {
+
+            binding.txtTrocarPagamento.setOnClickListener {
             mostrarBottomSheetPagamento()
         }
 
@@ -65,15 +118,71 @@ class ResumoPedidoActivity : AppCompatActivity(),ResumoPedidoAdapter.ResumoListe
         }
     }
 
-    private fun carregarResumoValores() {
-        listaCarrinho = intent.getSerializableExtra("carrinhoSelecionado") as? ArrayList<PromocaoEntity> ?: arrayListOf()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-        if (listaCarrinho.isNotEmpty()) {
-            subtotal = listaCarrinho.sumOf { (it.valor ?: 0.0) * (it.quantidade ?: 1) }
-            atualizarResumoValores()
-        } else {
-            Toast.makeText(this, "Nenhum item no carrinho.", Toast.LENGTH_SHORT).show()
+        if (requestCode == REQUEST_CODE_MERCADO_PAGO) {
+            if (resultCode == RESULT_OK) {
+                val paymentId = data?.getLongExtra("payment_id", -1L) ?: -1L
+                val paymentStatus = data?.getStringExtra("payment_status")
+
+                if (paymentStatus == "approved") {
+                    pedidoParaSalvar?.let { pedido ->
+                        PedidoRepository.salvarPedido(
+                            this, pedido,
+                            onSuccess = {
+                                // Salva também no histórico do cliente
+                                PedidoRepository.salvarPedidoDoCliente(pedido)
+
+                                Toast.makeText(
+                                    this,
+                                    "Pedido salvo com sucesso!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                finish()
+                            },
+                            onError = { erro ->
+                                Toast.makeText(
+                                    this,
+                                    "Erro ao salvar pedido: ${erro.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        )
+                    }
+                } else {
+                    Toast.makeText(this, "Pagamento falhou: $paymentStatus", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            } else {
+                Toast.makeText(this, "Pagamento cancelado.", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+
+
+    private fun salvarPedidoNoFirebase(pedido: PedidoEntity) {
+        val uidEmpresa = prefs.getString("uidEmpresa", null) ?: return
+        val pedidoRef = FirebaseDatabase.getInstance()
+            .getReference("empresa")
+            .child(uidEmpresa)
+            .child("pedidos")
+
+        val novoId = pedidoRef.push().key ?: return
+
+        pedidoRef.child(novoId).setValue(pedido)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Pedido enviado com sucesso!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Erro ao salvar pedido", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun setupRecyclerResumo() {
+        resumoAdapter = ResumoPedidoProdutoVisualAdapter(listaCarrinho)
+        binding.recyclerResumoPedido.layoutManager = LinearLayoutManager(this)
+        binding.recyclerResumoPedido.adapter = resumoAdapter
     }
 
     private fun carregarTaxaEntregaFirebase() {
@@ -87,6 +196,17 @@ class ResumoPedidoActivity : AppCompatActivity(),ResumoPedidoAdapter.ResumoListe
             .addOnFailureListener {
                 Toast.makeText(this, "Erro ao carregar taxa de entrega.", Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun atualizarResumoValores() {
+        subtotal = listaCarrinho.sumOf { it.getPrecoReal() * it.quantidade }
+        val subtotalComDesconto = (subtotal - descontoCupom).coerceAtLeast(0.0)
+        val total = subtotalComDesconto + taxaEntrega
+
+        binding.txtSubtotalResumo.text = "R$ %.2f".format(subtotalComDesconto)
+        binding.txtTaxaEntregaResumo.text =
+            if (taxaEntrega == 0.0) "Grátis" else "R$ %.2f".format(taxaEntrega)
+        binding.txtTotalResumo.text = "R$ %.2f".format(total)
     }
 
     private fun aplicarCupom() {
@@ -113,35 +233,6 @@ class ResumoPedidoActivity : AppCompatActivity(),ResumoPedidoAdapter.ResumoListe
             Toast.makeText(this, "CPF inválido. Deve conter 11 dígitos.", Toast.LENGTH_SHORT).show()
         }
     }
-    private fun setupRecyclerResumo() {
-        resumoAdapter = ResumoPedidoAdapter(listaCarrinho, this)
-        binding.recyclerResumoPedido.apply {
-            layoutManager = LinearLayoutManager(this@ResumoPedidoActivity)
-            adapter = resumoAdapter
-        }
-    }
-
-    private fun atualizarResumoValores() {
-        val subtotalComDesconto = (subtotal - descontoCupom).coerceAtLeast(0.0)
-        val total = subtotalComDesconto + taxaEntrega
-
-        binding.txtSubtotalResumo.text = "R$ %.2f".format(subtotalComDesconto)
-        binding.txtTaxaEntregaResumo.text = if (taxaEntrega == 0.0) "Grátis" else "R$ %.2f".format(taxaEntrega)
-        binding.txtTotalResumo.text = "R$ %.2f".format(total)
-    }
-
-    private fun confirmarPedido() {
-             Toast.makeText(this, "Pedido realizado com sucesso!", Toast.LENGTH_SHORT).show()
-            // val intent = Intent(this, PedidosActivity::class.java)
-            intent.putExtra("abrirPedidos", true) // Indicar pra abrir o Fragment de Pedidos
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
-            finish()
-
-    }
-        private fun enviarNotificacaoEmpresa() {
-        println("🔔 Empresa: Novo pedido aguardando confirmação!")
-    }
 
     private fun mostrarBottomSheetPagamento() {
         val bottomSheet = BottomSheetFormaPagamento { formaPagamento, troco ->
@@ -157,27 +248,62 @@ class ResumoPedidoActivity : AppCompatActivity(),ResumoPedidoAdapter.ResumoListe
         }
         bottomSheet.show(supportFragmentManager, bottomSheet.tag)
     }
-    private fun buscarPromocaoResumoFirebase(idPromocao: String) {
-        val db = FirebaseFirestore.getInstance()
 
-        db.collection("promocoes").document(idPromocao)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val promocao = document.toObject(PromocaoEntity::class.java)
-                    if (promocao != null) {
-                        listaCarrinho.clear()
-                        listaCarrinho.add(promocao)
-                        atualizarResumoValores()
-                    }
-                }
+    private fun gerarNumeroAleatorio(): Int {
+        return (1000..9999).random()
+    }
+
+    private fun obterDataHoraAtual(): String {
+        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        return sdf.format(Date())
+    }
+
+    private fun calcularSubtotal(): Double {
+        return CarrinhoController.getItens().map { it.precoAtual * it.quantidade }.sum()
+
+    }
+
+    private fun calcularDesconto(): Double {
+        return 0.0
+    }
+
+    private fun calcularTotalFinal(): Double {
+        return calcularSubtotal() - calcularDesconto()
+    }
+    private fun iniciarPagamentoStripe(
+        valorTotal: Double,
+        nomeCliente: String,
+        idEmpresa: String,
+        pedidoId: String
+    ) {
+        val functions = Firebase.functions
+
+        val dados = hashMapOf(
+            "valorEmCentavos" to (valorTotal * 100).toInt(),
+            "nomeCliente" to nomeCliente,
+            "idEmpresa" to idEmpresa
+        )
+
+        functions
+            .getHttpsCallable("criarPagamentoStripe")
+            .call(dados)
+            .addOnSuccessListener { result ->
+                val url = (result.data as Map<*, *>)["url"] as? String ?: return@addOnSuccessListener
+
+                val intent = Intent(this, WebViewPagamentoActivity::class.java)
+                intent.putExtra("url", url)
+                intent.putExtra("pedidoId", pedidoId)
+                startActivity(intent)
             }
-            .addOnFailureListener {
-                Toast.makeText(this, "Erro ao buscar promoção.", Toast.LENGTH_SHORT).show()
+            .addOnFailureListener { e ->
+                Toast.makeText(this, "Erro: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
-    override fun onResumoAtualizado() {
-        TODO("Not yet implemented")
+    private fun abrirCheckoutWebView(url: String) {
+        val intent = Intent(this, WebViewPagamentoActivity::class.java)
+        intent.putExtra("url", url)
+        startActivity(intent)
     }
+
 }

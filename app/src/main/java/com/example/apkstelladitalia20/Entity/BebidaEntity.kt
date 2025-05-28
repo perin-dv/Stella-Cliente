@@ -7,5 +7,6 @@ import java.io.Serializable
  */
 data class BebidaEntity(
     val nome: String = "",
-    val preco: Double = 0.0
+    val preco: Double = 0.0,
+    val imagem: String = ""
 ) : Serializable

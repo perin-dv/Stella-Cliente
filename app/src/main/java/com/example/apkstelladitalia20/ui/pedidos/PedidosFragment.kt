@@ -29,7 +29,7 @@ class PedidosFragment : Fragment() {
         _binding = FragmentPedidosBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
+        val textView: TextView = binding.tvTotalPedidoStatus
         dashboardViewModel.text.observe(viewLifecycleOwner) {
             textView.text = it
         }

@@ -40,9 +40,14 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
 
         receberPromocaoSelecionada()
 
+        binding.txtAdicionarMaisItens2.setOnClickListener {
+            finish() // volta pra tela anterior
+        }
+
+
         binding.btnContinuar.setOnClickListener {
             if (listaCarrinho.isNotEmpty()) {
-                val intent = Intent(this, ResumoPedidoActivity::class.java)
+                val intent = Intent(this, ResumoPedidoPromocaoActivity::class.java)
                 intent.putExtra("carrinhoSelecionado", ArrayList(listaCarrinho))
                 startActivity(intent)
             } else {
@@ -52,10 +57,12 @@ class CarrinhoPromocaoActivity : AppCompatActivity(), CarrinhoPromocaoAdapter.Ca
 
         binding.txtAdicionarMaisItens2.setOnClickListener {
             val intent = Intent(this, HomeActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            intent.putExtra("abrirHome", true)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
+            finish()
         }
-    }
+        }
 
     private fun setupCarrinhoRecycler() {
         carrinhoAdapter = CarrinhoPromocaoAdapter(listaCarrinho, object : CarrinhoPromocaoAdapter.CarrinhoListener {

@@ -1,11 +1,18 @@
 package com.example.apkstelladitalia20.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.apkstelladitalia20.R
+import com.example.apkstelladitalia20.fragment.HomeFragment
 import com.example.apkstelladitalia20.databinding.ActivityHomeBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
+
+
 
 class HomeActivity : AppCompatActivity() {
 
@@ -16,13 +23,36 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Configura Navigation Component com BottomNavigation
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment_activity_home) as NavHostFragment
 
         val navController = navHostFragment.navController
-
         binding.navView.setupWithNavController(navController)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+
+        val abrirCarrinho = intent.getBooleanExtra("abrirCarrinho", false)
+        val abrirHome = intent.getBooleanExtra("abrirHome", false)
+
+        Handler(Looper.getMainLooper()).post {
+            when {
+                abrirCarrinho -> binding.navView.selectedItemId = R.id.navigation_carrinho
+                abrirHome -> binding.navView.selectedItemId = R.id.navigation_home
+            }
+        }
+    }
+
+
+
+    override fun onResume() {
+        super.onResume()
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_home) as? NavHostFragment
+        val currentFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull()
+        if (currentFragment is HomeFragment) {
+            currentFragment.onResume()
+        }
     }
 
 }

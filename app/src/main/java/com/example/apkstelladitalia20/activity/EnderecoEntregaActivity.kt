@@ -6,10 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.apkstelladitalia20.databinding.ActivityEnderecoEntregaBinding
 import com.example.apkstelladitalia20.fragment.EnderecoDialogFragment
 import com.example.apkstelladitalia20.helper.setupToolbar
+import com.example.apkstelladitalia20.model.PizzaResumo
+import com.example.apkstelladitalia20.ui.carrinho.CarrinhoFragment
 
 class EnderecoEntregaActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityEnderecoEntregaBinding
+    private var pizzaResumo: PizzaResumo? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -17,11 +20,9 @@ class EnderecoEntregaActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupToolbar(binding.includeToolbar)
+        pizzaResumo = intent.getParcelableExtra("pizzaResumo")
         setupClicks()
-
-
         preencherEndereco()
-
 
         binding.txtTrocarEndereco.setOnClickListener {
             val enderecoDialog = EnderecoDialogFragment(this) { enderecoSelecionado ->
@@ -29,25 +30,17 @@ class EnderecoEntregaActivity : AppCompatActivity() {
             }
             enderecoDialog.show(supportFragmentManager, "EnderecoDialog")
         }
-
     }
-
 
     private fun setupClicks() {
         binding.btnContinuarEndereco.setOnClickListener {
-            startActivity(Intent(this, CarrinhoPromocaoActivity::class.java))
-        }
-
-        binding.txtTrocarEndereco.setOnClickListener {
-            // Aqui depois podemos abrir uma tela de busca de endereço ou mapa
-            // Por enquanto só mostra um toast ou mantém como placeholder
+            val intent = Intent(this, CarrinhoFragment::class.java)
+            intent.putExtra("pizzaResumo", pizzaResumo)
+            startActivity(intent)
         }
     }
 
     private fun preencherEndereco() {
-        // Aqui simula puxar o endereço do Firebase ou Room (já cadastrado do usuário)
-        // Depois podemos puxar dinâmico do banco se quiser
-
         binding.txtEnderecoCompleto.text = "Rua São João, 1701"
         binding.txtDescricaoEntrega.text = "Próximo ao mercado"
     }

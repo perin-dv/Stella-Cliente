@@ -1,23 +1,22 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme -->
-    <style name="Theme.Apkstelladitalia20" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Cores principais -->
+    <style name="Theme.Apkstelladitalia20" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Paleta -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorSecondary">@color/colorAccent</item>
         <item name="colorOnPrimary">@android:color/white</item>
+
+        <!-- Navegação -->
         <item name="android:statusBarColor">@color/colorPrimaryDark</item>
         <item name="android:navigationBarColor">@color/colorPrimary</item>
 
-        <!-- Correção para TabLayout -->
+        <!-- Compatibilidade -->
         <item name="tabBackground">@android:color/transparent</item>
         <item name="tabIndicator">@null</item>
-    </style>
 
-
-    <!-- Estilo de botão -->
-    <style name="botaoPadrao" parent="Theme.AppCompat.DayNight">
-        <item name="colorControlHighlight">#DD0000</item>
-        <item name="colorButtonNormal">#990000</item>
-        <item name="android:textColor">@color/vermelho</item>
+        <!-- SDK MercadoPago -->
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="windowActionBar">false</item>
     </style>
 </resources>

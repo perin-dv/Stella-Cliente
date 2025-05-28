@@ -1,0 +1,94 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    android:backgroundTint="@android:color/white"
+    android:elevation="8dp"
+    android:radius="16dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Loja + Pedido -->
+        <TextView
+            android:id="@+id/tvStatusLoja"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stella D’Italia - Maringá"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#111111" />
+
+        <TextView
+            android:id="@+id/tvStatusNumeroData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pedido nº 1582 • 18/05/2025 19:48"
+            android:textSize="13sp"
+            android:textColor="#777777"
+            android:layout_marginTop="2dp" />
+
+        <!-- Status + Ícone -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/icStatus"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_relogio"
+                android:layout_marginEnd="6dp"
+                app:tint="@color/vermelho" />
+
+            <TextView
+                android:id="@+id/tvStatusPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Aguardando confirmação"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#333333" />
+        </LinearLayout>
+
+        <!-- Linha de progresso -->
+        <ProgressBar
+            android:id="@+id/progressoPedido"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginTop="10dp"
+            android:progress="25"
+            android:max="100"
+            android:progressDrawable="@drawable/progress_gourmet_drawable" />
+
+        <!-- Itens + Total -->
+        <TextView
+            android:id="@+id/tvResumoItensStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1x Pizza Broto + 1x Coca 600ml"
+            android:textSize="14sp"
+            android:textColor="#555555"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/tvTotalPedidoStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total: R$ 44,90"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#222222"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

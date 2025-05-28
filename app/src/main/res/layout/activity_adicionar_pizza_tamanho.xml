@@ -111,6 +111,7 @@
             android:text="Adicionar"
             android:textAllCaps="false"
             android:layout_width="wrap_content"
+            android:backgroundTint="@color/vermelho"
             android:layout_height="wrap_content" />
     </LinearLayout>
 </RelativeLayout>

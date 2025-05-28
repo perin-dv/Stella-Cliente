@@ -10,11 +10,7 @@ import android.graphics.Color
 import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.provider.Settings
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -22,12 +18,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -36,19 +31,24 @@ import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.activity.AdicionarPizzaTamanhoActivity
 import com.example.apkstelladitalia20.activity.DetalhesProdutoActivity
 import com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity
+import com.example.apkstelladitalia20.activity.HomeActivity
 import com.example.apkstelladitalia20.adapter.CategoriaAdapter
 import com.example.apkstelladitalia20.adapter.DestaquesAdapter
 import com.example.apkstelladitalia20.adapter.PromocaoAdapter
+import com.example.apkstelladitalia20.controller.CarrinhoController
 import com.example.apkstelladitalia20.data.PizzaTamanho
+import com.example.apkstelladitalia20.databinding.ActivityAdicionarPizzaTamanhoBinding
 import com.example.apkstelladitalia20.databinding.FragmentHomeBinding
 import com.example.apkstelladitalia20.helper.DepthPageTransformer
-import com.example.apkstelladitalia20.helper.ZoomOutPageTransformer
+import com.example.apkstelladitalia20.model.CarrinhoViewModel
 import com.example.apkstelladitalia20.model.PromocaoEntity
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.firebase.database.*
 import com.stelladitalia.adapters.ProdutoAdapter
 
+
 import java.util.*
+import kotlin.jvm.java
 
 class HomeFragment : Fragment() {
 
@@ -58,14 +58,13 @@ class HomeFragment : Fragment() {
     private lateinit var autoScrollRunnable: Runnable
     private var currentPage = 0
     private val destaques = mutableListOf<ProdutoEntity>()
-    private val categorias = mutableListOf<Pair<String, List<ProdutoEntity>>>()
     private var listaPromocoesDoBanner: List<PromocaoEntity> = emptyList()
     private lateinit var promocaoAdapter: PromocaoAdapter
     private lateinit var destaqueAdapter: DestaquesAdapter
     private lateinit var categoriaAdapter: CategoriaAdapter
     private lateinit var produtoAdapter: ProdutoAdapter
     private val produtosOrdenados = mutableListOf<ProdutoEntity>()
-
+    private val carrinhoViewModel: CarrinhoViewModel by viewModels()
 
     private val prefs by lazy {
         requireContext().getSharedPreferences("appStella", Context.MODE_PRIVATE)
@@ -80,8 +79,8 @@ class HomeFragment : Fragment() {
         return binding.coordinatorLayoutHome
 
 
-
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -91,20 +90,31 @@ class HomeFragment : Fragment() {
 
         carregarConfiguracoes()
         setupPizzaTamanhos()
+        setupPizzaDoces()
         setupAdapters()
         carregarSaudacao()
         carregarEnderecoCliente()
-        carregarProdutosOrdenados()
+        carregarProdutosOrdenados {
+            carregarProdutosPorCategoria()
+        }
         carregarPromocao()
         carregarDestaques()
-        carregarProdutosPorCategoria()
         setupCategoryScroll()
         startAutoScroll()
 
 
+
     }
 
-    private fun carregarProdutosOrdenados(onComplete: (() -> Unit)? = null) {
+
+    override fun onResume() {
+        super.onResume()
+        binding.recyclerProdutos.adapter = null
+        carregarProdutosPorCategoria()
+    }
+
+
+    private fun carregarProdutosOrdenados(onComplete: () -> Unit) {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
         val empresaKey = "7a3118oNdgcpmwSqrgyRTqBnFFx2"
 
@@ -125,7 +135,7 @@ class HomeFragment : Fragment() {
                     produtosOrdenados.addAll(listaTemp)
 
                     Log.d("CARREGAMENTO", "Produtos carregados: ${produtosOrdenados.size}")
-                    onComplete?.invoke()
+                    onComplete()
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -299,57 +309,102 @@ class HomeFragment : Fragment() {
         bottomSheet.show(parentFragmentManager, "resultadoBusca")
     }
 
+    private fun setupPizzaDoces() {
+        val lista = listOf(
+            PizzaTamanho("Pequena", "4 pedaços", "R$ 39,99", "https://firebasestorage.googleapis.com/pequena.jpg"),
+            PizzaTamanho("Média", "6 pedaços", "R$ 41,99", "https://firebasestorage.googleapis.com/media.jpg"),
+            PizzaTamanho("Grande", "8 pedaços", "R$ 44,99", "https://firebasestorage.googleapis.com/grande.jpg")
+        )
 
-    private fun carregarProdutosPorCategoria() {
-        val idUsuario = prefs.getString("uidEmpresa", "") ?: return
-        val ref = FirebaseDatabase.getInstance()
-            .getReference("empresa")
-            .child(idUsuario)
-            .child("produtos")
-
-        ref.get().addOnSuccessListener { snapshot ->
-            val mapaCategorias = mutableMapOf<String, MutableList<ProdutoEntity>>()
-
-            for (produtoSnap in snapshot.children) {
-                val produto = produtoSnap.getValue(ProdutoEntity::class.java)
-                if (produto != null && !produto.nome.isNullOrBlank()) {
-                    val categoria =
-                        produto.categoria.takeIf { !it.isNullOrBlank() } ?: "Sem categoria"
-                    mapaCategorias.getOrPut(categoria) { mutableListOf() }.add(produto)
-                }
-            }
-
-            val ordemDesejada = listOf(
-                "Pizza Tradicional",
-                "Pizza Especial",
-                "Pizza Vegetariana",
-                "Pizza Premium",
-                "Pizza Doce",
-                "Porções",
-                "Bebidas sem álcool",
-                "Bebidas com álcool",
-                "Sem categoria"
-            )
-
-            val listaOrdenada = mutableListOf<Pair<String, List<ProdutoEntity>>>()
-
-            for (categoria in ordemDesejada) {
-                mapaCategorias[categoria]?.let {
-                    listaOrdenada.add(categoria to it)
-                }
-            }
-
-            // adiciona qualquer categoria extra que não estava na ordem
-            mapaCategorias.entries
-                .filter { it.key !in ordemDesejada }
-                .forEach { listaOrdenada.add(it.key to it.value) }
-
-            categoriaAdapter.atualizarLista(listaOrdenada)
-            binding.recyclerProdutos.adapter = categoriaAdapter
-            binding.recyclerProdutos.visibility = View.VISIBLE
+        val adapter = PizzaTamanhoAdapter(lista) { tamanho ->
+            val intent = Intent(requireContext(), AdicionarPizzaTamanhoActivity::class.java)
+            intent.putExtra("tamanhoNome", tamanho.nome)
+            intent.putExtra("precoBase", tamanho.preco)
+            intent.putExtra("descricao", tamanho.descricao)
+            intent.putExtra("imagemUrl", tamanho.imagem)
+            intent.putExtra("tipo", "doce")
+            startActivity(intent)
         }
+
+        binding.recyclerPizzaTamanhosDoce.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclerPizzaTamanhosDoce.adapter = adapter
     }
 
+
+
+    private fun carregarProdutosPorCategoria() {
+        val empresaKey = prefs.getString("uidEmpresa", "") ?: return
+        val ref = FirebaseDatabase.getInstance()
+            .getReference("empresa")
+            .child(empresaKey)
+            .child("produtos")
+
+        ref.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded || _binding == null) return
+                val mapaCategorias = mutableMapOf<String, MutableList<ProdutoEntity>>()
+
+                for (produtoSnap in snapshot.children) {
+                    val raw = produtoSnap.value
+                    if (raw is Map<*, *>) {
+                        val produto = produtoSnap.getValue(ProdutoEntity::class.java)
+                        if (produto != null && !produto.nome.isNullOrBlank()) {
+                            val categoriaOriginal = produto.categoria?.trim()?.lowercase() ?: continue
+
+                            // Ignora produtos genéricos que não devem aparecer no cardápio
+                            val ignorar = listOf("água", "coca", "refrigerante")
+                            if (ignorar.any { categoriaOriginal.contains(it) }) continue
+
+                            val categoria = when {
+                                categoriaOriginal.contains("doce") -> "Pizza Doce"
+                                categoriaOriginal.contains("vegetariana") -> "Pizza Vegetariana"
+                                categoriaOriginal.contains("premium") -> "Pizza Premium"
+                                categoriaOriginal.contains("especial") -> "Pizza Especial"
+                                categoriaOriginal.contains("tradicional") -> "Pizza Tradicional"
+                                categoriaOriginal.contains("porção") -> "Porções"
+                                categoriaOriginal.contains("sem álcool") -> "Bebidas sem álcool"
+                                categoriaOriginal.contains("com álcool") -> "Bebidas com álcool"
+                                categoriaOriginal.contains("bebida") -> "Bebidas"
+                                else -> continue // <- evita que "Outros" apareça
+                            }
+
+                            Log.d("🔥 PRODUTO", "Carregado: ${produto.nome} | Categoria: $categoria")
+                            mapaCategorias.getOrPut(categoria) { mutableListOf() }.add(produto)
+                        } else {
+                            Log.w("🔥 FirebaseParse", "Produto inválido em: ${produtoSnap.key}")
+                        }
+                    }
+                }
+
+                val ordemDesejada = listOf(
+                    "Pizza Tradicional", "Pizza Especial", "Pizza Vegetariana",
+                    "Pizza Premium", "Pizza Doce", "Porções",
+                    "Bebidas sem álcool", "Bebidas com álcool", "Bebidas"
+                )
+
+                val listaOrdenada = mutableListOf<Pair<String, List<ProdutoEntity>>>()
+
+                for (categoria in ordemDesejada) {
+                    mapaCategorias[categoria]?.let {
+                        listaOrdenada.add(categoria to it)
+                    }
+                }
+
+                categoriaAdapter.atualizarLista(listaOrdenada)
+                binding.recyclerProdutos.adapter = categoriaAdapter
+                binding.recyclerProdutos.visibility = View.VISIBLE
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HomeFragment", "Erro ao carregar categorias: ${error.message}")
+            }
+        })
+      }
+
+
+    fun String.capitalizeWords(): String =
+        split(" ").joinToString(" ") { it.lowercase().replaceFirstChar(Char::titlecase) }
 
     private fun carregarSaudacao() {
         val nomeCache = prefs.getString("nome", null)
@@ -505,18 +560,19 @@ class HomeFragment : Fragment() {
                 @SuppressLint("NotifyDataSetChanged")
                 override fun onDataChange(snapshot: DataSnapshot) {
                     destaques.clear()
-                    for (catSnap in snapshot.children) {
-                        for (itemSnap in catSnap.children) {
-                            val raw = itemSnap.value
-                            if (raw is Map<*, *>) {
-                                itemSnap.getValue(ProdutoEntity::class.java)?.let {
-                                    destaques.add(it)
-                                }
-                            } else {
-                                Log.w("HomeFragment", "Produto ignorado: não é objeto válido")
+
+                    for (produtoSnap in snapshot.children) {
+                        val raw = produtoSnap.value
+                        if (raw is Map<*, *>) {
+                            val produto = produtoSnap.getValue(ProdutoEntity::class.java)
+                            if (produto != null && !produto.nome.isNullOrBlank()) {
+                                destaques.add(produto)
                             }
+                        } else {
+                            Log.w("🔥 Destaques", "Produto ignorado: ${produtoSnap.key}")
                         }
                     }
+
                     destaqueAdapter.notifyDataSetChanged()
                 }
 
@@ -525,6 +581,7 @@ class HomeFragment : Fragment() {
                 }
             })
     }
+
 
     private fun carregarConfiguracoes() {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
@@ -591,6 +648,7 @@ class HomeFragment : Fragment() {
                 }
             })
     }
+
     private fun setupCategoryScroll() {
         binding.categoriaPizza.setOnClickListener {
             scrollToCategoria("Pizza Tradicional")
@@ -614,13 +672,6 @@ class HomeFragment : Fragment() {
     }
 
 
-    private fun scrollToView(view: View) {
-        view.parent?.requestChildFocus(view, view)
-    }
-
-
-
-
 
     private fun setupPizzaTamanhos() {
         val lista = listOf(
@@ -642,7 +693,6 @@ class HomeFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerPizzaTamanhos.adapter = adapter
     }
-
 
 
 

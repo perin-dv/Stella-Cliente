@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/main"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/splash_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#900026">
+    android:background="#7C0022"
+    android:gravity="center">
 
     <ImageView
-        android:id="@+id/imageViewStellablack"
+        android:id="@+id/logo"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:src="@drawable/modelo_4"
-        android:contentDescription="Logo Stella"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_centerInParent="true"
+        android:scaleType="centerInside"
+        android:src="@drawable/modelo_4_png" />
+
+
+</RelativeLayout>

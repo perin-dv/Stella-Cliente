@@ -13,4 +13,11 @@
     <color name="colorPrimaryDark">#8E0000</color>
     <color name="colorAccent">#FFC107</color>
     <color name="lightGray">#717171</color>
+    <color name="bordeaux_stella">#8B1A32</color>
+    <color name="ui_meli_grey">#F0F0F0</color>
+    <color name="ui_meli_black">#000000</color>
+    <color name="ui_meli_dark_grey">#9E9E9E</color>
+    <color name="ui_fullscreenmodal_toolbar_text_color">#333333</color>
+    <color name="transparent">#00000000</color>
+    <color name="ui_meli_white">#FFFFFF</color>
 </resources>

@@ -1,6 +1,25 @@
 <resources>
-    <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="pageMargin">0dp</dimen>
+    <!-- Dimensões que o MercadoPago SDK espera -->
+    <dimen name="ui_050m">4dp</dimen>
+    <dimen name="ui_1m">8dp</dimen>
+    <dimen name="ui_1_5m">12dp</dimen>
+    <dimen name="ui_2m">16dp</dimen>
+    <dimen name="ui_2_5m">20dp</dimen>
+    <dimen name="ui_3m">24dp</dimen>
+
+    <!-- Faltantes nas últimas mensagens -->
+    <dimen name="ui_linespacing_small">4dp</dimen>
+    <dimen name="ui_fontsize_large">18sp</dimen>
+    <dimen name="ui_3_5m">28dp</dimen>
+    <dimen name="ui_4m">32dp</dimen>
+    <dimen name="ui_linespacing_large">12dp</dimen>
+    <dimen name="ui_fontsize_xxsmall">10sp</dimen>
+    <dimen name="button_text_size">16sp</dimen>
+
+
+
+    <dimen name="ui_fontsize_medium">16sp</dimen>
+    <dimen name="ui_fontsize_xsmall">12sp</dimen>
+    <dimen name="ui_linespacing_medium">6dp</dimen>
+    <dimen name="ui_5m">40dp</dimen>
 </resources>

@@ -9,4 +9,6 @@ data class ProdutoAdicionalEntity(
     val nome: String = "",
     val valor: Double = 0.0,
     val imagemBase64: String? = null
+
 ) : Parcelable
+

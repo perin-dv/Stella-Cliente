@@ -1,24 +1,31 @@
-
 plugins {
-    id("org.jetbrains.kotlin.kapt") // ✅ ESSENCIAL para Room funcionar
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    id("com.google.gms.google-services") version "4.4.2"
-    id ("kotlin-parcelize")
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
+    id("com.google.gms.google-services")
+    id("kotlin-parcelize")
 }
 
 android {
     namespace = "com.example.apkstelladitalia20"
-    compileSdk = 35
+    compileSdk = 36
+
+
+    repositories {
+        flatDir {
+            dirs("libs")
+        }
+    }
 
     defaultConfig {
         applicationId = "com.example.apkstelladitalia20"
-        minSdk = 26
+        minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
 
 
@@ -31,21 +38,30 @@ android {
             )
         }
     }
-    buildFeatures {
-        viewBinding = true
-    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+
     kotlinOptions {
         jvmTarget = "21"
     }
 
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
+repositories {
+    google()
+    mavenCentral()
 
+    // ✅ ESSENCIAL PARA LOCAL .aar
+    flatDir {
+        dirs("libs")
+    }
+}
 
 dependencies {
     // Firebase
@@ -54,6 +70,11 @@ dependencies {
     implementation(libs.google.firebase.auth.ktx)
     implementation(libs.google.firebase.storage.ktx)
     implementation(libs.google.firebase.database.ktx)
+    implementation(libs.firebase.firestore.ktx)
+    implementation("androidx.appcompat:appcompat:1.6.1")
+
+
+
 
     // AndroidX
     implementation(libs.androidx.appcompat)
@@ -66,29 +87,30 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.annotation)
     implementation(libs.support.annotations)
-    implementation (libs.glide)
-    implementation (libs.shimmer)
     implementation(libs.play.services.location)
-    implementation (libs.picasso)
-    implementation(libs.firebase.firestore.ktx)
-    implementation (libs.gson)
+
+    // Outras libs
+    implementation(libs.glide)
+    implementation(libs.shimmer)
+    implementation(libs.picasso)
+    implementation(libs.gson)
 
 
-    kapt (libs.compiler)
 
 
-    // ROOM (✅ obrigatório para resolver o erro do AppDatabase_Impl)
+
+
+    // Room
     implementation("androidx.room:room-runtime:2.7.0")
     implementation("androidx.room:room-ktx:2.7.0")
     kapt("androidx.room:room-compiler:2.7.0")
+    implementation("com.google.firebase:firebase-functions-ktx:20.3.1")
 
-    implementation (libs.com.google.firebase.firebase.database.ktx)
 
     // Testes
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    kapt(libs.compiler)
 }
-
-
-apply(plugin = "com.google.gms.google-services")

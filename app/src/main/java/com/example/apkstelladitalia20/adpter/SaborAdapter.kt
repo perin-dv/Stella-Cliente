@@ -33,7 +33,12 @@ class SaborAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SaborViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_sabor_pizza, parent, false)
+
+        
         return SaborViewHolder(view)
+
+
+
     }
 
     override fun onBindViewHolder(holder: SaborViewHolder, position: Int) {

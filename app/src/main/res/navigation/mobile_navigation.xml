@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/navigation_carrinho"
-        android:name="com.example.apkstelladitalia20.ui.pedidos.PedidosFragment"
+        android:name="com.example.apkstelladitalia20.ui.carrinho.CarrinhoFragment"
         android:label="@string/title_carrinho"
         tools:layout="@layout/fragment_carrinho" />
     <fragment

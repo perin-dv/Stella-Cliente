@@ -43,7 +43,8 @@ class CategoriaAdapter(
             binding.tvNomeCategoria.text = categoria.first
 
             binding.recyclerProdutos.layoutManager =
-                LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+                LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+
             binding.recyclerProdutos.adapter =
                 ProdutoAdapter(context, categoria.second, onClickProduto)
         }

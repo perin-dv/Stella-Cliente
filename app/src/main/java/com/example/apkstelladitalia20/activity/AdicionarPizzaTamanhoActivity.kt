@@ -1,16 +1,20 @@
 package com.example.apkstelladitalia20.activity
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.adapter.SaborAdapter
 import com.example.apkstelladitalia20.databinding.ActivityAdicionarPizzaTamanhoBinding
+import com.example.apkstelladitalia20.model.CarrinhoViewModel
+import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
 import com.example.apkstelladitalia20.model.SaborEntity
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import com.example.apkstelladitalia20.R
 
 class AdicionarPizzaTamanhoActivity : AppCompatActivity() {
 
@@ -20,19 +24,21 @@ class AdicionarPizzaTamanhoActivity : AppCompatActivity() {
     private var saborSelecionado1: SaborEntity? = null
     private var saborSelecionado2: SaborEntity? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAdicionarPizzaTamanhoBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Dados recebidos
+        botaoFinalizar()
+        dadosRecebidos()
+    }
+
+    private fun dadosRecebidos() {
         val nome = intent.getStringExtra("tamanhoNome") ?: "Pizza"
         val descricao = intent.getStringExtra("descricao") ?: ""
         val preco = intent.getStringExtra("precoBase") ?: "R$ 0,00"
         val imagemUrl = intent.getStringExtra("imagemUrl") ?: ""
 
-        // UI
         binding.tvTituloPizza.text = "$nome ($descricao)"
         binding.tvPrecoBase.text = "A partir de $preco"
         binding.tvTotal.text = "Total: $preco"
@@ -47,12 +53,11 @@ class AdicionarPizzaTamanhoActivity : AppCompatActivity() {
             .trim()
             .toDoubleOrNull() ?: 0.0
 
-        // Carrega sabores reais do Firebase
         carregarSabores(nome)
     }
 
     private fun carregarSabores(tamanho: String) {
-        val uidEmpresa = "7a3118oNdgcpmwSqrgyRTqBnFFx2" // ou pegue do prefs, se quiser dinâmico
+        val uidEmpresa = "7a3118oNdgcpmwSqrgyRTqBnFFx2"
 
         val ref = FirebaseDatabase.getInstance()
             .getReference("empresa")
@@ -70,16 +75,19 @@ class AdicionarPizzaTamanhoActivity : AppCompatActivity() {
                     val descricao = prodSnap.child("descricao").getValue(String::class.java) ?: ""
                     val imagem = prodSnap.child("imagem").getValue(String::class.java) ?: ""
 
-                    // 🍕 Filtro: só categorias salgadas válidas
-                    val categoriaOk = categoria.contains("Pizza", true) &&
-                            !categoria.contains("Doce", true) &&
-                            !categoria.contains("Porção", true) &&
-                            !categoria.contains("Bebida", true)
+                    val tipo = intent.getStringExtra("tipo") ?: "salgada"
 
-                    // 🍕 Verifica se nome inclui o tamanho desejado
-                    val tamanhoOk = true
+                    val categoriaOk = if (tipo == "doce") {
+                        categoria.contains("doce", ignoreCase = true)
+                    } else {
+                        categoria.contains("Pizza", true) &&
+                                !categoria.contains("Doce", true) &&
+                                !categoria.contains("Porção", true) &&
+                                !categoria.contains("Bebida", true)
+                    }
 
-                    if (categoriaOk && tamanhoOk) {
+
+                    if (categoriaOk) {
                         val sabor = SaborEntity(
                             nome = nome,
                             descricao = descricao,
@@ -90,7 +98,6 @@ class AdicionarPizzaTamanhoActivity : AppCompatActivity() {
                     }
                 }
 
-                // Agora envia pra função que exibe os 2 RVs
                 setupListaSabores(listaSabores)
             }
 
@@ -127,5 +134,38 @@ class AdicionarPizzaTamanhoActivity : AppCompatActivity() {
         val total = precoBase + adicional
 
         binding.tvTotal.text = "Total: R$ %.2f".format(total)
+    }
+
+    private fun botaoFinalizar() {
+        binding.btnAdicionar.setOnClickListener {
+            if (saborSelecionado1 == null || saborSelecionado2 == null) {
+                Toast.makeText(this, "Escolha os 2 sabores da pizza", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val preco1 = saborSelecionado1?.precoAdicional ?: 0.0
+            val preco2 = saborSelecionado2?.precoAdicional ?: 0.0
+            val adicional = maxOf(preco1, preco2)
+            val total = precoBase + adicional
+
+            val item = ProdutoCarrinhoEntity(
+                idProduto = "pizza_${System.currentTimeMillis()}",
+                nome = "${saborSelecionado1?.nome} + ${saborSelecionado2?.nome}",
+                valor = total,
+                quantidade = 1,
+                tipo = "pizza",
+                descricao = binding.tvTituloPizza.text.toString(),
+                imagemUrl = null
+            )
+
+            val viewModel = ViewModelProvider(this)[CarrinhoViewModel::class.java]
+            viewModel.adicionar(item)
+
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.putExtra("abrirCarrinho", true)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            finish()
+        }
     }
 }

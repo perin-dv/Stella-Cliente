@@ -7,10 +7,20 @@ import androidx.room.RoomDatabase
 import com.example.stelladitalia20.Entity.ClienteEntity
 import com.example.stelladitaliaempresa.dao.ClienteDao
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
+import com.example.apkstelladitalia20.data.CarrinhoDao
 
-@Database(entities = [ClienteEntity::class, ProdutoEntity::class], version = 1)
+@Database(
+    entities = [
+        ClienteEntity::class,
+        ProdutoEntity::class,
+        com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity::class
+    ],
+    version = 9 // incrementa pra forçar rebuild
+)
 abstract class AppDatabase : RoomDatabase() {
 
+
+    abstract fun carrinhoDao(): CarrinhoDao
     abstract fun clienteDao(): ClienteDao
     abstract fun produtoDao(): ProdutoDao
 
@@ -24,7 +34,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "stella_db"
-                ).build()
+
+                ).fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }
