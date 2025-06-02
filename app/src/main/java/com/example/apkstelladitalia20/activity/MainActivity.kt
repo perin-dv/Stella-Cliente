@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.apkstelladitalia20.activity.HomeActivity
 import com.example.apkstelladitalia20.activity.LoginActivity
 import com.example.apkstelladitalia20.databinding.ActivitySplashBinding
-import com.example.stelladitaliaempresa.data.AppDatabase
+import com.example.apkstelladitalia20.data.AppDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,8 +43,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun verificarLoginSalvo(): Boolean {
-        val clienteDao = AppDatabase.getDatabase(this).clienteDao()
-        val clientes = clienteDao.getTodos()
-        return clientes.isNotEmpty()
+        val prefs = getSharedPreferences("appStella", MODE_PRIVATE)
+        return prefs.contains("uidCliente")
     }
+
+
 }

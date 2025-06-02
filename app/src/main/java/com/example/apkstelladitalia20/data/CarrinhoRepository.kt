@@ -7,6 +7,7 @@ import com.example.apkstelladitalia20.data.CarrinhoDao
 class CarrinhoRepository(private val dao: CarrinhoDao) {
 
     val itensCarrinho: LiveData<List<ProdutoCarrinhoEntity>> = dao.getCarrinho()
+    val todosItens: LiveData<List<ProdutoCarrinhoEntity>> = dao.getCarrinho()
 
     suspend fun adicionar(produto: ProdutoCarrinhoEntity) {
         dao.inserirProduto(produto)

@@ -1,13 +1,11 @@
 package com.example.apkstelladitalia20.activity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
-import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.apkstelladitalia20.R
@@ -17,7 +15,6 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
         setContentView(R.layout.activity_splash)
 
         val logo = findViewById<ImageView>(R.id.logo)
@@ -25,9 +22,15 @@ class SplashActivity : AppCompatActivity() {
         logo.startAnimation(animation)
 
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, HomeActivity::class.java))
+            val prefs = getSharedPreferences("appStella", MODE_PRIVATE)
+            val logado = prefs.contains("uidCliente")
+
+            if (logado) {
+                startActivity(Intent(this, HomeActivity::class.java))
+            } else {
+                startActivity(Intent(this, LoginActivity::class.java))
+            }
             finish()
-        }, 2000)
+        }, 2000) // Tempo da splash + animação
     }
 }
-

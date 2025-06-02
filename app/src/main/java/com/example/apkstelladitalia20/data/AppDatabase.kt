@@ -1,4 +1,4 @@
-package com.example.stelladitaliaempresa.data
+package com.example.apkstelladitalia20.data
 
 import android.content.Context
 import androidx.room.Database
@@ -7,15 +7,19 @@ import androidx.room.RoomDatabase
 import com.example.stelladitalia20.Entity.ClienteEntity
 import com.example.stelladitaliaempresa.dao.ClienteDao
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
-import com.example.apkstelladitalia20.data.CarrinhoDao
+import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
+
+
 
 @Database(
     entities = [
         ClienteEntity::class,
         ProdutoEntity::class,
-        com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity::class
-    ],
-    version = 9 // incrementa pra forçar rebuild
+        ProdutoCarrinhoEntity::class,
+        ],
+    version = 17
+    ,exportSchema = false
+
 )
 abstract class AppDatabase : RoomDatabase() {
 

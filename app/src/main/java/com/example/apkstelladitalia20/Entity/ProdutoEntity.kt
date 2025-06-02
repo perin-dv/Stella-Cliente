@@ -11,7 +11,7 @@ import kotlinx.parcelize.Parcelize
 @IgnoreExtraProperties
 @Entity(tableName = "produto")
 data class ProdutoEntity(
-    @PrimaryKey val id: String = "",
+    @PrimaryKey var id: String = "",
     val nome: String = "",
 
     @SerializedName("imagem")
@@ -22,7 +22,7 @@ data class ProdutoEntity(
     val maisPedido: Boolean = false,
     val quantidadeVendida: Int = 0,
     val categoria: String? = "",
-    val descricao: String? = "",
+    var descricao: String? = "",
     val idUsuario: String? = "",
     var quantidade: Int = 1,
 

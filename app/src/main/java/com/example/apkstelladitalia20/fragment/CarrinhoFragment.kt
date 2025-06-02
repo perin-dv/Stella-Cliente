@@ -1,25 +1,24 @@
 package com.example.apkstelladitalia20.ui.carrinho
 
-import android.app.Fragment
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.apkstelladitalia20.Entity.ProdutoEntity
+import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
 import com.example.apkstelladitalia20.activity.EnderecoEntregaActivity
 import com.example.apkstelladitalia20.adapter.BebidaAdapter
 import com.example.apkstelladitalia20.adapter.CarrinhoAdapter
 import com.example.apkstelladitalia20.databinding.FragmentCarrinhoBinding
 import com.example.apkstelladitalia20.model.BebidaEntity
 import com.example.apkstelladitalia20.model.CarrinhoViewModel
-import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
 import com.google.firebase.database.*
-import com.example.apkstelladitalia20.controller.CarrinhoController
-
 
 class CarrinhoFragment : Fragment() {
 
@@ -28,7 +27,7 @@ class CarrinhoFragment : Fragment() {
 
     private lateinit var viewModel: CarrinhoViewModel
     private lateinit var produtoAdapter: CarrinhoAdapter
-    private val listaCarrinho = mutableListOf<ProdutoEntity>()
+    private val listaCarrinho = mutableListOf<ProdutoCarrinhoEntity>()
     private var taxaEntregaFirebase: Double = 0.0
 
     override fun onCreateView(
@@ -41,7 +40,6 @@ class CarrinhoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel = ViewModelProvider(requireActivity())[CarrinhoViewModel::class.java]
 
         setupToolbar()
@@ -62,42 +60,32 @@ class CarrinhoFragment : Fragment() {
         produtoAdapter = CarrinhoAdapter(
             listaCarrinho,
             onResumoAtualizado = { atualizarResumo() },
-            onRemoverItemBanco = { nome ->
-                viewModel.removerPorNome(nome)
-            }
+            onRemoverItemBanco = { nome -> viewModel.removerPorNome(nome) },
+            onAtualizarQuantidade = { item -> viewModel.adicionar(item) }
         )
         binding.recyclerItensCarrinho.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerItensCarrinho.adapter = produtoAdapter
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun observarCarrinho() {
-        CarrinhoController.getCarrinho().observe(viewLifecycleOwner) { lista ->
+        viewModel.itensCarrinho.observe(viewLifecycleOwner) { lista ->
             listaCarrinho.clear()
             listaCarrinho.addAll(lista)
 
             val temItens = listaCarrinho.isNotEmpty()
-            binding.layoutCarrinhoVazio.root.isVisible = !temItens
-            binding.rvCarrinho.isVisible = temItens
-            binding.cardResumo.isVisible = temItens
-            binding.btnConfirmarPedido.isVisible = temItens
+            binding.layoutCarrinhoVazio.isVisible = !temItens
+            binding.recyclerItensCarrinho.isVisible = temItens
+            binding.txtSubtotal.isVisible = temItens
+            binding.btnContinuar.isVisible = temItens
 
-            produtoAdapter.notifyDataSetChanged()
-
-            val subtotal = listaCarrinho.sumOf { it.getPrecoReal() * it.quantidade }
-            binding.tvSubtotal.text = "Subtotal: R$ %.2f".format(subtotal)
-
+            binding.recyclerItensCarrinho.adapter?.notifyDataSetChanged()
             atualizarResumo()
-
-            binding.btnConfirmarPedido.setOnClickListener {
-                navegarParaConfirmacaoEndereco()
-            }
         }
     }
 
-
-
     private fun atualizarResumo() {
-        val subtotal = listaCarrinho.sumOf { it.getPrecoReal() * it.quantidade }
+        val subtotal = listaCarrinho.sumOf { it.valor * it.quantidade }
         val temItens = listaCarrinho.isNotEmpty()
         val taxaEntrega = if (temItens) taxaEntregaFirebase else 0.0
         val total = subtotal + taxaEntrega
@@ -107,7 +95,6 @@ class CarrinhoFragment : Fragment() {
         binding.txtTotal.text = "R$ %.2f".format(total)
         binding.btnContinuar.visibility = if (temItens) View.VISIBLE else View.GONE
     }
-
 
     private fun setupBotaoContinuar() {
         binding.btnContinuar.setOnClickListener {
@@ -153,7 +140,7 @@ class CarrinhoFragment : Fragment() {
 
                 for (item in snapshot.children) {
                     val nome = item.child("nome").value?.toString() ?: continue
-                    val preco = item.child("preco").value?.toString()?.replace(",", ".")?.toDoubleOrNull() ?: 0.0
+                    val preco = item.child("precoAtual").value?.toString()?.replace(",", ".")?.toDoubleOrNull() ?: 0.0
                     val categoria = item.child("categoria").value?.toString() ?: ""
                     val imagem = item.child("imagem").value?.toString() ?: ""
 
@@ -163,15 +150,16 @@ class CarrinhoFragment : Fragment() {
                 }
 
                 val bebidaAdapter = BebidaAdapter(listaBebidas) { bebida ->
-                    val carrinhoItem = ProdutoCarrinhoEntity(
+                    val item = ProdutoCarrinhoEntity(
                         idProduto = "bebida_${System.currentTimeMillis()}",
                         nome = bebida.nome,
                         valor = bebida.preco,
                         quantidade = 1,
+                        tipo = "produto",
                         imagemUrl = bebida.imagem,
-                        tipo = "normal"
+                        categoria = "bebida"
                     )
-                    viewModel.adicionar(carrinhoItem)
+                    viewModel.adicionar(item)
                 }
 
                 binding.recyclerBebidas.apply {

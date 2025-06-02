@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -34,19 +35,15 @@
 
         <!-- Atividades principais -->
         <activity android:name="com.example.apkstelladitalia20.activity.HomeActivity" />
-                      <activity android:name="com.example.apkstelladitalia20.activity.DetalhesProdutoActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.DetalhesProdutoActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.DetalhesPedidoActivity" />
-
-        <activity
-            android:name="com.example.apkstelladitalia20.activity.WebViewPagamentoActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name="com.example.apkstelladitalia20.activity.PagamentoPixActivity" />
 
         <activity android:name="com.example.apkstelladitalia20.activity.AdicionarPizzaTamanhoActivity" />
-        <activity android:name="com.example.apkstelladitalia20.activity.CarrinhoPromocaoActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.EnderecoEntregaActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.ResumoPedidoProdutoActivity" />
-        <activity android:name="com.example.apkstelladitalia20.activity.ResumoPedidoPromocaoActivity" />
+
 
         <meta-data
             android:name="preloaded_fonts"

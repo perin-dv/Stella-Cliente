@@ -8,11 +8,14 @@ import com.example.apkstelladitalia20.Entity.PedidoEntity
 import com.example.apkstelladitalia20.adapter.ItemPedidoAdapter
 import com.example.apkstelladitalia20.controller.CarrinhoController
 import com.example.apkstelladitalia20.databinding.ActivityDetalhesPedidoBinding
+import com.example.apkstelladitalia20.model.CarrinhoViewModel
+import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
 
 class DetalhesPedidoActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetalhesPedidoBinding
     private lateinit var pedido: PedidoEntity
+    private lateinit var viewModel: CarrinhoViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +46,7 @@ class DetalhesPedidoActivity : AppCompatActivity() {
         binding.recyclerItens.adapter = adapter
 
         // Valores
-        val subtotalRecalculado = pedido.itens.sumOf { it.getPrecoReal() * it.quantidade }
+        val subtotalRecalculado = pedido.itens.sumOf { it.valor * it.quantidade }
         binding.tvResumoSubtotal.text = "Subtotal: R$ %.2f".format(subtotalRecalculado)
         binding.tvResumoDescontos.text = "Descontos: - R$ %.2f".format(pedido.desconto)
         binding.tvResumoEntrega.text = "Entrega: ${pedido.entrega}"
@@ -73,9 +76,9 @@ class DetalhesPedidoActivity : AppCompatActivity() {
     }
 
     private fun repetirPedido(pedido: PedidoEntity) {
-        // Simples: reenvia os itens para o carrinho
-        for (item in pedido.itens) {
-            CarrinhoController.adicionar(item)
+        // ✅ Adiciona ao carrinho via ViewModel (Room)
+        for (item: ProdutoCarrinhoEntity in pedido.itens) {
+            viewModel.adicionar(item)
         }
 
         val intent = Intent(this, HomeActivity::class.java)
@@ -83,4 +86,5 @@ class DetalhesPedidoActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         startActivity(intent)
     }
+
 }

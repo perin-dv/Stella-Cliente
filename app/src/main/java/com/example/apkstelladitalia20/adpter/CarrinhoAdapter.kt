@@ -1,20 +1,23 @@
 package com.example.apkstelladitalia20.adapter
 
+import android.graphics.BitmapFactory
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.apkstelladitalia20.Entity.ProdutoEntity
+import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
 import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.databinding.ItemResumoPedidoBinding
-import com.example.apkstelladitalia20.model.PromocaoEntity
 
 class CarrinhoAdapter(
-    private val lista: MutableList<ProdutoEntity>,
+    private val lista: MutableList<ProdutoCarrinhoEntity>,
     private val onResumoAtualizado: () -> Unit,
-    private val onRemoverItemBanco: (nome: String) -> Unit
-) : RecyclerView.Adapter<CarrinhoAdapter.CarrinhoViewHolder>() {
+    private val onRemoverItemBanco: (nome: String) -> Unit,
+    private val onAtualizarQuantidade: (ProdutoCarrinhoEntity) -> Unit
 
+
+) : RecyclerView.Adapter<CarrinhoAdapter.CarrinhoViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CarrinhoViewHolder {
         val binding = ItemResumoPedidoBinding.inflate(
@@ -32,54 +35,60 @@ class CarrinhoAdapter(
     inner class CarrinhoViewHolder(private val binding: ItemResumoPedidoBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: ProdutoEntity) {
+        fun bind(item: ProdutoCarrinhoEntity) {
             val pos = adapterPosition
 
             binding.txtNomeProdutoResumo.text = item.nome
             binding.txtPrecoProdutoResumo.text =
-                "R$ %.2f".format((item.valor ?: 0.0) * (item.quantidade ?: 1))
-            binding.txtQuantidade.text = item.quantidade?.toString() ?: "1"
+                "R$ %.2f".format(item.valor * item.quantidade)
+            binding.txtQuantidade.text = item.quantidade.toString()
 
-            try {
-                val base64 = item.imagem ?: ""
-                val imageBytes = android.util.Base64.decode(base64, android.util.Base64.DEFAULT)
-                val bitmap =
-                    android.graphics.BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            if (!item.imagemUrl.isNullOrEmpty()) {
+                try {
+                    val base64 = item.imagemUrl.replace("\\s".toRegex(), "")
+                    val imageBytes = Base64.decode(base64, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
 
-                Glide.with(binding.imgProdutoResumo.context)
-                    .load(bitmap)
-                    .placeholder(R.drawable.ic_placeholder)
-                    .into(binding.imgProdutoResumo)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                Glide.with(binding.imgProdutoResumo.context)
-                    .load(R.drawable.ic_placeholder)
-                    .into(binding.imgProdutoResumo)
+                    binding.imgProdutoResumo.setImageBitmap(bitmap)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    binding.imgProdutoResumo.setImageResource(R.drawable.ic_placeholder)
+                }
+            } else {
+                binding.imgProdutoResumo.setImageResource(R.drawable.ic_placeholder)
             }
 
 
             binding.btnAdicionarQuantidade.setOnClickListener {
-                item.quantidade = (item.quantidade ?: 1) + 1
+                item.quantidade += 1
                 notifyItemChanged(pos)
+                onAtualizarQuantidade(item)
                 onResumoAtualizado()
             }
 
             binding.btnRemoverQuantidade.setOnClickListener {
-                val novaQtd = (item.quantidade ?: 1) - 1
+                val novaQtd = item.quantidade - 1
                 if (novaQtd > 0) {
                     item.quantidade = novaQtd
                     notifyItemChanged(pos)
+                    onAtualizarQuantidade(item)
                     onResumoAtualizado()
                 }
             }
 
             binding.btnRemoverItem.setOnClickListener {
-                val nomeRemover = item.nome ?: return@setOnClickListener
-                onRemoverItemBanco(nomeRemover) // 🔥 remove da Room
+                val nomeRemover = item.nome
+                onRemoverItemBanco(nomeRemover)
                 lista.removeAt(pos)
                 notifyItemRemoved(pos)
                 onResumoAtualizado()
             }
         }
+    }
+
+    fun atualizarLista(novaLista: List<ProdutoCarrinhoEntity>) {
+        lista.clear()
+        lista.addAll(novaLista)
+        notifyDataSetChanged()
     }
 }

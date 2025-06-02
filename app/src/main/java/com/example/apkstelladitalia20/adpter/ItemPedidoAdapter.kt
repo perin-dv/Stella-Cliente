@@ -7,9 +7,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
 import com.example.apkstelladitalia20.databinding.ItemResumoPedidoBinding
+import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
 
 class ItemPedidoAdapter(
-    private val itens: List<ProdutoEntity>
+    private val itens: List<ProdutoCarrinhoEntity>
 ) : RecyclerView.Adapter<ItemPedidoAdapter.ItemPedidoViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemPedidoViewHolder {
@@ -28,9 +29,9 @@ class ItemPedidoAdapter(
         private val binding: ItemResumoPedidoBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(produto: ProdutoEntity) {
+        fun bind(produto: ProdutoCarrinhoEntity) {
             binding.txtNomeProdutoResumo.text = produto.nome
-            binding.txtPrecoProdutoResumo.text = "R$ %.2f".format(produto.getPrecoReal())
+            binding.txtPrecoProdutoResumo.text = "R$ %.2f".format(produto.valor)
             binding.txtQuantidade.text = produto.quantidade.toString()
 
             // Esconde botões de ação (visualização somente)
@@ -39,7 +40,7 @@ class ItemPedidoAdapter(
             binding.btnRemoverItem.visibility = View.GONE
 
             Glide.with(binding.imgProdutoResumo.context)
-                .load(produto.imagem)
+                .load(produto.imagemUrl)
                 .into(binding.imgProdutoResumo)
         }
     }

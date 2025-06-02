@@ -85,6 +85,15 @@
                 android:text="Adicionar Cupom"
                 android:textColor="@color/vermelho"
                 android:textSize="14sp"/>
+            <TextView
+                android:id="@+id/txtCupomAplicado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cupom aplicado: DESCONTO10"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:visibility="gone"
+                android:layout_marginTop="4dp" />
 
             <!-- CPF na Nota -->
             <TextView
@@ -104,6 +113,15 @@
                 android:textColor="@color/vermelho"
                 android:textSize="14sp"/>
 
+            <TextView
+                android:id="@+id/txtCpfAplicado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CPF na nota: 123.456.789-00"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:visibility="gone"
+                android:layout_marginTop="4dp" />
             <!-- Linha -->
             <View
                 android:layout_width="match_parent"

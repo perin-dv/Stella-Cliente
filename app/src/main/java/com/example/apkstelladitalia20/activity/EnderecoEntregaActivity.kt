@@ -34,7 +34,7 @@ class EnderecoEntregaActivity : AppCompatActivity() {
 
     private fun setupClicks() {
         binding.btnContinuarEndereco.setOnClickListener {
-            val intent = Intent(this, CarrinhoFragment::class.java)
+            val intent = Intent(this, ResumoPedidoProdutoActivity::class.java)
             intent.putExtra("pizzaResumo", pizzaResumo)
             startActivity(intent)
         }

@@ -4,7 +4,6 @@ import android.content.Context
 import com.example.apkstelladitalia20.Entity.EnderecoEntity
 import com.example.apkstelladitalia20.model.LoggedInUser
 import com.example.stelladitalia20.Entity.ClienteEntity
-import com.example.stelladitaliaempresa.data.AppDatabase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.Dispatchers

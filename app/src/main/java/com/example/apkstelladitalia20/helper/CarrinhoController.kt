@@ -1,27 +1,27 @@
 package com.example.apkstelladitalia20.controller
 
+import androidx.lifecycle.LiveData
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
 
 object CarrinhoController {
 
     private val listaCarrinho = mutableListOf<ProdutoEntity>()
+    private val carrinhoLiveData = androidx.lifecycle.MutableLiveData<List<ProdutoEntity>>(listaCarrinho)
+
 
     fun adicionar(item: ProdutoEntity) {
         val existente = listaCarrinho.find { it.nome == item.nome }
+
         if (existente != null) {
             existente.quantidade += item.quantidade
         } else {
             listaCarrinho.add(item)
         }
+
+        carrinhoLiveData.value = listaCarrinho.toList() // sempre atualiza a lista com cópia para notificar o observer
     }
 
-    fun remover(item: ProdutoEntity) {
-        listaCarrinho.removeIf { it.nome == item.nome }
-    }
 
-    fun limparCarrinho() {
-        listaCarrinho.clear()
-    }
 
     fun atualizarQuantidade(item: ProdutoEntity, novaQuantidade: Int) {
         val index = listaCarrinho.indexOfFirst { it.nome == item.nome }
@@ -34,9 +34,7 @@ object CarrinhoController {
         }
     }
 
-    fun getCarrinho(): List<ProdutoEntity> {
-        return listaCarrinho
-    }
+    fun getCarrinho(): LiveData<List<ProdutoEntity>> = carrinhoLiveData
 
     fun getTotal(): Double {
         return listaCarrinho.sumOf { it.valor * it.quantidade }

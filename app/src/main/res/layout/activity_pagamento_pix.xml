@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutPagamentoPix"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@android:color/white">
+
+    <ImageButton
+        android:id="@+id/btnVoltarPix"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_arrow_back"
+        android:background="@android:color/transparent" />
+
+    <ImageView
+        android:id="@+id/imgQrCode"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/txtPixCopiaCola"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pix Copia e Cola"
+        android:textSize="16sp"
+        android:paddingTop="24dp"
+        android:textIsSelectable="true"
+        android:textAlignment="center" />
+
+    <Button
+        android:id="@+id/btnCopiarPix"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Copiar PIX"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnFakeConfirmar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Simular Pagamento Recebido"
+        android:layout_marginTop="32dp" />
+
+</LinearLayout>

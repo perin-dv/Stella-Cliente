@@ -23,8 +23,17 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+
+
+        onNewIntent(intent)
+
+
+
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment_activity_home) as NavHostFragment
+
+
+
 
         val navController = navHostFragment.navController
         binding.navView.setupWithNavController(navController)
@@ -32,18 +41,20 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent) // muito importante: atualiza o intent ativo
 
-        val abrirCarrinho = intent.getBooleanExtra("abrirCarrinho", false)
-        val abrirHome = intent.getBooleanExtra("abrirHome", false)
+        val abrirCarrinho = intent?.getBooleanExtra("abrirCarrinho", false) ?: false
+        val abrirHome = intent?.getBooleanExtra("abrirHome", false) ?: false
+        val abrirPedidos = intent?.getBooleanExtra("abrir_pedidos", false) ?: false
 
         Handler(Looper.getMainLooper()).post {
             when {
                 abrirCarrinho -> binding.navView.selectedItemId = R.id.navigation_carrinho
                 abrirHome -> binding.navView.selectedItemId = R.id.navigation_home
+                abrirPedidos -> binding.navView.selectedItemId = R.id.navigation_pedidos
             }
         }
     }
-
 
 
     override fun onResume() {
@@ -53,6 +64,11 @@ class HomeActivity : AppCompatActivity() {
         if (currentFragment is HomeFragment) {
             currentFragment.onResume()
         }
+        if (intent.getBooleanExtra("abrirPedidos", false)) {
+            binding.navView.selectedItemId = R.id.navigation_pedidos
+            intent.removeExtra("abrirPedidos")
+        }
     }
+
 
 }

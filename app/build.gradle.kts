@@ -11,12 +11,6 @@ android {
     compileSdk = 36
 
 
-    repositories {
-        flatDir {
-            dirs("libs")
-        }
-    }
-
     defaultConfig {
         applicationId = "com.example.apkstelladitalia20"
         minSdk = 24
@@ -50,16 +44,6 @@ android {
 
     buildFeatures {
         viewBinding = true
-    }
-}
-
-repositories {
-    google()
-    mavenCentral()
-
-    // ✅ ESSENCIAL PARA LOCAL .aar
-    flatDir {
-        dirs("libs")
     }
 }
 

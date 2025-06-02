@@ -8,12 +8,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 
 import androidx.fragment.app.Fragment
-import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.activity.DetalhesPedidoActivity
+
 import com.example.apkstelladitalia20.adpter.HistoricoAdapter
 import com.example.apkstelladitalia20.databinding.FragmentPedidosBinding
-import com.example.apkstelladitalia20.databinding.ItemPedidoStatusBinding
-import com.example.apkstelladitalia20.databinding.ItemResumoPedidoBinding
 import com.example.apkstelladitalia20.repository.PedidoRepository
 
 class PedidoFragment : Fragment() {

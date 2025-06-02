@@ -11,7 +11,7 @@ import androidx.room.Query
 @Dao
 interface CarrinhoDao {
 
-    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun inserirProduto(produto: ProdutoCarrinhoEntity)
 
     @Query("SELECT * FROM carrinho")
@@ -19,6 +19,7 @@ interface CarrinhoDao {
 
     @Query("DELETE FROM carrinho")
     suspend fun limparCarrinho()
+
 
     @Query("DELETE FROM carrinho WHERE nome = :nome")
     suspend fun removerPorNome(nome: String)

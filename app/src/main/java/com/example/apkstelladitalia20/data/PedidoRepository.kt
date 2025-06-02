@@ -3,12 +3,18 @@ package com.example.apkstelladitalia20.repository
 import android.content.Context
 import com.example.apkstelladitalia20.Entity.PedidoEntity
 import com.example.apkstelladitalia20.Entity.ProdutoEntity
+import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
 object PedidoRepository {
 
-    fun salvarPedido(context: Context, pedido: PedidoEntity, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
+    fun salvarPedido(
+        context: Context,
+        pedido: PedidoEntity,
+        onSuccess: () -> Unit,
+        onError: (Exception) -> Unit
+    ) {
         val prefs = context.getSharedPreferences("appStella", Context.MODE_PRIVATE)
         val uidEmpresa = prefs.getString("uidEmpresa", null)
         if (uidEmpresa == null) {
@@ -30,18 +36,23 @@ object PedidoRepository {
     fun getPedidos(): List<PedidoEntity> {
         return listOf(
             PedidoEntity(
-                numero = 1234,
+                numero = "PED_${System.currentTimeMillis()}",
                 dataHora = "10:45",
                 status = "confirmado",
                 total = 58.0,
                 itens = listOf(
-                    ProdutoEntity(nome = "Pizza Calabresa", quantidade = 2),
-                    ProdutoEntity(nome = "Coca-Cola", quantidade = 1)
+                    ProdutoCarrinhoEntity(
+                        nome = "Pizza Calabresa",
+                        quantidade = 2,
+                        idProduto = "id1"
+                    ),
+                    ProdutoCarrinhoEntity(nome = "Coca-Cola", quantidade = 1, idProduto = "id2")
                 ),
                 nomeLoja = "Stella D’Italia"
             )
         )
     }
+
 
     fun salvarPedidoDoCliente(pedido: PedidoEntity) {
         val uidCliente = FirebaseAuth.getInstance().uid ?: return

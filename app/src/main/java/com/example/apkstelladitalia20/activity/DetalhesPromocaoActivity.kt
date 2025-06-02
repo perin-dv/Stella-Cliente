@@ -27,6 +27,7 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
     private var precoUnitario = 0.0
     private lateinit var carrinhoViewModel: CarrinhoViewModel
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetalhesPromocaoBinding.inflate(layoutInflater)
@@ -35,6 +36,7 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
 
         // ✅ Correção aqui: ViewModelProvider(this) em vez de applicationContext
         carrinhoViewModel = ViewModelProvider(this)[CarrinhoViewModel::class.java]
+
 
         promocaoAtual = intent.getParcelableExtra("promocaoSelecionada")
         if (promocaoAtual == null) {
@@ -125,7 +127,8 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
                     imagemUrl = promocao.imagemBase64
                 )
 
-                carrinhoViewModel.adicionar(item)
+                carrinhoViewModel.salvarPromocao(promocaoAtual!!)
+
 
                 Toast.makeText(this, "Promoção adicionada ao carrinho ✅", Toast.LENGTH_SHORT).show()
 
@@ -175,5 +178,7 @@ class DetalhesPromocaoActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
+
 }

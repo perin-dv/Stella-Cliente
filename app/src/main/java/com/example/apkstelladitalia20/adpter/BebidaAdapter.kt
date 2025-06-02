@@ -37,7 +37,7 @@ class BebidaAdapter(
             }
 
             binding.btnAdicionar.setOnClickListener {
-                onAdicionar(bebida)
+                onAdicionar(bebida.copy())
             }
 
 

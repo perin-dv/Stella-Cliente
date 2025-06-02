@@ -35,7 +35,7 @@ import com.example.apkstelladitalia20.activity.HomeActivity
 import com.example.apkstelladitalia20.adapter.CategoriaAdapter
 import com.example.apkstelladitalia20.adapter.DestaquesAdapter
 import com.example.apkstelladitalia20.adapter.PromocaoAdapter
-import com.example.apkstelladitalia20.controller.CarrinhoController
+
 import com.example.apkstelladitalia20.data.PizzaTamanho
 import com.example.apkstelladitalia20.databinding.ActivityAdicionarPizzaTamanhoBinding
 import com.example.apkstelladitalia20.databinding.FragmentHomeBinding
@@ -109,6 +109,7 @@ class HomeFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+
         binding.recyclerProdutos.adapter = null
         carregarProdutosPorCategoria()
     }
@@ -178,9 +179,11 @@ class HomeFragment : Fragment() {
         binding.recyclerProdutos.layoutManager =
             LinearLayoutManager(requireContext())
         categoriaAdapter = CategoriaAdapter(requireContext()) { produtoSelecionado ->
-            val intent = Intent(requireContext(), DetalhesProdutoActivity::class.java)
+            val intent = Intent(context, DetalhesProdutoActivity::class.java)
             intent.putExtra("produtoId", produtoSelecionado.id)
+            intent.putExtra("tipoProduto", produtoSelecionado.categoria?.lowercase() ?: "")
             startActivity(intent)
+
         }
 
         binding.recyclerProdutos.adapter = categoriaAdapter
