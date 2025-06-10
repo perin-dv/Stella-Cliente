@@ -12,5 +12,5 @@ data class ClienteFirebase(
     var email: String = "",
     var senha: String = "",
     var telefone: String = "",
-    var endereco: EnderecoEntity = EnderecoEntity()
+    var endereco: EnderecoEntity?=null
 )

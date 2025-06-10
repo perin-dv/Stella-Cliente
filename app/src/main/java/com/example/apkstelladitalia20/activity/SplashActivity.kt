@@ -9,6 +9,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.apkstelladitalia20.R
+import com.google.firebase.auth.FirebaseAuth
 
 class SplashActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,16 +22,19 @@ class SplashActivity : AppCompatActivity() {
         val animation = AnimationUtils.loadAnimation(this, R.anim.logo_entrada)
         logo.startAnimation(animation)
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            val prefs = getSharedPreferences("appStella", MODE_PRIVATE)
-            val logado = prefs.contains("uidCliente")
+        // 👉 LOGIN ANÔNIMO para garantir FirebaseAuth.uid
+        FirebaseAuth.getInstance().signInAnonymously().addOnCompleteListener { task ->
+            Handler(Looper.getMainLooper()).postDelayed({
+                val prefs = getSharedPreferences("appStella", MODE_PRIVATE)
+                val logado = prefs.contains("uidCliente")
 
-            if (logado) {
-                startActivity(Intent(this, HomeActivity::class.java))
-            } else {
-                startActivity(Intent(this, LoginActivity::class.java))
-            }
-            finish()
-        }, 2000) // Tempo da splash + animação
+                if (logado) {
+                    startActivity(Intent(this, HomeActivity::class.java))
+                } else {
+                    startActivity(Intent(this, LoginActivity::class.java))
+                }
+                finish()
+            }, 2000)
+        }
     }
 }

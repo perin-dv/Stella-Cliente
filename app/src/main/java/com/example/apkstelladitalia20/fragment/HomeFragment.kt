@@ -406,9 +406,6 @@ class HomeFragment : Fragment() {
       }
 
 
-    fun String.capitalizeWords(): String =
-        split(" ").joinToString(" ") { it.lowercase().replaceFirstChar(Char::titlecase) }
-
     private fun carregarSaudacao() {
         val nomeCache = prefs.getString("nome", null)
         binding.tvSaudacao.text = "Olá, ${nomeCache ?: "cliente"} 👋"
@@ -481,6 +478,7 @@ class HomeFragment : Fragment() {
 
         referencia.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                if (!isAdded || _binding == null) return
                 val listaPromocoes = mutableListOf<PromocaoEntity>()
 
                 for (dados in snapshot.children) {
@@ -553,7 +551,6 @@ class HomeFragment : Fragment() {
         })
     }
 
-
     private fun carregarDestaques() {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
         val empresaKey = prefs.getString("uidEmpresa", "") ?: ""
@@ -584,7 +581,6 @@ class HomeFragment : Fragment() {
                 }
             })
     }
-
 
     private fun carregarConfiguracoes() {
         val empresaDb = FirebaseHelper.empresaDatabase(requireContext())
@@ -674,8 +670,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-
-
     private fun setupPizzaTamanhos() {
         val lista = listOf(
             PizzaTamanho("Pequena", "4 pedaços", "R$ 39,99", "https://firebasestorage.googleapis.com/pequena.jpg"),
@@ -696,8 +690,6 @@ class HomeFragment : Fragment() {
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         binding.recyclerPizzaTamanhos.adapter = adapter
     }
-
-
 
     private fun solicitarPermissaoEConfigurarEndereco() {
         if (ContextCompat.checkSelfPermission(

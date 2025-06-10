@@ -1,0 +1,47 @@
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:layout_marginHorizontal="8dp"
+    android:elevation="4dp"
+    android:radius="16dp"
+    android:foreground="?attr/selectableItemBackground">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:orientation="vertical">
+
+        <!-- Título do cupom -->
+        <TextView
+            android:id="@+id/txtTituloCupom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clube: presente de R$ 22"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/black" />
+
+        <!-- Informações adicionais -->
+        <TextView
+            android:id="@+id/txtInfoCupom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Válido até 23:59 - Acima de R$50"
+            android:textSize="14sp"
+            android:textColor="@color/gray"
+            android:layout_marginTop="4dp" />
+
+        <!-- Tempo restante -->
+        <TextView
+            android:id="@+id/txtTempoRestante"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Acaba em 59min"
+            android:textSize="13sp"
+            android:textColor="@color/vermelho"
+            android:layout_marginTop="4dp" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

@@ -17,7 +17,7 @@ import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
         ProdutoEntity::class,
         ProdutoCarrinhoEntity::class,
         ],
-    version = 17
+    version = 19
     ,exportSchema = false
 
 )

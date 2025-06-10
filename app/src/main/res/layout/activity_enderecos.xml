@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="16dp"
+    android:layout_marginTop="50dp">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbarEndereco"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:title="ENDEREÇO DE ENTREGA"
+        app:titleTextColor="@color/black"
+        app:titleCentered="true"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Campo de busca com SearchView -->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchEndereco"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_card"
+        android:iconifiedByDefault="false"
+        android:queryHint="Endereço e número"
+        app:layout_constraintTop_toBottomOf="@id/toolbarEndereco"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Botão localização atual -->
+    <LinearLayout
+        android:id="@+id/btnLocalizacaoAtual"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_card"
+        app:layout_constraintTop_toBottomOf="@id/searchEndereco"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_gps"
+            app:tint="@color/gourmetPrimary" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Usar localização atual"
+                android:textStyle="bold"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ativar localização"
+                android:textSize="12sp"
+                android:textColor="@color/gray" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Lista de endereços -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerEnderecos"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/btnLocalizacaoAtual"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

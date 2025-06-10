@@ -11,9 +11,10 @@ data class EnderecoEntity(
     var cidade: String,
     var estado: String,
     var cep: String,
-    var referencia: String
+    var referencia: String,
+    var id: String? = null
 ) {
-    constructor() : this("", "", "", "", "", "", "")
+    constructor() : this("", "", "", "", "", "", "", "")
 
 }
 

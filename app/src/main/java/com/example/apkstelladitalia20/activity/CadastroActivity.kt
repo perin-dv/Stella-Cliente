@@ -11,6 +11,7 @@ import com.example.apkstelladitalia20.Entity.EnderecoEntity
 import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.databinding.ActivityCadastroBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.database.FirebaseDatabase
 
 class CadastroActivity : AppCompatActivity() {
@@ -80,8 +81,6 @@ class CadastroActivity : AppCompatActivity() {
                 val uid = authResult.user?.uid ?: return@addOnSuccessListener
                 val emailFinal = emailInput
 
-                Log.d("CadastroDebug", "nome=$nome | email=$emailFinal | senha=$senha")
-
                 val cliente = ClienteFirebase(
                     uid = uid,
                     nome = nome,
@@ -96,14 +95,36 @@ class CadastroActivity : AppCompatActivity() {
                     .child(uid)
                     .setValue(cliente)
                     .addOnSuccessListener {
-                        Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
+                        val user = FirebaseAuth.getInstance().currentUser
+                        val profileUpdates = UserProfileChangeRequest.Builder()
+                            .setDisplayName(nome)
+                            .build()
 
-                        val intent = Intent(this, DadosEntregaActivity::class.java)
-                        intent.putExtra("nome", nome)
-                        intent.putExtra("email", emailFinal)
-                        intent.putExtra("senha", senha)
-                        startActivity(intent)
-                        finish()
+                        user?.updateProfile(profileUpdates)
+                            ?.addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    Log.d("Cadastro", "DisplayName atualizado com sucesso: ${user.displayName}")
+
+                                    // ✅ Somente aqui segue para próxima tela:
+                                    val prefs = getSharedPreferences("appStella", MODE_PRIVATE)
+                                    prefs.edit()
+                                        .putString("uidCliente", uid)
+                                        .putString("nome", nome)
+                                        .apply()
+
+                                    Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()
+
+                                    val intent = Intent(this, DadosEntregaActivity::class.java)
+                                    intent.putExtra("nome", nome)
+                                    intent.putExtra("email", emailFinal)
+                                    intent.putExtra("senha", senha)
+                                    startActivity(intent)
+                                    finish()
+                                } else {
+                                    Log.e("Cadastro", "Erro ao atualizar displayName: ${task.exception?.message}")
+                                    Toast.makeText(this, "Erro ao definir nome do usuário", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                     }
                     .addOnFailureListener {
                         Toast.makeText(this, "Erro ao salvar cliente no banco", Toast.LENGTH_SHORT).show()

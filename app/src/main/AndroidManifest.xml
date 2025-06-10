@@ -28,17 +28,35 @@
             </intent-filter>
         </activity>
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAIRKv23RN96_R4e1dXzzcYMLmyDACzyq0" />
+
         <!-- Login e Cadastro -->
         <activity android:name="com.example.apkstelladitalia20.activity.LoginActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.CadastroActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.DadosEntregaActivity" />
 
         <!-- Atividades principais -->
-        <activity android:name="com.example.apkstelladitalia20.activity.HomeActivity" />
+        <activity
+            android:name="com.example.apkstelladitalia20.activity.HomeActivity"
+            android:launchMode="singleTop" />
         <activity android:name="com.example.apkstelladitalia20.activity.DetalhesProdutoActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.DetalhesPedidoActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.PagamentoPixActivity" />
+        <activity android:name=".activity.LeitorQrCodeActivity" />
+        <activity android:name=".activity.SegurancaActivity" />
+        <activity android:name=".activity.ConfiguracoesActivity" />
+        <activity android:name=".activity.AjudaActivity" />
+        <activity android:name=".activity.EnderecoActivity" />
+        <activity android:name=".activity.CuponsActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.PagamentoActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.HistoricoTransacoesActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.NovoCartaoActivity" />
+
+
+
 
         <activity android:name="com.example.apkstelladitalia20.activity.AdicionarPizzaTamanhoActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.EnderecoEntregaActivity" />

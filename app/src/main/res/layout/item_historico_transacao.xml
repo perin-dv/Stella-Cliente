@@ -1,0 +1,35 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/bg_card_pagamento"
+    android:layout_marginBottom="12dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tvValor"
+        android:text="R$ 86,99"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="#000"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tvCartao"
+        android:text="Cartão ••• 9636"
+        android:textSize="14sp"
+        android:textColor="#555"
+        android:layout_marginTop="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/tvDataHora"
+        android:text="12/04/2025 às 20:48"
+        android:textSize="14sp"
+        android:textColor="#555"
+        android:layout_marginTop="2dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>

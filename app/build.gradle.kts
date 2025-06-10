@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.apkstelladitalia20"
-        minSdk = 24
+        minSdk = 25
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -89,12 +89,20 @@ dependencies {
     implementation("androidx.room:room-ktx:2.7.0")
     kapt("androidx.room:room-compiler:2.7.0")
     implementation("com.google.firebase:firebase-functions-ktx:20.3.1")
-
+    implementation ("com.google.android.gms:play-services-maps:18.2.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation ("androidx.security:security-crypto:1.1.0-alpha03")
+    implementation ("com.mercadopago.android.px:checkout:4.53.2")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
 
     // Testes
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation("androidx.biometric:biometric:1.2.0-alpha04")
+
 
     kapt(libs.compiler)
 }

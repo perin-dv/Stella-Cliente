@@ -116,17 +116,35 @@ class DadosEntregaActivity : AppCompatActivity() {
     private fun salvarCliente(cliente: ClienteFirebase) {
         val uid = FirebaseHelper.getIdUsuario() ?: return
 
+        // 1. Salva os dados do cliente (sem o endereço embutido)
+        val clienteSemEndereco = cliente.copy(endereco = null)
+
         FirebaseHelper.database
             .child("clientes")
             .child(uid)
-            .setValue(cliente)
+            .setValue(clienteSemEndereco)
             .addOnSuccessListener {
-                Toast.makeText(this, "Dados salvos com sucesso ✅", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, HomeActivity::class.java))
-                finish()
+
+                // 2. Salva o endereço separadamente na lista "enderecos"
+                val enderecoRef = FirebaseHelper.database
+                    .child("clientes")
+                    .child(uid)
+                    .child("enderecos")
+                    .push()
+
+                enderecoRef.setValue(cliente.endereco)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "Cadastro salvo com sucesso ✅", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, HomeActivity::class.java))
+                        finish()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Erro ao salvar o endereço 😢", Toast.LENGTH_SHORT).show()
+                    }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Erro ao salvar os dados 😢", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Erro ao salvar o cliente 😢", Toast.LENGTH_SHORT).show()
             }
     }
+
 }

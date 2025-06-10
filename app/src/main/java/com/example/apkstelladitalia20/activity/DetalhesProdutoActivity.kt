@@ -71,7 +71,6 @@ class DetalhesProdutoActivity : AppCompatActivity() {
     }
 
 
-
     private fun adicionarAoCarrinhoEIrParaCarrinho() {
         produtoSelecionado?.let { produto ->
             val total = (precoBase * quantidade) + adicionaisSelecionadosProduto.sumOf { it.valor }
@@ -92,7 +91,7 @@ class DetalhesProdutoActivity : AppCompatActivity() {
                 val adicionalItem = ProdutoCarrinhoEntity(
                     idProduto = adicional.id,
                     nome = adicional.nome,
-                    valor = adicional.valor,
+                    valor = adicional.getPrecoReal(),
                     quantidade = 1,
                     tipo = "produto",
                     descricao = adicional.descricao,
@@ -136,7 +135,8 @@ class DetalhesProdutoActivity : AppCompatActivity() {
                         try {
                             val base64 = it.imagem.replace("\\s".toRegex(), "")
                             val imagemBytes = Base64.decode(base64, Base64.DEFAULT)
-                            val bitmap = BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.size)
+                            val bitmap =
+                                BitmapFactory.decodeByteArray(imagemBytes, 0, imagemBytes.size)
                             binding.imagemProduto.setImageBitmap(bitmap)
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -182,10 +182,11 @@ class DetalhesProdutoActivity : AppCompatActivity() {
                 listaFinal.addAll(itens)
             }
 
-            val adapter = AdicionaisAdapter(listaFinal, adicionaisSelecionadosProduto) { adicional ->
-                adicionaisSelecionadosProduto.add(adicional)
-                adicionarAoCarrinhoEIrParaCarrinho()
-            }
+            val adapter =
+                AdicionaisAdapter(listaFinal, adicionaisSelecionadosProduto) { adicional ->
+                    adicionaisSelecionadosProduto.add(adicional)
+                    adicionarAoCarrinhoEIrParaCarrinho()
+                }
 
             binding.recyclerAdicionais.layoutManager = LinearLayoutManager(this)
             binding.recyclerAdicionais.adapter = adapter

@@ -1,0 +1,43 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottomsheet"
+    android:elevation="8dp">
+
+    <TextView
+        android:id="@+id/txtCupomTitulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🎁 Cupom Especial"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/txtCupomInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Info do cupom aqui"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/txtCupomTempo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tempo restante"
+        android:textColor="@color/vermelho"
+        android:layout_marginTop="4dp" />
+
+    <Button
+        android:id="@+id/btnUsarAgora"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Usar agora"
+        android:backgroundTint="@color/colorPrimary"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
+</LinearLayout>

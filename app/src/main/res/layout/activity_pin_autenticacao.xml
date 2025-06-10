@@ -1,0 +1,31 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="Digite seu PIN"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/editPin"
+        android:inputType="numberPassword"
+        android:hint="PIN"
+        android:maxLength="6"
+        android:gravity="center"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btnConfirmar"
+        android:text="Confirmar"
+        android:layout_marginTop="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+</LinearLayout>

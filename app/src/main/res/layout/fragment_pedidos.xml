@@ -1,89 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="12dp"
+    android:background="#F9F9F9"
+    android:layout_marginTop="30dp">
 
+    <!-- Lista de pedidos -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerHistoricoPedidos"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:overScrollMode="never"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/layoutNenhumPedido"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Layout se não tiver nenhum pedido -->
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="16dp"
+        android:id="@+id/layoutNenhumPedido"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Card de Pedido Ativo (conteúdo de item_pedido_status embutido) -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardPedidoStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+        <ImageView
+            android:layout_width="90dp"
+            android:layout_height="90dp"
+            android:src="@drawable/ic_empty_box"
+            app:tint="#999999" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/tvStatusLoja"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Stella D’Italia"
-                    android:textStyle="bold"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/tvStatusNumeroData"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Pedido nº 1234 • 10:30"
-                    android:textSize="14sp"
-                    android:layout_marginTop="4dp" />
-
-                <TextView
-                    android:id="@+id/tvResumoItensStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="2x Calabresa + 1x Coca"
-                    android:textSize="14sp"
-                    android:layout_marginTop="8dp" />
-
-                <TextView
-                    android:id="@+id/tvTotalPedidoStatus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total: R$ 58,00"
-                    android:textStyle="bold"
-                    android:layout_marginTop="8dp" />
-
-                <TextView
-                    android:id="@+id/tvStatusPedido"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Pedido confirmado"
-                    android:textColor="@android:color/holo_green_dark"
-                    android:layout_marginTop="8dp" />
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Título do Histórico -->
         <TextView
-            android:id="@+id/tvHistoricoTitulo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Histórico de pedidos"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginTop="24dp"
-            android:visibility="gone" />
-
-        <!-- RecyclerView de Histórico -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerHistoricoPedidos"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
-
+            android:text="Nenhum pedido encontrado"
+            android:textSize="14sp"
+            android:textColor="#777777"
+            android:layout_marginTop="12dp" />
     </LinearLayout>
-</ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

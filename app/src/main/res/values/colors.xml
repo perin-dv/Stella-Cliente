@@ -20,4 +20,12 @@
     <color name="ui_fullscreenmodal_toolbar_text_color">#333333</color>
     <color name="transparent">#00000000</color>
     <color name="ui_meli_white">#FFFFFF</color>
+    <color name="green">#00F413</color>
+    <color name="blue">#1361FF</color>
+
+    <color name="background">#FAFAFA</color>
+    <color name="gourmetBackground">#F9F4EF</color> <!-- cor do fundo -->
+    <color name="gourmetPrimary">#831B1B</color>     <!-- tom vermelho gourmet -->
+    <color name="primaryText">#1E1E1E</color>        <!-- texto padrão -->
+
 </resources>

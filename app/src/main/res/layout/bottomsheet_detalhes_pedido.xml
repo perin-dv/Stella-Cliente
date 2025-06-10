@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nestedScroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:clipToPadding="false"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Título e status -->
+        <TextView
+            android:id="@+id/tvNomeLoja"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stella D’Italia - Maringá"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="#222222" />
+
+        <TextView
+            android:id="@+id/tvNumeroPedido"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pedido nº 0000 • 00:00"
+            android:textSize="14sp"
+            android:textColor="#777777" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:id="@+id/icStatusAtual"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_check_circle"
+                android:layout_marginEnd="6dp"
+                app:tint="#0AFF00" />
+
+            <TextView
+                android:id="@+id/tvStatusPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status do pedido"
+                android:textColor="#222"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <!-- Linha Gourmet -->
+        <ProgressBar
+            android:id="@+id/progressoStatus"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:minHeight="6dp"
+            android:max="100"
+            android:progress="25"
+            android:layout_marginTop="6dp"
+            android:progressDrawable="@drawable/progress_gourmet_drawable" />
+
+        <TextView
+            android:id="@+id/tvLinhaStatusCinza"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Status explicativo"
+            android:textColor="#9E9E9E"
+            android:textSize="14sp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- RecyclerView de itens -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerItens"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            tools:listitem="@layout/item_resumo_pedido" />
+
+        <!-- Resumo -->
+        <TextView
+            android:id="@+id/tvResumoSubtotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Subtotal: R$ 0,00"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvResumoDescontos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Descontos: R$ 0,00"
+            android:textColor="#008000"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvResumoEntrega"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Entrega: R$ 0,00"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvResumoTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Total: R$ 0,00"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvMetodoPagamento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pagamento"
+            android:textSize="14sp"
+            android:layout_marginTop="6dp" />
+
+        <TextView
+            android:id="@+id/tvEnderecoEntrega"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Endereço"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

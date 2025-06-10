@@ -8,7 +8,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.apkstelladitalia20.Entity.ClienteFirebase
-import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.databinding.ActivityLoginBinding
 import com.google.firebase.database.*
 
@@ -21,36 +20,38 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // 👁 Função mostrar/ocultar senha
         var senhaVisivel = false
         binding.btnToggleSenha.setOnClickListener {
             senhaVisivel = !senhaVisivel
-            if (senhaVisivel) {
-                binding.editSenha.inputType =
-                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                binding.btnToggleSenha.setImageResource(com.example.apkstelladitalia20.R.drawable.ic_eye_open)
+            binding.editSenha.inputType = if (senhaVisivel) {
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
             } else {
-                binding.editSenha.inputType =
-                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                binding.btnToggleSenha.setImageResource(R.drawable.ic_eye_closed)
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             }
             binding.editSenha.setSelection(binding.editSenha.text.length)
+            binding.btnToggleSenha.setImageResource(
+                if (senhaVisivel)
+                    com.example.apkstelladitalia20.R.drawable.ic_eye_open
+                else
+                    com.example.apkstelladitalia20.R.drawable.ic_eye_closed
+            )
         }
 
         binding.textCadastro.setOnClickListener {
             startActivity(Intent(this, CadastroActivity::class.java))
             finish()
         }
+
         binding.btnLogin.setOnClickListener {
             val emailInput = binding.editEmail.text.toString().trim().lowercase()
             val senhaInput = binding.editSenha.text.toString().trim()
+
             if (emailInput.isEmpty() || senhaInput.isEmpty()) {
                 Toast.makeText(this, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            FirebaseHelper.database
-                .child("clientes")
+            FirebaseDatabase.getInstance().getReference("clientes")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         var clienteEncontrado: ClienteFirebase? = null
@@ -79,6 +80,7 @@ class LoginActivity : AppCompatActivity() {
                         }
 
                         if (clienteEncontrado != null) {
+                            // ✅ Salvar UID do cliente nos prefs
                             val prefs = getSharedPreferences("appStella", Context.MODE_PRIVATE)
                             with(prefs.edit()) {
                                 putString("uidCliente", clienteEncontrado.uid)
@@ -92,9 +94,8 @@ class LoginActivity : AppCompatActivity() {
                                 "Login realizado com sucesso!",
                                 Toast.LENGTH_SHORT
                             ).show()
-                            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-                            intent.putExtra("nomeCliente", clienteEncontrado.nome)
-                            startActivity(intent)
+
+                            startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
                             finish()
                         } else {
                             Toast.makeText(
@@ -113,10 +114,6 @@ class LoginActivity : AppCompatActivity() {
                         ).show()
                     }
                 })
-
-            binding.textCadastro.setOnClickListener {
-                startActivity(Intent(this, CadastroActivity::class.java))
-            }
         }
     }
 }

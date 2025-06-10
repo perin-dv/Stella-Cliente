@@ -13,6 +13,7 @@ data class PedidoEntity(
     val status: String = "aguardando", // aguardando, confirmado, entrega, concluido
     val itens: List<ProdutoCarrinhoEntity> = emptyList(),
     val subtotal: Double = 0.0,
+    val observacao: String = "",
     val desconto: Double = 0.0,
     val entrega: String = "Grátis",
     val total: Double = 0.0,
@@ -22,6 +23,8 @@ data class PedidoEntity(
     val observacoes: String = "",
     val foto: String = "",
     val cpfNota: String? = null,
+    var avaliado: Boolean = false,
+    var horaEntregaPrevista: String? = null,
 
 
     // ✅ NOVOS CAMPOS DO CLIENTE

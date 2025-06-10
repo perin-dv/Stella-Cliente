@@ -144,12 +144,29 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="8dp"
                 android:overScrollMode="never"
                 android:clipToPadding="false"
-                android:paddingBottom="8dp" />
+                android:paddingBottom="0dp" />
 
+            <TextView
+                android:id="@+id/txtObservacaoPedido"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Observações "
+                android:layout_marginTop="40dp"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
+            <EditText
+                android:id="@+id/edtObservacao"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Observações adicionais (ex: sem cebola, molho à parte)"
+                android:background="@drawable/bg_edittext_borda"
+                android:padding="10dp"
+                android:layout_marginTop="8dp"/>
 
             <!-- Subtotal -->
             <LinearLayout
@@ -214,6 +231,8 @@
                     android:text="R$ 0,00"
                     android:textStyle="bold"/>
             </LinearLayout>
+
+
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

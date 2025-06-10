@@ -58,6 +58,15 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="#333333" />
+            <TextView
+                android:id="@+id/tvPedidoAtrasado"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="⚠️ Pedido atrasado"
+                android:textColor="#C62828"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:layout_marginTop="6dp" />
         </LinearLayout>
 
         <!-- Linha de progresso -->

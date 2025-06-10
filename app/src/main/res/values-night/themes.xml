@@ -1,4 +1,4 @@
-<resources>
+    <resources>
     <style name="DialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="android:background">@drawable/bg_dialog_rounded</item>
         <item name="android:windowMinWidthMajor">90%</item>

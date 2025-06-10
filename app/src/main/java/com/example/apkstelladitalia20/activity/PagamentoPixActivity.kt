@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.apkstelladitalia20.activity
 
 import android.content.ClipData
@@ -7,29 +9,37 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.apkstelladitalia20.Entity.PedidoEntity
 import com.example.apkstelladitalia20.R
-import com.example.apkstelladitalia20.ui.pedidos.PedidosFragment
+import com.example.apkstelladitalia20.model.CarrinhoViewModel
+import com.example.apkstelladitalia20.fragment.PedidosFragment
 import com.example.apkstelladitalia20.util.Constants
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
+import java.util.Locale
 
 class PagamentoPixActivity : AppCompatActivity() {
+    private var pedido: PedidoEntity? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pagamento_pix)
 
+        pedido = intent.getParcelableExtra("pedidoTemp")
+
+
         val qrBase64 = intent.getStringExtra("qr_base64")
         val qrString = intent.getStringExtra("qr_string")
-        val pedido = intent.getSerializableExtra("pedidoTemp") as? PedidoEntity
 
         val imgQrCode = findViewById<ImageView>(R.id.imgQrCode)
         val txtPixCopiaCola = findViewById<TextView>(R.id.txtPixCopiaCola)
@@ -60,56 +70,97 @@ class PagamentoPixActivity : AppCompatActivity() {
             finish()
         }
         val btnFakeConfirmar = findViewById<Button>(R.id.btnFakeConfirmar)
+
         btnFakeConfirmar.setOnClickListener {
-            pedido?.let { pedidoConfirmado ->
-
-                // 1. Salvar o pedido no Firebase com status aguardando
-                val ref = FirebaseDatabase.getInstance()
-                    .getReference("pedidos")
-                    .child(Constants.UID_EMPRESA_FIXO)
-                    .child(pedidoConfirmado.id)
-
-                ref.setValue(pedidoConfirmado.copy(status = "aguardando"))
-                    .addOnSuccessListener {
-
-                        // 2. Disparar a função de notificação fake (opcional)
-                        val functions = Firebase.functions
-                        val paymentIdFake = pedidoConfirmado.id // pode usar o id real como fake
-
-                        val data = hashMapOf(
-                            "data" to mapOf("id" to paymentIdFake)
-                        )
-
-                        functions.getHttpsCallable("notificacaoPagamentoPix")
-                            .call(data)
-                            .addOnSuccessListener {
-                                Toast.makeText(this, "✅ Simulação enviada!", Toast.LENGTH_SHORT)
-                                    .show()
-
-                                // 3. Ir para a tela final de confirmação
-                                val intent = Intent(this, HomeActivity::class.java)
-                                intent.putExtra("abrir_pedidos", true)
-                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                                startActivity(intent)
-                                finish()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(
-                                    this,
-                                    "⚠️ Pedido salvo, mas notificação falhou",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(this, "❌ Erro ao salvar pedido simulado", Toast.LENGTH_SHORT)
-                            .show()
-                    }
+            val pedidoConfirmado = pedido ?: run {
+                Log.e("PagamentoPix", "❌ Pedido é nulo!")
+                Toast.makeText(this, "Erro: Pedido não encontrado", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            val clienteId = pedidoConfirmado.clienteId
+            if (clienteId.isNullOrBlank()) {
+                Toast.makeText(this, "Erro: clienteId ausente no pedido!", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val empresaId = Constants.UID_EMPRESA_FIXO
+            val pedidoId = pedidoConfirmado.id
+            val pedidoFinal = pedidoConfirmado.copy(status = "aguardando_confirmacao")
+
+            val refEmpresa = FirebaseDatabase.getInstance()
+                .getReference("pedidos_confirmados")
+                .child(empresaId)
+                .child(pedidoId)
+
+            val refCliente = FirebaseDatabase.getInstance()
+                .getReference("clientes")
+                .child(clienteId)
+                .child("pedidos")
+                .child(pedidoId)
+
+            // Salva na empresa
+            refEmpresa.setValue(pedidoFinal)
+                .addOnSuccessListener {
+                    // Salva no cliente
+                    refCliente.setValue(pedidoFinal)
+                        .addOnSuccessListener {
+                            val data = hashMapOf(
+                                "idEmpresa" to empresaId,
+                                "nomeCliente" to pedidoFinal.nomeCliente,
+                                "telefoneCliente" to pedidoFinal.telefoneCliente,
+                                "enderecoEntrega" to pedidoFinal.enderecoEntrega,
+                                "valorTotal" to String.format(Locale.US, "%.2f", pedidoFinal.total),
+                                "pedidoId" to pedidoId,
+                                "observacao" to pedidoFinal.observacao
+                            )
+
+                            Firebase.functions.getHttpsCallable("criarPagamentoPix")
+                                .call(data)
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "Pix efetuado com sucesso!!", Toast.LENGTH_SHORT).show()
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(this, "❌ Erro ao gerar pagamento Pix", Toast.LENGTH_SHORT).show()
+                                }
+
+                            Firebase.functions.getHttpsCallable("enviarNotificacaoPedido")
+                                .call(data)
+                                .addOnSuccessListener {
+                                    Log.d("PagamentoPix", "✅ Pedido salvo e notificação enviada!")
+                                    ViewModelProvider(this)[CarrinhoViewModel::class.java].limparCarrinho()
+
+                                    // Limpa o carrinho corretamente
+                                    ViewModelProvider(this)[CarrinhoViewModel::class.java].limparCarrinho()
+
+// Volta para HomeActivity com aba "Pedidos" aberta
+                                    val intent = Intent(this, HomeActivity::class.java).apply {
+                                        putExtra("abrir_pedidos", true)
+                                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    }
+                                    startActivity(intent)
+                                    finishAffinity() // Garante que não volta para telas antigas
+
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(this, "⚠️ Pedido salvo, mas notificação falhou", Toast.LENGTH_SHORT).show()
+                                    ViewModelProvider(this)[CarrinhoViewModel::class.java].limparCarrinho()
+
+                                    val intent = Intent(this, HomeActivity::class.java)
+                                    intent.putExtra("abrir_pedidos", true)
+                                    intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                                    startActivity(intent)
+                                    finish()
+                                }
+                        }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "❌ Erro ao salvar pedido", Toast.LENGTH_SHORT).show()
+                }
         }
 
 
     }
 
 }
+

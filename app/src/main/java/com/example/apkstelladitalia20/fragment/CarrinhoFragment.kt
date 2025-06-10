@@ -91,9 +91,16 @@ class CarrinhoFragment : Fragment() {
         val total = subtotal + taxaEntrega
 
         binding.txtSubtotal.text = "R$ %.2f".format(subtotal)
-        binding.txtTaxaEntrega.text = if (temItens) "R$ %.2f".format(taxaEntrega) else "—"
         binding.txtTotal.text = "R$ %.2f".format(total)
         binding.btnContinuar.visibility = if (temItens) View.VISIBLE else View.GONE
+
+        if (temItens && taxaEntrega == 0.0) {
+            binding.txtTaxaEntrega.text = "Frete Grátis"
+            binding.iconFreteGratis.visibility = View.VISIBLE
+        } else {
+            binding.txtTaxaEntrega.text = if (temItens) "R$ %.2f".format(taxaEntrega) else "—"
+            binding.iconFreteGratis.visibility = View.GONE
+        }
     }
 
     private fun setupBotaoContinuar() {
