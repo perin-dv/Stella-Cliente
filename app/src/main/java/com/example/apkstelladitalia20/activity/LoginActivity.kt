@@ -9,25 +9,31 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.apkstelladitalia20.Entity.ClienteFirebase
 import com.example.apkstelladitalia20.databinding.ActivityLoginBinding
+import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        auth = FirebaseAuth.getInstance()
+        FirebaseApp.initializeApp(this)
+
         var senhaVisivel = false
         binding.btnToggleSenha.setOnClickListener {
             senhaVisivel = !senhaVisivel
-            binding.editSenha.inputType = if (senhaVisivel) {
+            binding.editSenha.inputType = if (senhaVisivel)
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-            } else {
+            else
                 InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            }
+
             binding.editSenha.setSelection(binding.editSenha.text.length)
             binding.btnToggleSenha.setImageResource(
                 if (senhaVisivel)
@@ -51,69 +57,61 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            FirebaseDatabase.getInstance().getReference("clientes")
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        var clienteEncontrado: ClienteFirebase? = null
+            auth.signInWithEmailAndPassword(emailInput, senhaInput)
+                .addOnSuccessListener { authResult ->
+                    val uid = authResult.user?.uid ?: return@addOnSuccessListener
 
-                        for (child in snapshot.children) {
-                            val c = try {
-                                child.getValue(ClienteFirebase::class.java)
-                            } catch (e: Exception) {
-                                Log.e("LoginActivity", "Erro ao converter cliente: ${e.message}")
-                                null
-                            }
+                    // Agora busca os dados no Realtime Database
+                    FirebaseDatabase.getInstance().getReference("clientes")
+                        .child(uid)
+                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                val cliente = snapshot.getValue(ClienteFirebase::class.java)
+                                if (cliente != null) {
+                                    val prefs =
+                                        getSharedPreferences("appStella", Context.MODE_PRIVATE)
+                                    prefs.edit()
+                                        .putString("uidCliente", uid)
+                                        .putString("nome", cliente.nome)
+                                        .putString("emailCliente", cliente.email)
+                                        .putString("senhaCliente", senhaInput)
+                                        .putString("uidEmpresa", "7a3118oNdgcpmwSqrgyRTqBnFFx2")
+                                        .apply()
 
-                            if (c != null && c.email.trim().lowercase() == emailInput) {
-                                if (c.senha.trim() == senhaInput) {
-                                    clienteEncontrado = c
+                                    Toast.makeText(
+                                        this@LoginActivity,
+                                        "Login realizado com sucesso!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    startActivity(
+                                        Intent(
+                                            this@LoginActivity,
+                                            HomeActivity::class.java
+                                        )
+                                    )
+                                    finish()
                                 } else {
                                     Toast.makeText(
                                         this@LoginActivity,
-                                        "Senha incorreta",
+                                        "Dados do cliente não encontrados",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                    return
                                 }
-                                break
-                            }
-                        }
-
-                        if (clienteEncontrado != null) {
-                            // ✅ Salvar UID do cliente nos prefs
-                            val prefs = getSharedPreferences("appStella", Context.MODE_PRIVATE)
-                            with(prefs.edit()) {
-                                putString("uidCliente", clienteEncontrado.uid)
-                                putString("nome", clienteEncontrado.nome)
-                                putString("uidEmpresa", "7a3118oNdgcpmwSqrgyRTqBnFFx2")
-                                apply()
                             }
 
-                            Toast.makeText(
-                                this@LoginActivity,
-                                "Login realizado com sucesso!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
-                            finish()
-                        } else {
-                            Toast.makeText(
-                                this@LoginActivity,
-                                "Cliente não possui cadastro",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        Toast.makeText(
-                            this@LoginActivity,
-                            "Erro ao acessar banco de dados",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                })
+                            override fun onCancelled(error: DatabaseError) {
+                                Toast.makeText(
+                                    this@LoginActivity,
+                                    "Erro ao carregar dados",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        })
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Erro ao autenticar: ${it.message}", Toast.LENGTH_SHORT)
+                        .show()
+                }
         }
     }
 }

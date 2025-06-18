@@ -3,14 +3,16 @@ package com.example.apkstelladitalia20.ui.carrinho
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Parcelable
+
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.apkstelladitalia20.Entity.PedidoEntity
 import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
 import com.example.apkstelladitalia20.activity.EnderecoEntregaActivity
 import com.example.apkstelladitalia20.adapter.BebidaAdapter
@@ -18,7 +20,10 @@ import com.example.apkstelladitalia20.adapter.CarrinhoAdapter
 import com.example.apkstelladitalia20.databinding.FragmentCarrinhoBinding
 import com.example.apkstelladitalia20.model.BebidaEntity
 import com.example.apkstelladitalia20.model.CarrinhoViewModel
+import com.example.apkstelladitalia20.util.Constants
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import java.util.UUID
 
 class CarrinhoFragment : Fragment() {
 
@@ -105,15 +110,35 @@ class CarrinhoFragment : Fragment() {
 
     private fun setupBotaoContinuar() {
         binding.btnContinuar.setOnClickListener {
-            if (listaCarrinho.isNotEmpty()) {
-                val intent = Intent(requireContext(), EnderecoEntregaActivity::class.java)
-                intent.putExtra("carrinhoSelecionado", ArrayList(listaCarrinho))
-                startActivity(intent)
-            } else {
-                Toast.makeText(requireContext(), "Adicione ao menos 1 item!", Toast.LENGTH_SHORT).show()
-            }
+            val clienteId = FirebaseAuth.getInstance().currentUser?.uid ?: return@setOnClickListener
+            val uidEmpresa = Constants.UID_EMPRESA_FIXO
+
+            val pedidoTemp = PedidoEntity(
+                id = UUID.randomUUID().toString(),
+                clienteId = clienteId,
+                empresaId = uidEmpresa,
+                itens = listaCarrinho.toList(),
+                subtotal = listaCarrinho.sumOf { it.valor * it.quantidade },
+                desconto = 0.0,
+                entrega = "A definir",
+                total = listaCarrinho.sumOf { it.valor * it.quantidade }, // por enquanto
+                formaPagamento = "Não informado",
+                status = "rascunho",
+                dataHora = "",
+                nomeCliente = "",
+                telefoneCliente = "",
+                email = "",
+                enderecoEntrega = "",
+                cpfNota = "",
+                observacao = ""
+            )
+
+            val intent = Intent(requireContext(), EnderecoEntregaActivity::class.java)
+            intent.putExtra("pedidoTemp", pedidoTemp as Parcelable)
+            startActivity(intent)
         }
     }
+
 
     private fun carregarTaxaEntregaFirebase() {
         val uidEmpresa = "7a3118oNdgcpmwSqrgyRTqBnFFx2"

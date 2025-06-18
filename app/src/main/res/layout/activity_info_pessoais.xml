@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="24dp"
+    android:background="#FFFFFF"
+    android:layout_marginTop="40dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="INFORMAÇÕES PESSOAIS"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="24dp" />
+
+    <EditText
+        android:id="@+id/editNome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nome completo"
+        android:inputType="textPersonName"
+        android:backgroundTint="#000000" />
+
+    <EditText
+        android:id="@+id/editCpf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="CPF"
+        android:inputType="number"
+        android:backgroundTint="#000000"
+        android:layout_marginTop="12dp" />
+
+    <Button
+        android:id="@+id/btnAtualizar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Atualizar"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#D50000"
+        android:textColor="#FFFFFF"
+        android:padding="12dp" />
+
+</LinearLayout>

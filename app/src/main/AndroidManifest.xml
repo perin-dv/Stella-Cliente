@@ -51,9 +51,18 @@
         <activity android:name=".activity.AjudaActivity" />
         <activity android:name=".activity.EnderecoActivity" />
         <activity android:name=".activity.CuponsActivity" />
-        <activity android:name="com.example.apkstelladitalia20.activity.PagamentoActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.HistoricoTransacoesActivity" />
-        <activity android:name="com.example.apkstelladitalia20.activity.NovoCartaoActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.DadosContaActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.InfoPessoaisActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.InfoAcessoActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.ConversasActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.ChatActivity" />
+        <activity android:name="com.example.apkstelladitalia20.activity.PagamentoCartaoWebActivity" />
+
+
+
+
+
 
 
 
@@ -61,6 +70,7 @@
         <activity android:name="com.example.apkstelladitalia20.activity.AdicionarPizzaTamanhoActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.EnderecoEntregaActivity" />
         <activity android:name="com.example.apkstelladitalia20.activity.ResumoPedidoProdutoActivity" />
+
 
 
         <meta-data

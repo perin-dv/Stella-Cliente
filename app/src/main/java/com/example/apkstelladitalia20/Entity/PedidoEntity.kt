@@ -4,6 +4,7 @@ import android.os.Parcelable
 import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
 import kotlinx.android.parcel.Parcelize
 import java.io.Serializable
+@Suppress("DEPRECATED_ANNOTATION")
 @Parcelize
 data class PedidoEntity(
     var numero: String = "",
@@ -18,13 +19,15 @@ data class PedidoEntity(
     val entrega: String = "Grátis",
     val total: Double = 0.0,
     val id: String = "",
-    val formaPagamento: String = "Cartão de crédito",
+    var formaPagamento: String = "Cartão de crédito",
     val enderecoEntrega: String = "",
     val observacoes: String = "",
     val foto: String = "",
     val cpfNota: String? = null,
     var avaliado: Boolean = false,
     var horaEntregaPrevista: String? = null,
+    var empresaId: String = "",
+    var email: String? = null,
 
 
     // ✅ NOVOS CAMPOS DO CLIENTE

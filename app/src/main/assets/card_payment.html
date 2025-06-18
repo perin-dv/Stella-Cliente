@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Pagamento com Cartão</title>
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    <style>
+        body {
+          background-color: #121212;
+          font-family: Arial, sans-serif;
+          color: #fff;
+          margin: 0;
+          padding: 20px;
+        }
+        #cardPaymentBrick_container {
+          background: #1e1e1e;
+          padding: 20px;
+          border-radius: 12px;
+          max-width: 420px;
+          margin: auto;
+          box-shadow: 0 0 10px rgba(0,0,0,0.4);
+        }
+    </style>
+</head>
+<body>
+<div id="cardPaymentBrick_container"></div>
+
+<script>
+    const mp = new MercadoPago('APP_USR-168882420676566-061112-5d6ef22e265f8b1136933e29caa272ba-697565152', {
+      locale: 'pt-BR'
+    });
+
+    const bricksBuilder = mp.bricks();
+
+    const renderCardPaymentBrick = async (bricksBuilder) => {
+      const settings = {
+        initialization: {
+          amount: 100, // Substitua dinamicamente com valor real
+          payer: { email: "" }
+        },
+        customization: {
+          visual: { style: { theme: 'dark' } },
+          paymentMethods: {
+            maxInstallments: 1
+          }
+        },
+        callbacks: {
+          onSubmit: (cardFormData) => {
+            return new Promise((resolve, reject) => {
+              fetch("https://us-central1-apkstella.cloudfunctions.net/process_payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(cardFormData)
+              })
+              .then(res => res.json())
+              .then(data => {
+                alert("✅ Pagamento aprovado!\nCartão salvo com sucesso!");
+                resolve();
+              })
+              .catch(err => {
+                console.error("Erro no pagamento:", err);
+                alert("❌ Erro ao processar pagamento.");
+                reject();
+              });
+            });
+          },
+          onError: (error) => {
+            console.error("Erro no Brick:", error);
+          },
+          onReady: () => {
+            console.log("Card Brick pronto");
+          }
+        }
+      };
+      window.cardPaymentBrickController = await bricksBuilder.create('cardPayment', 'cardPaymentBrick_container', settings);
+    };
+
+    renderCardPaymentBrick(bricksBuilder);
+</script>
+</body>
+</html>

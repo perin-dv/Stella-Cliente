@@ -13,7 +13,7 @@ class CategoriaAdapter(
     private val context: Context,
     private val onClickProduto: (ProdutoEntity) -> Unit,
 
-) : RecyclerView.Adapter<CategoriaAdapter.CategoriaViewHolder>() {
+    ) : RecyclerView.Adapter<CategoriaAdapter.CategoriaViewHolder>() {
     private var categorias: MutableList<Pair<String, List<ProdutoEntity>>> = mutableListOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoriaViewHolder {
         val binding =

@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 import com.google.firebase.database.IgnoreExtraProperties
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
+import java.io.Serializable
 
 @Parcelize
 @IgnoreExtraProperties
@@ -29,7 +30,7 @@ data class ProdutoEntity(
     @get:com.google.firebase.database.PropertyName("preco")
     @set:com.google.firebase.database.PropertyName("preco")
     var valor: Double = 0.0
-) : Parcelable {
+) : Parcelable, Serializable {
 
     // ✅ Fallback para sempre retornar o preço correto
     fun getPrecoReal(): Double {

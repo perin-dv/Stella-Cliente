@@ -130,18 +130,21 @@ class ResumoPedidoPromocaoActivity : AppCompatActivity(), ResumoPedidoPromocaoAd
     }
 
     private fun mostrarBottomSheetPagamento() {
-        val bottomSheet = BottomSheetFormaPagamento { formaPagamento, troco ->
-            formaPagamentoSelecionada = formaPagamento
-            trocoPara = troco
-
-            val pagamentoTexto = if (formaPagamento == "Dinheiro" && !troco.isNullOrEmpty()) {
-                "Dinheiro (Troco para R$$troco)"
-            } else {
-                formaPagamento
+        val bottomSheet = BottomSheetFormaPagamento(
+            onPagamentoSelecionado = { forma, troco ->
+                formaPagamentoSelecionada = forma
+                trocoPara = troco
+            },
+            pagamentoCallback = { forma, textoVisivel ->
+                val pagamentoTexto: String =
+                    if (forma == "Dinheiro" && !textoVisivel.isNullOrEmpty()) {
+                        "Dinheiro"
+                    } else {
+                        forma
+                    }
+                binding.txtFormaPagamento.text = pagamentoTexto
             }
-            binding.txtFormaPagamento.text = pagamentoTexto
-        }
-        bottomSheet.show(supportFragmentManager, bottomSheet.tag)
+        )
     }
 
     override fun onResumoAtualizado() {

@@ -1,13 +1,15 @@
 package com.example.apkstelladitalia20.activity
 
-import android.annotation.SuppressLint
+
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.os.Build
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
 import android.text.InputType
 import android.util.Log
 import android.view.View
@@ -16,23 +18,22 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.apkstelladitalia20.Entity.EnderecoEntity
 import com.example.apkstelladitalia20.Entity.PedidoEntity
 import com.example.apkstelladitalia20.databinding.ActivityResumoPedidoBinding
 import com.example.apkstelladitalia20.helper.setupToolbar
 import com.example.apkstelladitalia20.adapter.ResumoPedidoProdutoVisualAdapter
 import com.example.apkstelladitalia20.bottomsheet.BottomSheetFormaPagamento
+import com.example.apkstelladitalia20.dialog.PagamentoDinheiroDialogFragment
 import com.example.apkstelladitalia20.model.CarrinhoViewModel
 import com.example.apkstelladitalia20.model.ProdutoCarrinhoEntity
-import com.example.apkstelladitalia20.repository.PedidoRepository
-import com.example.apkstelladitalia20.ui.dialog.ConfirmacaoPedidoDialogFragment
 import com.example.apkstelladitalia20.util.Constants
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.functions.FirebaseFunctions
 import com.google.firebase.functions.ktx.functions
 import com.google.firebase.ktx.Firebase
+
+
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
@@ -43,6 +44,7 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
     private lateinit var viewModel: CarrinhoViewModel
     private val listaCarrinho = mutableListOf<ProdutoCarrinhoEntity>()
     private lateinit var adapter: ResumoPedidoProdutoVisualAdapter
+    private var pedido: PedidoEntity? = null
 
 
     private var subtotal = 0.0
@@ -52,9 +54,7 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
     private var formaPagamentoSelecionada: String? = null
     private var trocoPara: String? = null
     private lateinit var prefs: SharedPreferences
-    private val REQUEST_CODE_MERCADO_PAGO = 1234
-    private var pedidoParaSalvar: PedidoEntity? = null
-    private var enderecoSelecionado: EnderecoEntity? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +77,22 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
         setupRecyclerResumo()
         setupListeners()
         carregarTaxaEntregaFirebase()
+        mostrarBottomSheetPagamento()
+
+        pedido = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra("pedidoTemp", PedidoEntity::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra("pedidoTemp")
+        }
+
+        if (pedido == null || pedido!!.itens.isNullOrEmpty()) {
+            Toast.makeText(this, "Pedido inválido", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+
 
         viewModel.itensCarrinho.observe(this) { lista ->
             listaCarrinho.clear()
@@ -84,7 +100,7 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
             adapter.notifyDataSetChanged()
             atualizarResumoValores()
         }
-
+        Log.d("PEDIDO_DEBUG", "Recebido no ResumoPedido: $pedido")
     }
 
     private fun setupRecyclerResumo() {
@@ -95,152 +111,31 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
 
     private fun setupListeners() {
         binding.btnConfirmarPedido.setOnClickListener {
-                if (formaPagamentoSelecionada.isNullOrEmpty()) {
-                    Toast.makeText(this, "Escolha uma forma de pagamento!", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                // ✅ Verificar se biometria está ativada
-                val prefs = getSharedPreferences("appStella", MODE_PRIVATE)
-                val biometriaHabilitada = prefs.getBoolean("biometria_habilitada", false)
-
-                if (biometriaHabilitada) {
-                    solicitarBiometria {
-                        executarFluxoConfirmacaoDePedido()
-                    }
-                } else {
-                    executarFluxoConfirmacaoDePedido()
-                }
-
-
-
-        val uidEmpresa = Constants.UID_EMPRESA_FIXO
-            val novoId = UUID.randomUUID().toString()
-            val clienteId = getSharedPreferences("appStella", MODE_PRIVATE)
-                .getString("uidCliente", null)
-
-            if (clienteId.isNullOrEmpty()) {
-                Toast.makeText(this, "Erro: cliente não logado", Toast.LENGTH_SHORT).show()
+            if (formaPagamentoSelecionada.isNullOrEmpty()) {
+                Toast.makeText(this, "Selecione uma forma de pagamento", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-
-            // Buscar endereço do cliente
-            FirebaseDatabase.getInstance()
-                .getReference("clientes")
-                .child(clienteId)
-                .get()
-                .addOnSuccessListener { snapshot ->
-                    FirebaseDatabase.getInstance()
-                        .getReference("clientes")
-                        .child(clienteId)
-                        .get()
-                        .addOnSuccessListener { snapshot ->
-                            val endereco =
-                                snapshot.child("endereco").value?.toString() ?: "Não informado"
-                            val nome = snapshot.child("nome").value?.toString() ?: "Cliente"
-                            val telefone = snapshot.child("telefone").value?.toString() ?: ""
-
-                            val pedido = PedidoEntity(
-                                id = novoId,
-                                numero = "",
-                                nomeLoja = "Stella D’Italia – Maringá",
-                                dataHora = obterDataHoraAtual(),
-                                status = "aguardando",
-                                itens = listaCarrinho.toList(),
-                                subtotal = calcularSubtotal(),
-                                desconto = calcularDesconto(),
-                                entrega = if (taxaEntrega == 0.0) "Grátis" else "R$ %.2f".format(
-                                    taxaEntrega
-                                ),
-                                total = calcularTotalFinal(),
-                                formaPagamento = formaPagamentoSelecionada ?: "Não informado",
-                                enderecoEntrega = endereco,
-                                clienteId = clienteId,
-                                nomeCliente = nome,
-                                telefoneCliente = telefone,
-                                observacao = binding.edtObservacao.text.toString()
-                            )
-
-                            pedidoParaSalvar = pedido
-
-                            if (formaPagamentoSelecionada.equals("Pix", ignoreCase = true)) {
-                                val data = hashMapOf(
-                                    "idEmpresa" to uidEmpresa,
-                                    "nomeCliente" to nome,
-                                    "telefoneCliente" to telefone,
-                                    "enderecoEntrega" to endereco,
-                                    "valorTotal" to String.format(Locale.US, "%.2f", pedido.total),
-                                    "pedidoId" to pedido.id,
-                                    "observacao" to pedido.observacao
-                                )
-
-                                FirebaseFunctions.getInstance()
-                                    .getHttpsCallable("criarPagamentoPix")
-                                    .call(data)
-                                    .addOnSuccessListener { result ->
-                                        val map = result.data as Map<*, *>
-                                        val qrBase64 = map["qr_base64"] as? String
-                                        val qrString = map["qr_string"] as? String
-
-                                        val intent = Intent(this, PagamentoPixActivity::class.java)
-                                        intent.putExtra("qr_base64", qrBase64)
-                                        intent.putExtra("qr_string", qrString)
-                                        intent.putExtra("pedidoTemp", pedido)
-                                        startActivity(intent)
-                                        finish()
-                                    }
-                                    .addOnFailureListener {
-                                        Log.e("PIX_ERROR", "Erro ao gerar pagamento Pix", it)
-                                        Toast.makeText(
-                                            this,
-                                            "Erro ao gerar pagamento Pix",
-                                            Toast.LENGTH_LONG
-                                        ).show()
-                                    }
-
-                            } else {
-                                ConfirmacaoPedidoDialogFragment(pedido) { pedidoConfirmado ->
-                                    val pedidoFinal = pedidoConfirmado.copy(status = "confirmado")
-                                    val ref = FirebaseDatabase.getInstance()
-                                        .getReference("pedidos_confirmados")
-                                        .child(Constants.UID_EMPRESA_FIXO)
-                                        .child(pedidoFinal.id)
-
-                                    ref.setValue(pedidoFinal)
-                                        .addOnSuccessListener {
-                                            val intent = Intent(this, HomeActivity::class.java)
-                                            intent.putExtra("abrir_pedidos", true)
-                                            intent.flags =
-                                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                                            startActivity(intent)
-                                            finish()
-                                        }
-                                        .addOnFailureListener {
-                                            Toast.makeText(
-                                                this,
-                                                "❌ Erro ao salvar pedido",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                }.show(supportFragmentManager, "confirmacaoDialog")
-                            }
-                        }
-                        .addOnFailureListener {
-                            Toast.makeText(
-                                this,
-                                "Erro ao buscar dados do cliente!",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                }
+            executarFluxoConfirmacaoDePedido()
         }
-
 
 
         binding.txtTrocarPagamento.setOnClickListener {
-            mostrarBottomSheetPagamento()
+            BottomSheetFormaPagamento(
+                onPagamentoSelecionado = { forma, troco ->
+                    formaPagamentoSelecionada = forma
+                    trocoPara = troco
+                },
+                pagamentoCallback = { forma, textoVisivel ->
+                    binding.txtFormaPagamento.text = textoVisivel
+                }
+            ).show(supportFragmentManager, "BottomSheetFormaPagamento")
         }
+
+
+
+
+
 
         binding.txtAdicionarCupom.setOnClickListener {
             val input = EditText(this)
@@ -286,6 +181,7 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
                 .show()
         }
     }
+
     private fun solicitarBiometria(onSuccess: () -> Unit) {
         val biometricManager = androidx.biometric.BiometricManager.from(this)
         val executor = androidx.core.content.ContextCompat.getMainExecutor(this)
@@ -298,21 +194,33 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
                     .setNegativeButtonText("Cancelar")
                     .build()
 
-                val biometricPrompt = androidx.biometric.BiometricPrompt(this, executor,
+                val biometricPrompt = androidx.biometric.BiometricPrompt(
+                    this, executor,
                     object : androidx.biometric.BiometricPrompt.AuthenticationCallback() {
                         override fun onAuthenticationSucceeded(result: androidx.biometric.BiometricPrompt.AuthenticationResult) {
                             super.onAuthenticationSucceeded(result)
                             onSuccess()
                         }
 
-                        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                        override fun onAuthenticationError(
+                            errorCode: Int,
+                            errString: CharSequence
+                        ) {
                             super.onAuthenticationError(errorCode, errString)
-                            Toast.makeText(this@ResumoPedidoProdutoActivity, "Biometria cancelada", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@ResumoPedidoProdutoActivity,
+                                "Biometria cancelada",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
 
                         override fun onAuthenticationFailed() {
                             super.onAuthenticationFailed()
-                            Toast.makeText(this@ResumoPedidoProdutoActivity, "Biometria não reconhecida", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@ResumoPedidoProdutoActivity,
+                                "Biometria não reconhecida",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     })
 
@@ -320,7 +228,8 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
             }
 
             else -> {
-                Toast.makeText(this, "Biometria não disponível no dispositivo", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Biometria não disponível no dispositivo", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }
@@ -376,146 +285,237 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
 
     private fun executarFluxoConfirmacaoDePedido() {
         val uidEmpresa = Constants.UID_EMPRESA_FIXO
+        val clienteId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val novoId = UUID.randomUUID().toString()
-        val clienteId = getSharedPreferences("appStella", MODE_PRIVATE)
-            .getString("uidCliente", null)
-
-        if (clienteId.isNullOrEmpty()) {
-            Toast.makeText(this, "Erro: cliente não logado", Toast.LENGTH_SHORT).show()
-            return
-        }
 
         FirebaseDatabase.getInstance()
             .getReference("clientes")
             .child(clienteId)
             .get()
             .addOnSuccessListener { snapshot ->
-                val endereco = snapshot.child("endereco").value?.toString() ?: "Não informado"
-                val nome = snapshot.child("nome").value?.toString() ?: "Cliente"
+                val nome = snapshot.child("nome").value?.toString() ?: ""
                 val telefone = snapshot.child("telefone").value?.toString() ?: ""
+                val endereco = snapshot.child("endereco").value?.toString() ?: ""
 
                 val pedido = PedidoEntity(
                     id = novoId,
-                    numero = "",
-                    nomeLoja = "Stella D’Italia – Maringá",
-                    dataHora = obterDataHoraAtual(),
-                    status = "aguardando",
+                    clienteId = clienteId,
+                    empresaId = uidEmpresa,
+                    nomeCliente = nome,
+                    telefoneCliente = telefone,
+                    email = FirebaseAuth.getInstance().currentUser?.email ?: "",
+                    enderecoEntrega = endereco,
                     itens = listaCarrinho.toList(),
                     subtotal = calcularSubtotal(),
                     desconto = calcularDesconto(),
                     entrega = if (taxaEntrega == 0.0) "Grátis" else "R$ %.2f".format(taxaEntrega),
                     total = calcularTotalFinal(),
                     formaPagamento = formaPagamentoSelecionada ?: "Não informado",
-                    enderecoEntrega = endereco,
-                    clienteId = clienteId,
-                    nomeCliente = nome,
-                    telefoneCliente = telefone,
-                    observacao = binding.edtObservacao.text.toString()
+                    status = "pendente",
+                    dataHora = obterDataHoraAtual(),
+                    observacao = binding.edtObservacao.text.toString(),
+                    cpfNota = cpfNaNota ?: ""
                 )
 
-                pedidoParaSalvar = pedido
+                when (formaPagamentoSelecionada) {
+                    "Pix" -> {
+                        val data = hashMapOf(
+                            "idEmpresa" to uidEmpresa,
+                            "nomeCliente" to pedido.nomeCliente,
+                            "telefoneCliente" to pedido.telefoneCliente,
+                            "enderecoEntrega" to pedido.enderecoEntrega,
+                            "valorTotal" to pedido.total, // ✔️ Mantido como Double
+                            "pedidoId" to pedido.id
+                        )
 
-                if (formaPagamentoSelecionada.equals("Pix", ignoreCase = true)) {
-                    val data = hashMapOf(
-                        "idEmpresa" to uidEmpresa,
-                        "nomeCliente" to nome,
-                        "telefoneCliente" to telefone,
-                        "enderecoEntrega" to endereco,
-                        "valorTotal" to String.format(Locale.US, "%.2f", pedido.total),
-                        "pedidoId" to pedido.id,
-                        "observacao" to pedido.observacao
-                    )
+                        try {
+                            val functions = FirebaseFunctions.getInstance("us-central1")
+                            functions
+                                .getHttpsCallable("criarPagamentoPix")
+                                .call(data)
+                                .addOnSuccessListener { result ->
+                                    val map = result.data as Map<*, *>
+                                    val qrBase64 = map["qr_base64"] as? String
+                                    val qrString = map["qr_string"] as? String
 
-                    FirebaseFunctions.getInstance()
-                        .getHttpsCallable("criarPagamentoPix")
-                        .call(data)
-                        .addOnSuccessListener { result ->
-                            val map = result.data as Map<*, *>
-                            val qrBase64 = map["qr_base64"] as? String
-                            val qrString = map["qr_string"] as? String
+                                    val encodedQrBase64 = Uri.encode(qrBase64 ?: "")
+                                    val encodedQrString = Uri.encode(qrString ?: "")
 
-                            val intent = Intent(this, PagamentoPixActivity::class.java)
-                            intent.putExtra("qr_base64", qrBase64)
-                            intent.putExtra("qr_string", qrString)
-                            intent.putExtra("pedidoTemp", pedido)
-                            startActivity(intent)
-                            finish()
+                                    val url = "https://stella-d-italia.web.app/pagamento_pix.html" +
+                                            "?qr_base64=$encodedQrBase64&qr_string=$encodedQrString"
+
+                                    val intent =
+                                        Intent(this, PagamentoCartaoWebActivity::class.java)
+                                    intent.putExtra("url_pagamento", url)
+                                    intent.putExtra("pedidoTemp", pedido as Parcelable)
+                                    startActivity(intent)
+                                    finish()
+                                }
+                                .addOnFailureListener {
+                                    Log.e("PIX_ERROR", "Erro: ${it.message}")
+                                    Toast.makeText(
+                                        this,
+                                        "Erro ao gerar Pix: ${it.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        } catch (e: Exception) {
+                            Toast.makeText(this, "Erro interno: ${e.message}", Toast.LENGTH_SHORT)
+                                .show()
+                            Log.e("PIX_CATCH", "Falha geral: ${e.message}")
                         }
-                        .addOnFailureListener {
-                            Log.e("PIX_ERROR", "Erro ao gerar pagamento Pix", it)
-                            Toast.makeText(
-                                this,
-                                "Erro ao gerar pagamento Pix",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
 
-                } else {
-                    ConfirmacaoPedidoDialogFragment(pedido) { pedidoConfirmado ->
-                        val pedidoFinal = pedidoConfirmado.copy(status = "confirmado")
-                        val ref = FirebaseDatabase.getInstance()
-                            .getReference("pedidos_confirmados")
-                            .child(Constants.UID_EMPRESA_FIXO)
-                            .child(pedidoFinal.id)
+                    }
 
-                        ref.setValue(pedidoFinal)
-                            .addOnSuccessListener {
-                                val intent = Intent(this, HomeActivity::class.java)
-                                intent.putExtra("abrir_pedidos", true)
-                                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    "Cartão de Crédito", "Cartão de Débito" -> {
+                        val functions = Firebase.functions("us-central1")
+
+                        val data = mapOf(
+                            "idEmpresa" to pedido.empresaId,
+                            "nomeCliente" to pedido.nomeCliente,
+                            "telefoneCliente" to pedido.telefoneCliente,
+                            "enderecoEntrega" to pedido.enderecoEntrega,
+                            "valorTotal" to pedido.total.toString(),
+                            "pedidoId" to pedido.id,
+                            "email" to pedido.email
+                        )
+
+                        functions
+                            .getHttpsCallable("gerarCheckoutPagamento")
+                            .call(data)
+                            .addOnSuccessListener { result ->
+                                val preferenceId = (result.data as Map<*, *>)["id"] as? String
+
+                                if (preferenceId.isNullOrEmpty()) {
+                                    Toast.makeText(
+                                        this,
+                                        "Erro: preferenceId não encontrado",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    return@addOnSuccessListener
+                                }
+
+                                val url = "https://stella-d-italia.web.app/pagamento_cartao.html" +
+                                        "?preference_id=$preferenceId" +
+                                        "&valor=${pedido.total}" +
+                                        "&email=${pedido.email}" +
+                                        "&cpf=${pedido.cpfNota}" +
+                                        "&empresaId=${pedido.empresaId}" +
+                                        "&clienteId=${pedido.clienteId}" +
+                                        "&pedidoId=${pedido.id}"
+
+
+                                val ref = FirebaseDatabase.getInstance()
+                                    .getReference("pedidos_temporarios")
+                                    .child(pedido.clienteId)
+                                    .child(pedido.id)
+
+                                ref.setValue(pedido)
+
+
+                                val intent = Intent(this, PagamentoCartaoWebActivity::class.java)
+                                intent.putExtra("url_pagamento", url)
+                                intent.putExtra("pedidoTemp", pedido as Parcelable)
                                 startActivity(intent)
                                 finish()
                             }
                             .addOnFailureListener {
                                 Toast.makeText(
                                     this,
-                                    "❌ Erro ao salvar pedido",
-                                    Toast.LENGTH_SHORT
+                                    "Erro ao gerar pagamento: ${it.message}",
+                                    Toast.LENGTH_LONG
                                 ).show()
                             }
-                    }.show(supportFragmentManager, "confirmacaoDialog")
+                    }
+
+
+                    "Dinheiro" -> {
+                        PagamentoDinheiroDialogFragment(pedido) { pedidoFinal ->
+                            salvarPedidoFirebase(pedidoFinal.copy(status = "confirmado"))
+                        }.show(supportFragmentManager, "pagamentoDinheiro")
+                    }
+
+                    else -> {
+                        Toast.makeText(this, "Escolha uma forma de pagamento", Toast.LENGTH_SHORT)
+                            .show()
+                    }
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(
-                    this,
-                    "Erro ao buscar dados do cliente!",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this, "Erro ao buscar dados do cliente!", Toast.LENGTH_SHORT).show()
             }
+    }
+
+
+    private fun salvarPedidoFirebase(pedido: PedidoEntity) {
+        val empresaRef = FirebaseDatabase.getInstance()
+            .getReference("pedidos_confirmados")
+            .child(pedido.empresaId)
+            .child(pedido.id)
+
+        val clienteRef = FirebaseDatabase.getInstance()
+            .getReference("clientes")
+            .child(pedido.clienteId)
+            .child("pedidos")
+            .child(pedido.id)
+
+        empresaRef.setValue(pedido)
+        clienteRef.setValue(pedido).addOnSuccessListener {
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.putExtra("abrir_pedidos", true)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            startActivity(intent)
+            finish()
+        }.addOnFailureListener {
+            Toast.makeText(this, "Erro ao salvar pedido!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun mostrarBottomSheetPagamento() {
-        val bottomSheet = BottomSheetFormaPagamento { formaPagamento, troco ->
-            formaPagamentoSelecionada = formaPagamento
-            trocoPara = troco
-
-            val pagamentoTexto = if (formaPagamento == "Dinheiro" && !troco.isNullOrEmpty()) {
-                "Dinheiro (Troco para R$$troco)"
-            } else {
-                formaPagamento
+        val bottomSheet = BottomSheetFormaPagamento(
+            onPagamentoSelecionado = { forma, troco ->
+                formaPagamentoSelecionada = forma
+                trocoPara = troco
+            },
+            pagamentoCallback = { forma, textoVisivel ->
+                val pagamentoTexto: String =
+                    if (forma == "Dinheiro" && !textoVisivel.isNullOrEmpty()) {
+                        "Dinheiro"
+                    } else {
+                        forma
+                    }
+                binding.txtFormaPagamento.text = pagamentoTexto
             }
-            binding.txtFormaPagamento.text = pagamentoTexto
+        )
+    }
+
+        private fun obterDataHoraAtual(): String {
+            val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+            return sdf.format(Date())
         }
-        bottomSheet.show(supportFragmentManager, bottomSheet.tag)
+
+        private fun calcularSubtotal(): Double {
+            return listaCarrinho.sumOf { it.valor * it.quantidade }
+        }
+
+        private fun calcularDesconto(): Double {
+            return descontoCupom
+        }
+
+        private fun calcularTotalFinal(): Double {
+            return calcularSubtotal() + taxaEntrega - calcularDesconto()
+        }
+
+        private fun confirmarPedidoComPagamentoEmDinheiro(pedido: PedidoEntity) {
+            // Aqui você pode exibir um AlertDialog ou seguir direto com a confirmação
+            AlertDialog.Builder(this)
+                .setTitle("Pagamento em Dinheiro")
+                .setMessage("O pagamento será feito na entrega.\nDeseja confirmar o pedido?")
+                .setPositiveButton("Confirmar") { _, _ ->
+                    executarFluxoConfirmacaoDePedido() // ou uma função dedicada pra salvar o pedido
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
+        }
+
     }
-
-
-    private fun obterDataHoraAtual(): String {
-        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-        return sdf.format(Date())
-    }
-
-    private fun calcularSubtotal(): Double {
-        return listaCarrinho.sumOf { it.valor * it.quantidade }
-    }
-
-    private fun calcularDesconto(): Double {
-        return descontoCupom
-    }
-
-    private fun calcularTotalFinal(): Double {
-        return calcularSubtotal() + taxaEntrega - calcularDesconto()
-    }
-
-}

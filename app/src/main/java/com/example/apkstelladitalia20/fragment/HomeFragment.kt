@@ -31,13 +31,13 @@ import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.activity.AdicionarPizzaTamanhoActivity
 import com.example.apkstelladitalia20.activity.DetalhesProdutoActivity
 import com.example.apkstelladitalia20.activity.DetalhesPromocaoActivity
-import com.example.apkstelladitalia20.activity.HomeActivity
 import com.example.apkstelladitalia20.adapter.CategoriaAdapter
+import com.example.apkstelladitalia20.adapter.CategoriaScrollAdapter
 import com.example.apkstelladitalia20.adapter.DestaquesAdapter
 import com.example.apkstelladitalia20.adapter.PromocaoAdapter
+import com.example.apkstelladitalia20.data.CategoriaScroll
 
 import com.example.apkstelladitalia20.data.PizzaTamanho
-import com.example.apkstelladitalia20.databinding.ActivityAdicionarPizzaTamanhoBinding
 import com.example.apkstelladitalia20.databinding.FragmentHomeBinding
 import com.example.apkstelladitalia20.helper.DepthPageTransformer
 import com.example.apkstelladitalia20.model.CarrinhoViewModel
@@ -53,6 +53,7 @@ import kotlin.jvm.java
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
+    private var listaOrdenada = mutableListOf<Pair<String, List<ProdutoEntity>>>()
     private val binding get() = _binding!!
     private val handler = android.os.Handler()
     private lateinit var autoScrollRunnable: Runnable
@@ -64,7 +65,9 @@ class HomeFragment : Fragment() {
     private lateinit var categoriaAdapter: CategoriaAdapter
     private lateinit var produtoAdapter: ProdutoAdapter
     private val produtosOrdenados = mutableListOf<ProdutoEntity>()
-    private val carrinhoViewModel: CarrinhoViewModel by viewModels()
+
+
+
 
     private val prefs by lazy {
         requireContext().getSharedPreferences("appStella", Context.MODE_PRIVATE)
@@ -86,7 +89,11 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         prefs.edit().putString("uidEmpresa", "7a3118oNdgcpmwSqrgyRTqBnFFx2").apply()
 
+        setupCategoryScroll()
 
+        carregarProdutosOrdenados {
+            carregarProdutosPorCategoria()
+        }
 
         carregarConfiguracoes()
         setupPizzaTamanhos()
@@ -94,12 +101,13 @@ class HomeFragment : Fragment() {
         setupAdapters()
         carregarSaudacao()
         carregarEnderecoCliente()
-        carregarProdutosOrdenados {
-            carregarProdutosPorCategoria()
+
+        if (prefs.getString("endereco", "").isNullOrBlank()) {
+            abrirDialogEndereco()
         }
+
         carregarPromocao()
         carregarDestaques()
-        setupCategoryScroll()
         startAutoScroll()
 
 
@@ -176,6 +184,24 @@ class HomeFragment : Fragment() {
             }
         }
 
+        binding.recyclerCategorias.layoutManager = LinearLayoutManager(requireContext(),
+          LinearLayoutManager.HORIZONTAL, false)
+
+
+        val listaCategorias = listOf(
+            CategoriaScroll(nome = "Pizza Tradicional", iconeResId = R.drawable.ic_pizza),
+            CategoriaScroll(nome = "Pizza Especial", iconeResId = R.drawable.ic_pizza_especial),
+            CategoriaScroll(nome = "Pizza Premium", iconeResId = R.drawable.ic_pizza_premium),
+            CategoriaScroll(nome = "Pizza Vegetariana", iconeResId = R.drawable.ic_pizza_veg),
+            CategoriaScroll(nome = "Pizza Doce", iconeResId = R.drawable.ic_sobremesas),
+            CategoriaScroll(nome = "Porções", iconeResId = R.drawable.ic_porcoes),
+            CategoriaScroll(nome = "Combos", iconeResId = R.drawable.ic_combos),
+            CategoriaScroll(nome = "Bebidas", iconeResId = R.drawable.ic_bebidas),
+            CategoriaScroll(nome = "Bebidas sem álcool", iconeResId = R.drawable.ic_bebidas_sem)
+        )
+
+
+
         binding.recyclerProdutos.layoutManager =
             LinearLayoutManager(requireContext())
         categoriaAdapter = CategoriaAdapter(requireContext()) { produtoSelecionado ->
@@ -183,8 +209,8 @@ class HomeFragment : Fragment() {
             intent.putExtra("produtoId", produtoSelecionado.id)
             intent.putExtra("tipoProduto", produtoSelecionado.categoria?.lowercase() ?: "")
             startActivity(intent)
-
         }
+
 
         binding.recyclerProdutos.adapter = categoriaAdapter
 
@@ -243,11 +269,8 @@ class HomeFragment : Fragment() {
 
 
         binding.recyclerProdutos.layoutManager = LinearLayoutManager(requireContext())
-        categoriaAdapter = CategoriaAdapter(requireContext()) { produtoSelecionado ->
-            val intent = Intent(requireContext(), DetalhesProdutoActivity::class.java)
-            intent.putExtra("produtoId", produtoSelecionado.id)
-            startActivity(intent)
-        }
+        val layoutManager = binding.recyclerProdutos.layoutManager as LinearLayoutManager
+
 
         binding.recyclerProdutos.adapter = categoriaAdapter
 
@@ -355,21 +378,20 @@ class HomeFragment : Fragment() {
                         if (produto != null && !produto.nome.isNullOrBlank()) {
                             val categoriaOriginal = produto.categoria?.trim()?.lowercase() ?: continue
 
-                            // Ignora produtos genéricos que não devem aparecer no cardápio
                             val ignorar = listOf("água", "coca", "refrigerante")
                             if (ignorar.any { categoriaOriginal.contains(it) }) continue
 
-                            val categoria = when {
-                                categoriaOriginal.contains("doce") -> "Pizza Doce"
-                                categoriaOriginal.contains("vegetariana") -> "Pizza Vegetariana"
-                                categoriaOriginal.contains("premium") -> "Pizza Premium"
-                                categoriaOriginal.contains("especial") -> "Pizza Especial"
-                                categoriaOriginal.contains("tradicional") -> "Pizza Tradicional"
-                                categoriaOriginal.contains("porção") -> "Porções"
-                                categoriaOriginal.contains("sem álcool") -> "Bebidas sem álcool"
-                                categoriaOriginal.contains("com álcool") -> "Bebidas com álcool"
-                                categoriaOriginal.contains("bebida") -> "Bebidas"
-                                else -> continue // <- evita que "Outros" apareça
+                            val categoria = when (categoriaOriginal) {
+                                "pizza doce", "doce", "pizza doce 🍫" -> "Pizza Doce"
+                                "pizza vegetariana", "vegetariana" -> "Pizza Vegetariana"
+                                "pizza premium", "premium" -> "Pizza Premium"
+                                "pizza especial", "especial" -> "Pizza Especial"
+                                "pizza tradicional", "tradicional" -> "Pizza Tradicional"
+                                "porções", "porcao", "porção" -> "Porções"
+                                "bebidas sem álcool", "sem álcool" -> "Bebidas sem álcool"
+                                "bebidas com álcool", "com álcool" -> "Bebidas com álcool"
+                                "bebidas", "bebida" -> "Bebidas"
+                                else -> categoriaOriginal.replaceFirstChar { it.uppercase() } // ao menos mantém algo visível
                             }
 
                             Log.d("🔥 PRODUTO", "Carregado: ${produto.nome} | Categoria: $categoria")
@@ -386,24 +408,25 @@ class HomeFragment : Fragment() {
                     "Bebidas sem álcool", "Bebidas com álcool", "Bebidas"
                 )
 
-                val listaOrdenada = mutableListOf<Pair<String, List<ProdutoEntity>>>()
+
+                listaOrdenada.clear()
 
                 for (categoria in ordemDesejada) {
                     mapaCategorias[categoria]?.let {
                         listaOrdenada.add(categoria to it)
                     }
                 }
-
                 categoriaAdapter.atualizarLista(listaOrdenada)
                 binding.recyclerProdutos.adapter = categoriaAdapter
                 binding.recyclerProdutos.visibility = View.VISIBLE
+                (binding.recyclerCategorias.adapter as? CategoriaScrollAdapter)?.atualizarLista(listaOrdenada)
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("HomeFragment", "Erro ao carregar categorias: ${error.message}")
             }
         })
-      }
+    }
 
 
     private fun carregarSaudacao() {
@@ -649,26 +672,27 @@ class HomeFragment : Fragment() {
     }
 
     private fun setupCategoryScroll() {
-        binding.categoriaPizza.setOnClickListener {
-            scrollToCategoria("Pizza Tradicional")
+        val listaCategorias = listOf(
+            CategoriaScroll(nome = "Pizza Tradicional", iconeResId = R.drawable.ic_pizza),
+            CategoriaScroll(nome = "Pizza Especial", iconeResId = R.drawable.ic_pizza_especial),
+            CategoriaScroll(nome = "Pizza Premium", iconeResId = R.drawable.ic_pizza_premium),
+            CategoriaScroll(nome = "Pizza Vegetariana", iconeResId = R.drawable.ic_pizza_veg),
+            CategoriaScroll(nome = "Pizza Doce", iconeResId = R.drawable.ic_sobremesas),
+            CategoriaScroll(nome = "Porções", iconeResId = R.drawable.ic_porcoes),
+            CategoriaScroll(nome = "Combos", iconeResId = R.drawable.ic_combos),
+            CategoriaScroll(nome = "Bebidas", iconeResId = R.drawable.ic_bebidas),
+            CategoriaScroll(nome = "Bebidas sem álcool", iconeResId = R.drawable.ic_bebidas_sem)
+        )
+
+        val scrollAdapter = CategoriaScrollAdapter(listaCategorias) { categoria ->
+            scrollToCategoria(categoria.nome)
         }
 
-        binding.categoriaMassas.setOnClickListener {
-            scrollToCategoria("Pizza Premium")
-        }
-
-        binding.categoriaBebidas.setOnClickListener {
-            scrollToCategoria("Bebidas sem álcool")
-        }
-
-        binding.categoriaSobremesas.setOnClickListener {
-            scrollToCategoria("Pizza Doce")
-        }
-
-        binding.tvEndereco.setOnClickListener {
-            abrirDialogEndereco()
-        }
+        binding.recyclerCategorias.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclerCategorias.adapter = scrollAdapter
     }
+
 
     private fun setupPizzaTamanhos() {
         val lista = listOf(
@@ -709,13 +733,45 @@ class HomeFragment : Fragment() {
     }
 
     private fun scrollToCategoria(nome: String) {
-        val index = categoriaAdapter.getPosicaoCategoria(nome)
+        val nomePadronizado = when (nome.lowercase()) {
+            "bebidas com álcool", "bebidas sem álcool" -> "Bebidas"
+            else -> nome
+        }
+
+        val index = listaOrdenada.indexOfFirst { it.first.equals(nomePadronizado, ignoreCase = true) }
+
         if (index != -1) {
-            binding.recyclerProdutos.smoothScrollToPosition(index)
+            binding.recyclerProdutos.post {
+                val viewHolder = binding.recyclerProdutos.findViewHolderForAdapterPosition(index)
+                if (viewHolder != null) {
+                    val itemView = viewHolder.itemView
+                    val offset = 120 // altura extra para compensar cabeçalhos (ajuste esse valor conforme layout)
+                    val y = itemView.top + binding.recyclerProdutos.top - offset
+                    binding.nestedScroll.smoothScrollTo(0, y)
+                } else {
+                    // tenta novamente com delay caso não esteja inflado ainda
+                    binding.recyclerProdutos.scrollToPosition(index)
+                    binding.recyclerProdutos.postDelayed({
+                        val vh = binding.recyclerProdutos.findViewHolderForAdapterPosition(index)
+                        vh?.itemView?.let { itemView ->
+                            val offset = 120
+                            val y = itemView.top + binding.recyclerProdutos.top - offset
+                            binding.nestedScroll.smoothScrollTo(0, y)
+                        }
+                    }, 200)
+                }
+            }
         } else {
-            Toast.makeText(requireContext(), "Categoria não encontrada", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Categoria \"$nomePadronizado\" não encontrada no momento",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
+
+
+
 
     @SuppressLint("MissingPermission")
     private fun configurarEnderecoPorGps() {

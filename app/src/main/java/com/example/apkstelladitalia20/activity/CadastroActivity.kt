@@ -28,7 +28,7 @@ class CadastroActivity : AppCompatActivity() {
 
         binding.btnCadastrar.setOnClickListener {
             val nome = binding.editNome.text?.toString()?.trim() ?: ""
-            val emailInput = binding.editEmail.text.toString()
+            val emailInput = binding.editEmail.text.toString().trim().lowercase()
             Log.d("BINDING", "Email lido: $emailInput")
             val senha = binding.editSenha.text?.toString()?.trim() ?: ""
             val confirmarSenha = binding.editConfirmarSenha.text?.toString()?.trim() ?: ""
@@ -51,26 +51,22 @@ class CadastroActivity : AppCompatActivity() {
         var senhaVisivel = false
         binding.btnToggleSenha.setOnClickListener {
             senhaVisivel = !senhaVisivel
-            if (senhaVisivel) {
-                binding.editSenha.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                binding.btnToggleSenha.setImageResource(R.drawable.ic_eye_open)
-            } else {
-                binding.editSenha.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                binding.btnToggleSenha.setImageResource(R.drawable.ic_eye_closed)
-            }
+            binding.editSenha.inputType = if (senhaVisivel)
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            else
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            binding.btnToggleSenha.setImageResource(if (senhaVisivel) R.drawable.ic_eye_open else R.drawable.ic_eye_closed)
             binding.editSenha.setSelection(binding.editSenha.text.length)
         }
 
         var confirmarSenhaVisivel = false
         binding.btnToggleConfirmarSenha.setOnClickListener {
             confirmarSenhaVisivel = !confirmarSenhaVisivel
-            if (confirmarSenhaVisivel) {
-                binding.editConfirmarSenha.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-                binding.btnToggleConfirmarSenha.setImageResource(R.drawable.ic_eye_open)
-            } else {
-                binding.editConfirmarSenha.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                binding.btnToggleConfirmarSenha.setImageResource(R.drawable.ic_eye_closed)
-            }
+            binding.editConfirmarSenha.inputType = if (confirmarSenhaVisivel)
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            else
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            binding.btnToggleConfirmarSenha.setImageResource(if (confirmarSenhaVisivel) R.drawable.ic_eye_open else R.drawable.ic_eye_closed)
             binding.editConfirmarSenha.setSelection(binding.editConfirmarSenha.text.length)
         }
     }
@@ -105,11 +101,12 @@ class CadastroActivity : AppCompatActivity() {
                                 if (task.isSuccessful) {
                                     Log.d("Cadastro", "DisplayName atualizado com sucesso: ${user.displayName}")
 
-                                    // ✅ Somente aqui segue para próxima tela:
                                     val prefs = getSharedPreferences("appStella", MODE_PRIVATE)
                                     prefs.edit()
                                         .putString("uidCliente", uid)
                                         .putString("nome", nome)
+                                        .putString("emailCliente", emailFinal)
+                                        .putString("senhaCliente", senha)
                                         .apply()
 
                                     Toast.makeText(this, "Cadastro realizado com sucesso!", Toast.LENGTH_SHORT).show()

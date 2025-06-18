@@ -58,8 +58,6 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
 
 
-
-
     // AndroidX
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -80,22 +78,18 @@ dependencies {
     implementation(libs.gson)
 
 
-
-
-
-
     // Room
     implementation("androidx.room:room-runtime:2.7.0")
     implementation("androidx.room:room-ktx:2.7.0")
     kapt("androidx.room:room-compiler:2.7.0")
     implementation("com.google.firebase:firebase-functions-ktx:20.3.1")
-    implementation ("com.google.android.gms:play-services-maps:18.2.0")
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
-    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
-    implementation ("androidx.security:security-crypto:1.1.0-alpha03")
-    implementation ("com.mercadopago.android.px:checkout:4.53.2")
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("androidx.security:security-crypto:1.1.0-alpha03")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("androidx.browser:browser:1.6.0")
 
     // Testes
     testImplementation(libs.junit)
@@ -106,3 +100,5 @@ dependencies {
 
     kapt(libs.compiler)
 }
+
+apply(plugin = "com.google.gms.google-services")

@@ -187,138 +187,17 @@
         </FrameLayout>
         <!-- Horizontal categorias redondas -->
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCategorias"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:nestedScrollingEnabled="false" />
-
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:overScrollMode="never"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:scrollbars="none">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerCategorias"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                tools:listitem="@layout/item_categoria_scroll" />
 
-                <!-- Categoria Pizza -->
-                <LinearLayout
-                    android:id="@+id/categoriaPizza"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:gravity="center"
-                    android:onClick="scrollToPizza"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_categoria_circle"
-                        android:padding="16dp"
-                        android:src="@drawable/ic_pizza" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Pizzas"
-                        android:textColor="@android:color/black"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <!-- Categoria Massas -->
-                <LinearLayout
-                    android:id="@+id/categoriaMassas"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:gravity="center"
-                    android:onClick="scrollToMassas"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_categoria_circle"
-                        android:padding="16dp"
-                        android:src="@drawable/ic_massas" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Massas"
-                        android:textColor="@android:color/black"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <!-- Categoria Bebidas -->
-                <LinearLayout
-                    android:id="@+id/categoriaBebidas"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:gravity="center"
-                    android:onClick="scrollToBebidas"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_categoria_circle"
-                        android:padding="16dp"
-                        android:src="@drawable/ic_bebidas" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Bebidas"
-                        android:textColor="@android:color/black"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <!-- Categoria Sobremesas -->
-                <LinearLayout
-                    android:id="@+id/categoriaSobremesas"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="16dp"
-                    android:gravity="center"
-                    android:onClick="scrollToSobremesas"
-                    android:orientation="vertical">
-
-                    <ImageView
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:background="@drawable/bg_categoria_circle"
-                        android:padding="16dp"
-                        android:src="@drawable/ic_sobremesas" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Sobremesas"
-                        android:textColor="@android:color/black"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-            </LinearLayout>
-        </HorizontalScrollView>
-
-        <!-- Destaques da Casa -->
+            <!-- Destaques da Casa -->
         <TextView
             android:id="@+id/tvDestaques"
             android:layout_width="wrap_content"

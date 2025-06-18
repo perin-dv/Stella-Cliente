@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Conectando...</title>
+</head>
+<body>
+  <h2>Conectando sua conta do Mercado Pago...</h2>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get("code");
+    const state = urlParams.get("state");
+
+    fetch("https://us-central1-stella-d-italia.cloudfunctions.net/concluirConexaoMP", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, state })
+    })
+    .then(res => res.json())
+    .then(data => {
+      document.body.innerHTML = "<h2>Conta conectada com sucesso!</h2>";
+    })
+    .catch(() => {
+      document.body.innerHTML = "<h2>Erro ao conectar conta.</h2>";
+    });
+  </script>

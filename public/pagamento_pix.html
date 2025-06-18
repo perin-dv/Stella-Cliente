@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Pagamento via Pix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+          margin: 0;
+          padding: 20px;
+          font-family: "Segoe UI", sans-serif;
+          background-color: #121212;
+          color: #fff;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        h1 {
+          font-size: 20px;
+          margin-bottom: 16px;
+        }
+
+        #qrcode {
+          width: 240px;
+          height: 240px;
+          border-radius: 12px;
+          margin-bottom: 16px;
+          border: 2px solid #333;
+          background-color: #fff;
+        }
+
+        #codigoPix {
+          font-size: 14px;
+          word-break: break-word;
+          text-align: center;
+          background-color: #1f1f1f;
+          padding: 12px;
+          border-radius: 8px;
+          margin-bottom: 12px;
+          width: 90%;
+        }
+
+        button {
+          background-color: #f22e2e;
+          color: white;
+          border: none;
+          padding: 12px 20px;
+          font-size: 14px;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+
+        .info {
+          font-size: 13px;
+          color: #bbb;
+          margin-top: 16px;
+          text-align: center;
+          padding: 0 16px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Escaneie o QR Code</h1>
+<img id="qrcode" src="" alt="QR Code Pix" />
+<div id="codigoPix">Carregando código Pix...</div>
+<button onclick="copiarCodigo()">Copiar código Pix</button>
+<div class="info">Aguardando confirmação automática do pagamento...</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const qrBase64 = urlParams.get("qr_base64");
+    const codigo = urlParams.get("qr_string");
+
+    if (qrBase64 && codigo) {
+      document.getElementById("qrcode").src = "data:image/png;base64," + qrBase64;
+      document.getElementById("codigoPix").innerText = codigo;
+    } else {
+      document.getElementById("codigoPix").innerText = "❌ Dados inválidos. Tente novamente.";
+    }
+
+    function copiarCodigo() {
+      navigator.clipboard.writeText(codigo).then(() => {
+        alert("✅ Código Pix copiado!");
+      });
+    }
+</script>
+
+</body>
+</html>

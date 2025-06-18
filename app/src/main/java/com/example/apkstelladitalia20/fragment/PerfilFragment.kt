@@ -13,10 +13,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.apkstelladitalia20.R
 import com.example.apkstelladitalia20.activity.AjudaActivity
 import com.example.apkstelladitalia20.activity.ConfiguracoesActivity
+import com.example.apkstelladitalia20.activity.ConversasActivity
 import com.example.apkstelladitalia20.activity.CuponsActivity
+import com.example.apkstelladitalia20.activity.DadosContaActivity
 import com.example.apkstelladitalia20.activity.EnderecoActivity
 import com.example.apkstelladitalia20.activity.LeitorQrCodeActivity
-import com.example.apkstelladitalia20.activity.PagamentoActivity
 import com.example.apkstelladitalia20.activity.SegurancaActivity
 import com.example.apkstelladitalia20.adpter.OpcaoPerfilAdapter
 import com.example.apkstelladitalia20.data.OpcaoPerfil
@@ -37,7 +38,6 @@ class PerfilFragment : Fragment() {
     private val opcoes = listOf(
         OpcaoPerfil("Conversas", R.drawable.ic_conversas) { abrirConversas() },
         OpcaoPerfil("Dados da Conta", R.drawable.ic_dados_conta) { abrirConta() },
-        OpcaoPerfil("Pagamentos", R.drawable.ic_pagamentos) { abrirPagamentos() },
         OpcaoPerfil("Cupons", R.drawable.ic_cupons) { abrirCupons() },
         OpcaoPerfil("Endereços", R.drawable.ic_enderecos) { abrirEnderecos() },
         OpcaoPerfil("Ajuda", R.drawable.ic_ajuda) { abrirAjuda() },
@@ -100,10 +100,11 @@ class PerfilFragment : Fragment() {
     }
 
 
-    private fun abrirConversas() {}
-    private fun abrirConta() {}
-    private fun abrirPagamentos() {
-        startActivity(Intent(requireContext(), PagamentoActivity::class.java))
+    private fun abrirConversas() {
+        startActivity(Intent(requireContext(), ConversasActivity::class.java))
+    }
+    private fun abrirConta() {
+        startActivity(Intent(requireContext(), DadosContaActivity::class.java))
     }
     private fun abrirCupons() {
         startActivity(Intent(requireContext(), CuponsActivity::class.java))
