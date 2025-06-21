@@ -34,6 +34,7 @@
             android:background="@drawable/bg_button_red"
             android:textColor="@android:color/black" />
 
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnPagarEntrega"
             style="@android:style/Widget.Button"
@@ -150,48 +151,32 @@
 
     <!-- Dinheiro (Visível apenas quando Pagar Entrega) -->
     <LinearLayout
-        android:id="@+id/layoutDinheiro"
+        android:id="@+id/btnDinheiro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone"
-        android:paddingTop="24dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_option_selector"
+        android:clickable="true"
+        android:focusable="true">
 
-        <LinearLayout
-            android:id="@+id/btnDinheiro"
-            android:layout_width="match_parent"
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_money"
+            android:contentDescription="Dinheiro" />
+
+        <TextView
+            android:id="@+id/txtDinheiro"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="12dp"
-            android:background="@drawable/bg_option_selector"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@drawable/ic_money"
-                android:contentDescription="Dinheiro" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dinheiro"
-                android:paddingStart="16dp"
-                android:textColor="@color/black"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <EditText
-            android:id="@+id/editTroco"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Troco para quanto?"
-            android:inputType="numberDecimal"
-            android:background="@drawable/bg_edittext"
-            android:padding="12dp"
-            android:layout_marginTop="8dp" />
+            android:text="Dinheiro"
+            android:paddingStart="16dp"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
     </LinearLayout>
+
 
 </LinearLayout>

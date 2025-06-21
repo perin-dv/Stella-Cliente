@@ -24,6 +24,7 @@ class ResumoPedidoPromocaoActivity : AppCompatActivity(), ResumoPedidoPromocaoAd
     private var formaPagamentoSelecionada: String? = null
     private var trocoPara: String? = null
     private lateinit var resumoAdapter: ResumoPedidoPromocaoAdapter
+    private var tipoPagamentoSelecionado: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +32,7 @@ class ResumoPedidoPromocaoActivity : AppCompatActivity(), ResumoPedidoPromocaoAd
         setContentView(binding.root)
 
         setupToolbar(binding.includeToolbar)
+        mostrarBottomSheetPagamento()
         setupListeners()
         setupRecyclerResumo()
         carregarResumoValores()
@@ -131,20 +133,22 @@ class ResumoPedidoPromocaoActivity : AppCompatActivity(), ResumoPedidoPromocaoAd
 
     private fun mostrarBottomSheetPagamento() {
         val bottomSheet = BottomSheetFormaPagamento(
-            onPagamentoSelecionado = { forma, troco ->
+            onPagamentoSelecionado = { forma, troco,tipo ->
                 formaPagamentoSelecionada = forma
                 trocoPara = troco
+                tipoPagamentoSelecionado = tipo
             },
-            pagamentoCallback = { forma, textoVisivel ->
-                val pagamentoTexto: String =
-                    if (forma == "Dinheiro" && !textoVisivel.isNullOrEmpty()) {
-                        "Dinheiro"
-                    } else {
-                        forma
-                    }
-                binding.txtFormaPagamento.text = pagamentoTexto
+            pagamentoCallback = { forma, _ ->
+                binding.txtFormaPagamento.text = when (forma) {
+                    "Dinheiro" -> "💵 Dinheiro"
+                    "Pix" -> "⚡ Pix"
+                    "Cartão de Crédito" -> "💳 Cartão de Crédito"
+                    "Cartão de Débito" -> "🏧 Cartão de Débito"
+                    else -> "Forma de pagamento"
+                }
             }
         )
+        bottomSheet.show(supportFragmentManager, "BottomSheetFormaPagamento")
     }
 
     override fun onResumoAtualizado() {

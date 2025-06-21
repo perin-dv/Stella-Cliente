@@ -54,6 +54,7 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
     private var formaPagamentoSelecionada: String? = null
     private var trocoPara: String? = null
     private lateinit var prefs: SharedPreferences
+    private var tipoPagamentoSelecionado: String = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,6 +79,8 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
         setupListeners()
         carregarTaxaEntregaFirebase()
         mostrarBottomSheetPagamento()
+
+        binding.txtFormaPagamento.text = "Selecione a forma de pagamento"
 
         pedido = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra("pedidoTemp", PedidoEntity::class.java)
@@ -122,13 +125,19 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
 
         binding.txtTrocarPagamento.setOnClickListener {
             BottomSheetFormaPagamento(
-                onPagamentoSelecionado = { forma, troco ->
+                onPagamentoSelecionado = { forma, troco,tipo ->
                     formaPagamentoSelecionada = forma
                     trocoPara = troco
+                    tipoPagamentoSelecionado = tipo
                 },
                 pagamentoCallback = { forma, textoVisivel ->
-                    binding.txtFormaPagamento.text = textoVisivel
+                    val texto = when (forma) {
+                        "Dinheiro" -> "Dinheiro"
+                        else -> forma
+                    }
+                    binding.txtFormaPagamento.text = texto
                 }
+
             ).show(supportFragmentManager, "BottomSheetFormaPagamento")
         }
 
@@ -368,65 +377,76 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
                     }
 
                     "Cartão de Crédito", "Cartão de Débito" -> {
-                        val functions = Firebase.functions("us-central1")
+                        if (tipoPagamentoSelecionado == "Entrega") {
+                            val formaFinal = when (formaPagamentoSelecionada) {
+                                "Cartão de Crédito" -> "Cartão de Crédito (entrega)"
+                                "Cartão de Débito" -> "Cartão de Débito (entrega)"
+                                else -> formaPagamentoSelecionada ?: "Entrega"
+                            }
 
-                        val data = mapOf(
-                            "idEmpresa" to pedido.empresaId,
-                            "nomeCliente" to pedido.nomeCliente,
-                            "telefoneCliente" to pedido.telefoneCliente,
-                            "enderecoEntrega" to pedido.enderecoEntrega,
-                            "valorTotal" to pedido.total.toString(),
-                            "pedidoId" to pedido.id,
-                            "email" to pedido.email
-                        )
+                            salvarPedidoFirebase(
+                                pedido.copy(
+                                    status = "confirmado",
+                                    formaPagamento = formaFinal
+                                )
+                            )
+                        }
+                        else {
+                            // PAGAMENTO PELO APP – SEGUE COM WEBVIEW
+                            val functions = Firebase.functions("us-central1")
 
-                        functions
-                            .getHttpsCallable("gerarCheckoutPagamento")
-                            .call(data)
-                            .addOnSuccessListener { result ->
-                                val preferenceId = (result.data as Map<*, *>)["id"] as? String
+                            val data = mapOf(
+                                "idEmpresa" to pedido.empresaId,
+                                "nomeCliente" to pedido.nomeCliente,
+                                "telefoneCliente" to pedido.telefoneCliente,
+                                "enderecoEntrega" to pedido.enderecoEntrega,
+                                "valorTotal" to pedido.total.toString(),
+                                "pedidoId" to pedido.id,
+                                "email" to pedido.email
+                            )
 
-                                if (preferenceId.isNullOrEmpty()) {
-                                    Toast.makeText(
-                                        this,
-                                        "Erro: preferenceId não encontrado",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    return@addOnSuccessListener
+                            functions
+                                .getHttpsCallable("gerarCheckoutPagamento")
+                                .call(data)
+                                .addOnSuccessListener { result ->
+                                    val preferenceId = (result.data as Map<*, *>)["id"] as? String
+
+                                    if (preferenceId.isNullOrEmpty()) {
+                                        Toast.makeText(this, "Erro: preferenceId não encontrado", Toast.LENGTH_SHORT).show()
+                                        return@addOnSuccessListener
+                                    }
+
+                                    val url = "https://stella-d-italia.web.app/pagamento_cartao.html" +
+                                            "?preference_id=$preferenceId" +
+                                            "&valor=${pedido.total}" +
+                                            "&email=${pedido.email}" +
+                                            "&cpf=${pedido.cpfNota}" +
+                                            "&empresaId=${pedido.empresaId}" +
+                                            "&clienteId=${pedido.clienteId}" +
+                                            "&pedidoId=${pedido.id}"
+                                    Log.d("URL_PAGAMENTO", url)
+
+                                    val ref = FirebaseDatabase.getInstance()
+                                        .getReference("pedidos_temporarios")
+                                        .child(pedido.clienteId)
+                                        .child(pedido.id)
+
+                                    ref.setValue(pedido)
+
+
+                                    val intent = Intent(this, PagamentoCartaoWebActivity::class.java)
+                                    intent.putExtra("url_pagamento", url)
+                                    intent.putExtra("pedidoTemp", pedido as Parcelable)
+                                    startActivity(intent)
+                                    finish()
                                 }
-
-                                val url = "https://stella-d-italia.web.app/pagamento_cartao.html" +
-                                        "?preference_id=$preferenceId" +
-                                        "&valor=${pedido.total}" +
-                                        "&email=${pedido.email}" +
-                                        "&cpf=${pedido.cpfNota}" +
-                                        "&empresaId=${pedido.empresaId}" +
-                                        "&clienteId=${pedido.clienteId}" +
-                                        "&pedidoId=${pedido.id}"
-
-
-                                val ref = FirebaseDatabase.getInstance()
-                                    .getReference("pedidos_temporarios")
-                                    .child(pedido.clienteId)
-                                    .child(pedido.id)
-
-                                ref.setValue(pedido)
-
-
-                                val intent = Intent(this, PagamentoCartaoWebActivity::class.java)
-                                intent.putExtra("url_pagamento", url)
-                                intent.putExtra("pedidoTemp", pedido as Parcelable)
-                                startActivity(intent)
-                                finish()
-                            }
-                            .addOnFailureListener {
-                                Toast.makeText(
-                                    this,
-                                    "Erro ao gerar pagamento: ${it.message}",
-                                    Toast.LENGTH_LONG
-                                ).show()
-                            }
+                                .addOnFailureListener {
+                                    Toast.makeText(this, "Erro ao gerar pagamento: ${it.message}", Toast.LENGTH_LONG).show()
+                                }
+                        }
                     }
+
+
 
 
                     "Dinheiro" -> {
@@ -461,11 +481,15 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
 
         empresaRef.setValue(pedido)
         clienteRef.setValue(pedido).addOnSuccessListener {
+
+
+            viewModel.limparCarrinho()
             val intent = Intent(this, HomeActivity::class.java)
             intent.putExtra("abrir_pedidos", true)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             startActivity(intent)
             finish()
+
         }.addOnFailureListener {
             Toast.makeText(this, "Erro ao salvar pedido!", Toast.LENGTH_SHORT).show()
         }
@@ -473,23 +497,27 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
 
     private fun mostrarBottomSheetPagamento() {
         val bottomSheet = BottomSheetFormaPagamento(
-            onPagamentoSelecionado = { forma, troco ->
+            onPagamentoSelecionado = { forma, troco,tipo  ->
                 formaPagamentoSelecionada = forma
                 trocoPara = troco
+                tipoPagamentoSelecionado = tipo
             },
-            pagamentoCallback = { forma, textoVisivel ->
-                val pagamentoTexto: String =
-                    if (forma == "Dinheiro" && !textoVisivel.isNullOrEmpty()) {
-                        "Dinheiro"
-                    } else {
-                        forma
-                    }
-                binding.txtFormaPagamento.text = pagamentoTexto
+            pagamentoCallback = { forma, _ ->
+                binding.txtFormaPagamento.text = when (forma) {
+                    "Dinheiro" -> "💵 Dinheiro"
+                    "Pix" -> "⚡ Pix"
+                    "Cartão de Crédito" -> "💳 Cartão de Crédito"
+                    "Cartão de Débito" -> "🏧 Cartão de Débito"
+                    else -> "Forma de pagamento"
+                }
             }
         )
+        bottomSheet.show(supportFragmentManager, "BottomSheetFormaPagamento")
     }
 
-        private fun obterDataHoraAtual(): String {
+
+
+    private fun obterDataHoraAtual(): String {
             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             return sdf.format(Date())
         }
@@ -506,16 +534,6 @@ class ResumoPedidoProdutoActivity : AppCompatActivity() {
             return calcularSubtotal() + taxaEntrega - calcularDesconto()
         }
 
-        private fun confirmarPedidoComPagamentoEmDinheiro(pedido: PedidoEntity) {
-            // Aqui você pode exibir um AlertDialog ou seguir direto com a confirmação
-            AlertDialog.Builder(this)
-                .setTitle("Pagamento em Dinheiro")
-                .setMessage("O pagamento será feito na entrega.\nDeseja confirmar o pedido?")
-                .setPositiveButton("Confirmar") { _, _ ->
-                    executarFluxoConfirmacaoDePedido() // ou uma função dedicada pra salvar o pedido
-                }
-                .setNegativeButton("Cancelar", null)
-                .show()
-        }
+
 
     }
