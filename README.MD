@@ -1,12 +1,14 @@
-# Stella D'Italia - App Cliente
+# Stella D'Italia — App Cliente
 
-![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
-![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+Aplicativo Android nativo voltado para a experiência de compra do cliente da Stella D'Italia, com fluxo de catálogo, produto, carrinho, pedidos e perfil.
 
-Aplicativo Android para clientes da pizzaria Stella D'Italia, com fluxo de cardapio, pedidos, carrinho, perfil e recursos de atendimento ao usuario.
+![Android](https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF?style=flat-square&logo=kotlin&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat-square&logo=firebase&logoColor=black)
 
-O projeto foi desenvolvido em Kotlin e Android nativo, usando Firebase para autenticacao/dados, bibliotecas AndroidX e uma interface focada em compra e acompanhamento de pedidos.
+## Visão geral
+
+O projeto foi desenvolvido em **Kotlin + Android nativo**, com integração ao ecossistema Firebase e uma interface focada em navegação simples, descoberta de produtos e acompanhamento da jornada de compra.
 
 ## Screenshots
 
@@ -15,43 +17,43 @@ O projeto foi desenvolvido em Kotlin e Android nativo, usando Firebase para aute
 | ![Tela 1](docs/screenshots/screen-01.png) | ![Tela 2](docs/screenshots/screen-02.png) | ![Tela 3](docs/screenshots/screen-03.png) |
 | ![Tela 4](docs/screenshots/screen-04.png) | ![Tela 5](docs/screenshots/screen-05.png) | ![Tela 6](docs/screenshots/screen-06.png) |
 
-## Funcionalidades
+## Principais recursos
 
-- Login e cadastro de cliente.
-- Cardapio com produtos da pizzaria.
-- Carrinho e fluxo de pedido.
-- Perfil do usuario.
-- Integracao com Firebase.
-- Recursos de localizacao, mapas e imagens.
+- autenticação e cadastro de cliente;
+- catálogo/cardápio de produtos;
+- detalhe de produto;
+- carrinho e fluxo de pedido;
+- perfil do usuário;
+- integração com Firebase;
+- recursos de localização, mapas e imagens;
+- persistência local e comunicação com serviços externos.
 
 ## Tecnologias
 
 - Kotlin
-- Android Views/XML
+- Android Views / XML
 - ViewBinding
-- Firebase Auth
+- Firebase Authentication
 - Firebase Realtime Database
 - Cloud Firestore
 - Firebase Storage
 - Firebase Functions
 - Room
 - Retrofit
-- Glide e Picasso
-- Google Maps e Location Services
-- ZXing para leitura de codigo
+- Glide / Picasso
+- Google Maps / Location Services
+- ZXing
 
-## Como executar
+## Executar localmente
 
-### Pre-requisitos
+### Pré-requisitos
 
 - Android Studio
 - JDK 21
-- Projeto Firebase configurado
-
-### Build local
+- projeto Firebase configurado
 
 ```bash
-git clone https://github.com/Crofolt/Stella-Cliente.git
+git clone https://github.com/perin-dv/Stella-Cliente.git
 cd Stella-Cliente
 ./gradlew assembleDebug
 ```
@@ -62,10 +64,14 @@ No Windows:
 .\gradlew.bat assembleDebug
 ```
 
-## Configuracao local
+O arquivo `app/google-services.json` é específico do ambiente Firebase e não deve conter credenciais públicas.
 
-O app usa Firebase e espera o arquivo local `app/google-services.json`, que nao deve ser versionado por seguranca.
+## Projeto relacionado
+
+- [Stella Empresa](https://github.com/perin-dv/Stella-Empresa)
+- [Portfólio de Guilherme Perin](https://guilherme-perin.vercel.app)
 
 ## Autor
 
-Projeto Android do app cliente da Stella D'Italia.
+**Guilherme Perin**  
+Software • IA • Cloud • Automação
